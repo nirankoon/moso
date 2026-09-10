@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUOL Executive Management Portal - Vice President Office</title>
+    <style>
+        :root {
+            --primary: #0b2545;
+            --accent: #d4af37;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 15px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .brand {
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .brand h2 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .brand p {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #e2e8f0;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(212, 175, 55, 0.2);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Header */
+        .top-header {
+            background-color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vp-info-badge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .vp-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            object-fit: cover;
+        }
+
+        .vp-details h3 {
+            font-size: 0.95rem;
+            color: var(--primary);
+        }
+
+        .vp-details p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .time-box {
+            text-align: right;
+            background-color: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .time-box .clock {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .time-box .quarter-tag {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Dynamic View Container */
+        .content-body {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .page-view {
+            display: none;
+        }
+
+        .page-view.active {
+            display: block;
+        }
+
+        /* Components */
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-card {
+            text-align: center;
+        }
+        .metric-card .num {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+        .metric-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Form elements & buttons */
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .btn:hover { background: #163e72; }
+        .btn-gold { background: var(--accent); color: var(--primary); font-weight: bold; }
+        .btn-gold:hover { background: #b8952d; }
+        .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
+
+        /* Tables & Lists */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th { background: #f8fafc; color: var(--text-muted); }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-pending { background: #fef3c7; color: #b45309; }
+        .badge-completed { background: #d1fae5; color: #047857; }
+        .badge-urgent { background: #fee2e2; color: #b91c1c; }
+
+        .chat-box {
+            height: 250px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            overflow-y: auto;
+            background: #f8fafc;
+            margin-bottom: 10px;
+        }
+
+        .chat-msg {
+            background: var(--white);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.82rem;
+        }
+        .chat-msg .author {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.75rem;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <nav class="sidebar">
+        <div class="brand">
+            <h2>NUOL EXECUTIVE</h2>
+            <p>Vice President Dashboard</p>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a class="nav-link active" onclick="switchTab('dashboard')"> Overview</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('approvals')"> Document Approvals</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('notes')"> Daily Notes & Tasks</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('chat')"> Fast Chat / Delegates</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('contacts')"> Directory & Council</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('vacations')"> Holiday Calendar</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="switchTab('settings')"> Profile & System Data</a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="main-container">
+        
+        <!-- HEADER TOP BAR -->
+        <header class="top-header">
+            <div class="vp-info-badge">
+                <img src="https://scholar.googleusercontent.com/citations?view_op=view_photo&user=84hkHH4AAAAJ&citpid=2" alt="Prof. Dr. Phouphet KYOPHILAVONG" class="vp-photo" onerror="this.src='https://via.placeholder.com/50'">
+                <div class="vp-details">
+                    <h3>Prof. Dr. Phouphet KYOPHILAVONG</h3>
+                    <p>Vice President | Portfolio: Academic, Research & International Relations</p>
+                </div>
+            </div>
+            <div class="time-box">
+                <div id="liveClock" class="clock">--:--:--</div>
+                <div id="quarterTag" class="quarter-tag">Q3 2026 | AY 2026-2027</div>
+            </div>
+        </header>
+
+        <!-- CONTENT PANELS -->
+        <div class="content-body">
+            
+            <!-- 1. OVERVIEW DASHBOARD VIEW -->
+            <div id="dashboard" class="page-view active">
+                <div class="grid-4">
+                    <div class="card metric-card">
+                        <div class="label">Pending Signatures</div>
+                        <div class="num" id="metric-pending">3</div>
+                        <div class="label" style="color: var(--danger);">Urgent action required</div>
+                    </div>
+                    <div class="card metric-card">
+                        <div class="label">Active Tasks / Delegation</div>
+                        <div class="num" id="metric-tasks">4</div>
+                        <div class="label">Assigned to Secretary / Deans</div>
+                    </div>
+                    <div class="card metric-card">
+                        <div class="label">Active MOUs & Projects</div>
+                        <div class="num">28</div>
+                        <div class="label" style="color: var(--success);">14 International Partners</div>
+                    </div>
+                    <div class="card metric-card">
+                        <div class="label">Tenure Duration</div>
+                        <div class="num" id="metric-tenure">-- M</div>
+                        <div class="label" id="tenure-sub">In Current Term</div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Quick Approvals Queue <button class="btn btn-sm" onclick="switchTab('approvals')">View All</button></h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>From</th>
+                                    <th>Priority</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-approvals-table">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h3>Today's Executive Schedule</h3>
+                        <ul style="list-style: none; font-size: 0.85rem;">
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+                                <strong>09:00 AM:</strong> University Council Weekly Executive Session
+                            </li>
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+                                <strong>11:30 AM:</strong> MOU Signing Ceremony - Tokyo University Representative
+                            </li>
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+                                <strong>02:30 PM:</strong> Academic Progress Review with Dean of Economics
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. DOCUMENT APPROVALS VIEW -->
+            <div id="approvals" class="page-view">
+                <div class="card">
+                    <h3>Document Approval Desk</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Doc ID</th>
+                                <th>Title</th>
+                                <th>Department / Faculty</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-approvals-table">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. DAILY NOTES & TASK DELEGATION VIEW -->
+            <div id="notes" class="page-view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Personal Daily Note & Checklist</h3>
+                        <input type="text" id="noteInput" placeholder="Add confidential personal note or task...">
+                        <button class="btn btn-gold" onclick="addNote()">Add Note</button>
+                        <div id="noteList" style="margin-top: 15px;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Delegate Task to Secretary / Staff</h3>
+                        <input type="text" id="taskTitle" placeholder="Task description...">
+                        <select id="taskAssignee">
+                            <option value="Ms. Bouavanh (Executive Secretary)">Ms. Bouavanh (Executive Secretary)</option>
+                            <option value="Dr. Khamphou (Dean - Economics)">Dr. Khamphou (Dean - Economics)</option>
+                            <option value="Director of Academic Affairs">Director of Academic Affairs</option>
+                        </select>
+                        <button class="btn" onclick="assignTask()">Assign Task</button>
+                        <div id="taskList" style="margin-top: 15px;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. FAST CHAT / MESSAGING VIEW -->
+            <div id="chat" class="page-view">
+                <div class="card">
+                    <h3>Fast Internal Dispatch Chat</h3>
+                    <div class="chat-box" id="chatBox">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="chatRecipient" style="width: 200px; margin: 0;">
+                            <option value="President Office">President Office</option>
+                            <option value="Secretary Desk">Secretary Desk</option>
+                            <option value="Dean - Engineering">Dean - Engineering</option>
+                        </select>
+                        <input type="text" id="chatInput" placeholder="Type memo or fast instruction..." style="margin: 0;">
+                        <button class="btn btn-gold" onclick="sendChatMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. CONTACTS DIRECTORY VIEW -->
+            <div id="contacts" class="page-view">
+                <div class="card">
+                    <h3>NUOL Leadership & Council Directory</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name / Official Title</th>
+                                <th>Role</th>
+                                <th>Office Location</th>
+                                <th>Direct Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Prof. Dr. Oudom PHONEKHAMPENG</strong></td>
+                                <td>President of NUOL</td>
+                                <td>Central Admin - Dongdok</td>
+                                <td>president@nuol.edu.la</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Associate Prof. Vice President 1</strong></td>
+                                <td>VP - Administration & Finance</td>
+                                <td>Central Admin Bldg 1</td>
+                                <td>vp_admin@nuol.edu.la</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Associate Prof. Vice President 2</strong></td>
+                                <td>VP - Student Affairs & Infrastructure</td>
+                                <td>Central Admin Bldg 2</td>
+                                <td>vp_students@nuol.edu.la</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ms. Bouavanh</strong></td>
+                                <td>Executive Secretary to VP Phouphet</td>
+                                <td>VP Office Suite</td>
+                                <td>sec_phouphet@nuol.edu.la</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. HOLIDAY & VACATION CALENDAR VIEW -->
+            <div id="vacations" class="page-view">
+                <div class="card">
+                    <h3>2026 Lao PDR Official Holidays & University Recess</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Holiday Name / Occasion</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Jan 1, 2026</td><td>International New Year's Day</td><td><span class="badge badge-completed">Passed</span></td></tr>
+                            <tr><td>Mar 8-9, 2026</td><td>International Women's Day</td><td><span class="badge badge-completed">Passed</span></td></tr>
+                            <tr><td>Apr 14-16, 2026</td><td>Lao New Year (Pi Mai Lao)</td><td><span class="badge badge-completed">Passed</span></td></tr>
+                            <tr><td>May 1, 2026</td><td>International Labour Day</td><td><span class="badge badge-completed">Passed</span></td></tr>
+                            <tr><td>Jul 20, 2026</td><td>Lao Women's Union Day</td><td><span class="badge badge-completed">Passed</span></td></tr>
+                            <tr><td>Oct 26, 2026</td><td>End of Buddhist Lent (Boun Ok Phansa)</td><td><span class="badge badge-pending">Upcoming</span></td></tr>
+                            <tr><td>Nov 24, 2026</td><td>That Luang Festival Day</td><td><span class="badge badge-pending">Upcoming</span></td></tr>
+                            <tr><td>Dec 2, 2026</td><td>Lao National Day</td><td><span class="badge badge-pending">Upcoming</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 7. PROFILE & SYSTEM SETTINGS VIEW -->
+            <div id="settings" class="page-view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Profile & Mission Tenure Settings</h3>
+                        <label>Appointment Start Date (Year/Month):</label>
+                        <input type="month" id="tenureStartDate" value="2021-11">
+                        
+                        <label>Position Term Limit (Years):</label>
+                        <input type="number" id="tenureYears" value="5">
+
+                        <button class="btn btn-gold" onclick="saveProfileSettings()">Update Tenure Data</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Data Backup & System Maintenance</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+                            All dashboard notes, approvals, and tasks are stored locally in your browser cache.
+                        </p>
+                        <button class="btn" onclick="exportData()" style="margin-right: 10px;">Export System Data (.JSON)</button>
+                        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+                        <button class="btn" onclick="document.getElementById('importFile').click()">Import System Data</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Default Data Structures
+        const defaultData = {
+            profile: {
+                startDate: "2021-11",
+                termYears: 5
+            },
+            approvals: [
+                { id: "DOC-2026-091", title: "MoES Q3 Policy Compliance Alignment", dept: "Academic Board", priority: "High", status: "Pending" },
+                { id: "DOC-2026-094", title: "Grant Allocation - Research Lab Upgrade", dept: "Faculty of Natural Sciences", priority: "Medium", status: "Pending" },
+                { id: "DOC-2026-098", title: "Exchange Student Agreement - Japan", dept: "International Office", priority: "High", status: "Pending" }
+            ],
+            notes: [
+                "Prepare speech for upcoming donor symposium.",
+                "Review academic performance report from Faculty of Law."
+            ],
+            tasks: [
+                { title: "Consolidate Q3 budget reports", assignee: "Ms. Bouavanh (Executive Secretary)", status: "Pending" },
+                { title: "Draft curriculum modernization guidelines", assignee: "Director of Academic Affairs", status: "Pending" }
+            ],
+            chats: [
+                { author: "Ms. Bouavanh (Secretary)", text: "Sir, the draft for the Ministry report is ready on your desk.", time: "08:30 AM" }
+            ]
+        };
+
+        let appData = {};
+
+        // Load Application State
+        function initApp() {
+            const stored = localStorage.getItem("nuol_vp_appdata");
+            if (stored) {
+                appData = JSON.parse(stored);
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData));
+                saveData();
+            }
+            renderClock();
+            setInterval(renderClock, 1000);
+            renderAllViews();
+        }
+
+        function saveData() {
+            localStorage.setItem("nuol_vp_appdata", JSON.stringify(appData));
+            renderAllViews();
+        }
+
+        // Live Clock & Quarter Calculation
+        function renderClock() {
+            const now = new Date();
+            document.getElementById("liveClock").innerText = now.toLocaleTimeString();
+
+            // Calculate Quarter & Date
+            const month = now.getMonth(); // 0-11
+            const q = Math.floor(month / 3) + 1;
+            const year = now.getFullYear();
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            
+            document.getElementById("quarterTag").innerText = `${dateStr} | Q${q} ${year}`;
+
+            // Calculate Tenure
+            if (appData.profile && appData.profile.startDate) {
+                const start = new Date(appData.profile.startDate + "-01");
+                const diffMonths = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+                document.getElementById("metric-tenure").innerText = `${diffMonths} Mos`;
+                document.getElementById("tenure-sub").innerText = `Started ${appData.profile.startDate} (${appData.profile.termYears} Yr Term)`;
+            }
+        }
+
+        // View Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll(".page-view").forEach(el => el.classList.remove("active"));
+            document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+            
+            document.getElementById(tabId).classList.add("active");
+            event.target.classList.add("active");
+        }
+
+        // Render Views with Data
+        function renderAllViews() {
+            // Dashboard Approvals Summary Table
+            const dashTable = document.getElementById("dash-approvals-table");
+            dashTable.innerHTML = "";
+            const pendingList = appData.approvals.filter(a => a.status === "Pending");
+            
+            document.getElementById("metric-pending").innerText = pendingList.length;
+            document.getElementById("metric-tasks").innerText = appData.tasks.filter(t => t.status === "Pending").length;
+
+            pendingList.slice(0, 3).forEach(item => {
+                dashTable.innerHTML += `
+                    <tr>
+                        <td>${item.title}</td>
+                        <td>${item.dept}</td>
+                        <td><span class="badge badge-urgent">${item.priority}</span></td>
+                        <td><button class="btn btn-sm btn-gold" onclick="approveDoc('${item.id}')">Sign Document</button></td>
+                    </tr>
+                `;
+            });
+
+            // Full Approvals Table
+            const fullTable = document.getElementById("full-approvals-table");
+            fullTable.innerHTML = "";
+            appData.approvals.forEach(item => {
+                fullTable.innerHTML += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.title}</td>
+                        <td>${item.dept}</td>
+                        <td><span class="badge ${item.status === 'Signed' ? 'badge-completed' : 'badge-pending'}">${item.status}</span></td>
+                        <td>
+                            ${item.status === 'Pending' 
+                                ? `<button class="btn btn-sm btn-gold" onclick="approveDoc('${item.id}')">Approve & Sign</button>` 
+                                : `<span style="color:var(--success); font-weight:bold;">Signed</span>`}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Notes Render
+            const noteList = document.getElementById("noteList");
+            noteList.innerHTML = "";
+            appData.notes.forEach((note, index) => {
+                noteList.innerHTML += `
+                    <div class="todo-item">
+                        <span style="font-size:0.85rem;">• ${note}</span>
+                        <button class="btn btn-sm" style="background:var(--danger);" onclick="deleteNote(${index})">Remove</button>
+                    </div>
+                `;
+            });
+
+            // Tasks Render
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
+            appData.tasks.forEach((task, index) => {
+                taskList.innerHTML += `
+                    <div class="todo-item">
+                        <div>
+                            <strong>${task.title}</strong><br>
+                            <small style="color:var(--text-muted)">Assigned to: ${task.assignee}</small>
+                        </div>
+                        <button class="btn btn-sm" onclick="toggleTask(${index})">${task.status}</button>
+                    </div>
+                `;
+            });
+
+            // Chat Render
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = "";
+            appData.chats.forEach(msg => {
+                chatBox.innerHTML += `
+                    <div class="chat-msg">
+                        <div class="author">${msg.author} <span style="font-weight:normal; color:var(--text-muted)">(${msg.time})</span></div>
+                        <div>${msg.text}</div>
+                    </div>
+                `;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Dynamic Handlers
+        function approveDoc(id) {
+            const doc = appData.approvals.find(a => a.id === id);
+            if (doc) {
+                doc.status = "Signed";
+                saveData();
+            }
+        }
+
+        function addNote() {
+            const val = document.getElementById("noteInput").value;
+            if (val.trim()) {
+                appData.notes.push(val.trim());
+                document.getElementById("noteInput").value = "";
+                saveData();
+            }
+        }
+
+        function deleteNote(index) {
+            appData.notes.splice(index, 1);
+            saveData();
+        }
+
+        function assignTask() {
+            const title = document.getElementById("taskTitle").value;
+            const assignee = document.getElementById("taskAssignee").value;
+            if (title.trim()) {
+                appData.tasks.push({ title: title.trim(), assignee: assignee, status: "Pending" });
+                document.getElementById("taskTitle").value = "";
+                saveData();
+            }
+        }
+
+        function toggleTask(index) {
+            appData.tasks[index].status = appData.tasks[index].status === "Pending" ? "Completed" : "Pending";
+            saveData();
+        }
+
+        function sendChatMessage() {
+            const recipient = document.getElementById("chatRecipient").value;
+            const msg = document.getElementById("chatInput").value;
+            if (msg.trim()) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                appData.chats.push({
+                    author: `VP Phouphet → ${recipient}`,
+                    text: msg.trim(),
+                    time: timeStr
+                });
+                document.getElementById("chatInput").value = "";
+                saveData();
+            }
+        }
+
+        function saveProfileSettings() {
+            appData.profile.startDate = document.getElementById("tenureStartDate").value;
+            appData.profile.termYears = document.getElementById("tenureYears").value;
+            saveData();
+            alert("Profile tenure parameters updated successfully.");
+        }
+
+        // Data Import / Export Handlers
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `NUOL_VP_Data_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    appData = parsed;
+                    saveData();
+                    alert("System data imported successfully!");
+                } catch (err) {
+                    alert("Invalid JSON data file format.");
+                }
+            };
+            reader.readAsText(event.target.files[0]);
+        }
+
+        // Initialize application on load
+        window.onload = initApp;
+    </script>
+</body>
+</html>
