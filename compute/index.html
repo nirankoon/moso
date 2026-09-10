@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITCenter NUOL - Personal Dashboard</title>
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #003366;
+            --secondary-color: #0055a5;
+            --accent-color: #f39c12;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .branding {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .branding-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .branding-text p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .stat-card.in { border-left-color: var(--success-color); }
+        .stat-card.out { border-left-color: var(--accent-color); }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        /* Grid Layout for Form & Table */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media(min-width: 900px) {
+            .main-grid {
+                grid-template-columns: 320px 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 8px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-primary { background-color: var(--secondary-color); color: white; }
+        .btn-primary:hover { background-color: #004080; }
+        
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: #c0392b; }
+
+        .btn-secondary { background-color: #7f8c8d; color: white; }
+        .btn-secondary:hover { background-color: #6c757d; }
+
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); }
+        .btn-outline:hover { background: #eee; }
+
+        /* Actions & Utility */
+        .utility-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Data Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: white;
+            display: inline-block;
+        }
+
+        .badge-in { background-color: var(--success-color); }
+        .badge-out { background-color: var(--accent-color); }
+
+        /* Report Section */
+        .report-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: var(--secondary-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .report-results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Branding -->
+    <header>
+        <div class="branding">
+            <div class="logo">IT</div>
+            <div class="branding-text">
+                <h1>ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ (ITCenter)</h1>
+                <p>ມະຫາວິທະຍາໄລແຫ່ງຊາດ (National University of Laos)</p>
+            </div>
+        </div>
+        <div>
+            <span style="font-size: 0.9rem;">ໜ້າຈໍຄຸ້ມຄອງວຽກສ່ວນບຸກຄົນ (Personal Dashboard)</span>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Dashboard Overview Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>ເອກະສານທັງໝົດ (Total Documents)</h3>
+                <div class="number" id="stat-total">0</div>
+            </div>
+            <div class="stat-card in">
+                <h3>ເອກະສານຂາເຂົ້າ (Inbound)</h3>
+                <div class="number" id="stat-in">0</div>
+            </div>
+            <div class="stat-card out">
+                <h3>ເອກະສານຂາອອກ (Outbound)</h3>
+                <div class="number" id="stat-out">0</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Form Section -->
+            <div>
+                <div class="card">
+                    <h2 id="form-title">ເພີ່ມເອກະສານໃໝ່</h2>
+                    <form id="doc-form">
+                        <input type="hidden" id="doc-id">
+                        
+                        <div class="form-group">
+                            <label for="doc-num">ເລກທີເອກະສານ</label>
+                            <input type="text" id="doc-num" class="form-control" required placeholder="Ex: 012/ITCenter">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doc-title">หัวຂໍ້ເອກະສານ</label>
+                            <input type="text" id="doc-title" class="form-control" required placeholder="ປ້ອນหัวຂໍ້ເອກະສານ...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doc-type">ປະເພດເອກະສານ</label>
+                            <select id="doc-type" class="form-control" required>
+                                <option value="IN">ຂາເຂົ້າ (Inbound)</option>
+                                <option value="OUT">ຂາອອກ (Outbound)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doc-date">ວັນທີ</label>
+                            <input type="date" id="doc-date" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doc-remark">ໝາຍເຫດ</label>
+                            <textarea id="doc-remark" class="form-control" rows="2" placeholder="ລາຍລະອຽດເພີ່ມເຕີມ..."></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary" id="btn-save">ບັນທຶກ</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">ຍົກເລີກ</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Backup/Restore Utility -->
+                <div class="card">
+                    <h2>ຈັດການຂໍ້ມູນ (Import / Export)</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="exportData()">Export Data (JSON)</button>
+                        <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">Import Data</button>
+                        <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importData(event)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area: Table & Reports -->
+            <div>
+                <!-- Report Section -->
+                <div class="card">
+                    <h2>ລາຍງານສະຫຼຸບ (Summary Report)</h2>
+                    <div class="report-tabs">
+                        <button class="tab-btn active" onclick="switchReport('daily', this)">ປະຈຳວັນ</button>
+                        <button class="tab-btn" onclick="switchReport('weekly', this)">ປະຈຳອາທິດ</button>
+                        <button class="tab-btn" onclick="switchReport('monthly', this)">ປະຈຳເດືອນ</button>
+                        <button class="tab-btn" onclick="switchReport('yearly', this)">ປະຈຳປີ</button>
+                    </div>
+                    <div class="report-results" id="report-output">
+                        ກຳລັງໂຫລດລາຍງານ...
+                    </div>
+                </div>
+
+                <!-- Documents List Table -->
+                <div class="card">
+                    <div class="utility-bar">
+                        <h2>รายการเอกะสารทั้งหมด</h2>
+                        <button class="btn btn-danger" onclick="clearAllData()">ລຶບຂໍ້ມູນທັງໝົດ</button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ເລກທີ</th>
+                                    <th>หัวຂໍ້</th>
+                                    <th>ປະເພດ</th>
+                                    <th>ວັນທີ</th>
+                                    <th>ໝາຍເຫດ</th>
+                                    <th>ຈັດການ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doc-table-body">
+                                <!-- Data rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Sample Dummy Data
+        const dummyData = [
+            { id: '1', num: '001/IT', title: 'หนังสือเชิญประชุมสภาวิชาการ', type: 'IN', date: '2026-03-01', remark: 'ห้องประชุมชั้น 2' },
+            { id: '2', num: '002/IT', title: 'รายงานการพัฒนาระบบ Network', type: 'OUT', date: '2026-03-05', remark: 'เสนออธิการบดี' },
+            { id: '3', num: '003/IT', title: 'ขออนุมัติซื้ออุปกรณ์ IT', type: 'OUT', date: '2026-03-08', remark: 'งบประมาณประจำปี' },
+            { id: '4', num: '004/IT', title: 'หนังสือแจ้งปรับปรุง Server', type: 'IN', date: '2026-03-10', remark: 'ปิดระบบเวลา 22:00 น.' }
+        ];
+
+        let documents = [];
+        let currentReportFilter = 'daily';
+
+        // Load Initial Data
+        window.onload = function() {
+            const localData = localStorage.getItem('itcenter_docs');
+            if (localData) {
+                documents = JSON.parse(localData);
+            } else {
+                documents = dummyData;
+                saveToLocalStorage();
+            }
+            
+            // Set default date to today for the form
+            document.getElementById('doc-date').valueAsDate = new Date();
+
+            renderDashboard();
+        };
+
+        // Save to LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('itcenter_docs', JSON.stringify(documents));
+        }
+
+        // Render Dashboard Data (Table, Stats, Reports)
+        function renderDashboard() {
+            renderTable();
+            renderStats();
+            generateReport(currentReportFilter);
+        }
+
+        // Render Table Data
+        function renderTable() {
+            const tbody = document.getElementById('doc-table-body');
+            tbody.innerHTML = '';
+
+            if (documents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">ไม่มีข้อมูลเอกสาร</td></tr>`;
+                return;
+            }
+
+            documents.forEach(doc => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${escapeHtml(doc.num)}</b></td>
+                    <td>${escapeHtml(doc.title)}</td>
+                    <td><span class="badge ${doc.type === 'IN' ? 'badge-in' : 'badge-out'}">${doc.type === 'IN' ? 'ขาเข้า' : 'ขาออก'}</span></td>
+                    <td>${doc.date}</td>
+                    <td>${escapeHtml(doc.remark || '-')}</td>
+                    <td>
+                        <button class="btn btn-outline" style="padding:2px 5px;" onclick="editDoc('${doc.id}')">แก้ไข</button>
+                        <button class="btn btn-danger" style="padding:2px 5px;" onclick="deleteDoc('${doc.id}')">ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Overview Stats
+        function renderStats() {
+            const total = documents.length;
+            const countIn = documents.filter(d => d.type === 'IN').length;
+            const countOut = documents.filter(d => d.type === 'OUT').length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-in').innerText = countIn;
+            document.getElementById('stat-out').innerText = countOut;
+        }
+
+        // Form Submit Handler (Add / Edit)
+        document.getElementById('doc-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('doc-id').value;
+            const num = document.getElementById('doc-num').value;
+            const title = document.getElementById('doc-title').value;
+            const type = document.getElementById('doc-type').value;
+            const date = document.getElementById('doc-date').value;
+            const remark = document.getElementById('doc-remark').value;
+
+            if (id) {
+                // Edit existing
+                const index = documents.findIndex(d => d.id === id);
+                if (index !== -1) {
+                    documents[index] = { id, num, title, type, date, remark };
+                }
+            } else {
+                // Add new
+                const newDoc = {
+                    id: Date.now().toString(),
+                    num, title, type, date, remark
+                };
+                documents.push(newDoc);
+            }
+
+            saveToLocalStorage();
+            resetForm();
+            renderDashboard();
+        });
+
+        // Edit Document
+        function editDoc(id) {
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('doc-id').value = doc.id;
+            document.getElementById('doc-num').value = doc.num;
+            document.getElementById('doc-title').value = doc.title;
+            document.getElementById('doc-type').value = doc.type;
+            document.getElementById('doc-date').value = doc.date;
+            document.getElementById('doc-remark').value = doc.remark;
+
+            document.getElementById('form-title').innerText = 'แก้ไขเอกสาร';
+            document.getElementById('btn-save').innerText = 'ปรับปรุงข้อมูล';
+        }
+
+        // Reset Form
+        function resetForm() {
+            document.getElementById('doc-id').value = '';
+            document.getElementById('doc-form').reset();
+            document.getElementById('doc-date').valueAsDate = new Date();
+            document.getElementById('form-title').innerText = 'เพิ่มเอกสารใหม่';
+            document.getElementById('btn-save').innerText = 'บันทึก';
+        }
+
+        // Delete Document
+        function deleteDoc(id) {
+            if (confirm('ท่านต้องการลบรายการนี้ใช่หรือไม่?')) {
+                documents = documents.filter(d => d.id !== id);
+                saveToLocalStorage();
+                renderDashboard();
+            }
+        }
+
+        // Clear All Data
+        function clearAllData() {
+            if (confirm('ท่านต้องการลบข้อมูลทั้งหมดในระบบใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้.')) {
+                documents = [];
+                saveToLocalStorage();
+                renderDashboard();
+            }
+        }
+
+        // Export JSON Data
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ITCenter_Docs_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Import JSON Data
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        documents = imported;
+                        saveToLocalStorage();
+                        renderDashboard();
+                        alert('นำเข้าข้อมูลสำเร็จ!');
+                    } else {
+                        alert('รูปแบบไฟล์ไม่ถูกต้อง');
+                    }
+                } catch (err) {
+                    alert('เกิดข้อผิดพลาดในการอ่านไฟล์');
+                }
+            };
+            if(event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
+        // Switch Report Type
+        function switchReport(type, element) {
+            currentReportFilter = type;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            generateReport(type);
+        }
+
+        // Generate Simple Filtered Report
+        function generateReport(type) {
+            const now = new Date();
+            let filteredDocs = [];
+            let reportTitle = "";
+
+            filteredDocs = documents.filter(doc => {
+                const docDate = new Date(doc.date);
+                if (type === 'daily') {
+                    reportTitle = "รายงานประจำวัน (วันนี้)";
+                    return docDate.toDateString() === now.toDateString();
+                } else if (type === 'weekly') {
+                    reportTitle = "รายงานประจำสัปดาห์ (7 วันล่าสุด)";
+                    const sevenDaysAgo = new Date(now);
+                    sevenDaysAgo.setDate(now.getDate() - 7);
+                    return docDate >= sevenDaysAgo && docDate <= now;
+                } else if (type === 'monthly') {
+                    reportTitle = "รายงานประจำเดือนนี้";
+                    return docDate.getMonth() === now.getMonth() && docDate.getFullYear() === now.getFullYear();
+                } else if (type === 'yearly') {
+                    reportTitle = "รายงานประจำปีนี้";
+                    return docDate.getFullYear() === now.getFullYear();
+                }
+            });
+
+            const countIn = filteredDocs.filter(d => d.type === 'IN').length;
+            const countOut = filteredDocs.filter(d => d.type === 'OUT').length;
+
+            const output = document.getElementById('report-output');
+            output.innerHTML = `
+                <p><b>${reportTitle}</b></p>
+                <p style="margin-top: 5px;">
+                    - เอกสารทั้งหมด: <b>${filteredDocs.length}</b> รายการ | 
+                    - ขาเข้า: <b style="color:var(--success-color);">${countIn}</b> รายการ | 
+                    - ขาออก: <b style="color:var(--accent-color);">${countOut}</b> รายการ
+                </p>
+            `;
+        }
+
+        // Helper for XSS prevention
+        function escapeHtml(text) {
+            return String(text).replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+    </script>
+</body>
+</html>
