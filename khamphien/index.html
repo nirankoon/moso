@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Dashboard - IT Center NUOL</title>
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #003366; /* ສີນ້ຳເງິນ ມຊ (NUOL Blue) */
+            --secondary-color: #CC0000; /* ສີແດງ */
+            --accent-color: #FFC107; /* ສີເຫຼືອງ */
+            --bg-color: #F4F6F9;
+            --card-bg: #FFFFFF;
+            --text-color: #333333;
+            --border-color: #E0E0E0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 40px;
+        }
+
+        /* Header / Banner */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--secondary-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        /* Summary Cards / KPI Dashboard */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .card.in { border-left-color: #28a745; }
+        .card.out { border-left-color: #dc3545; }
+        .card.pending { border-left-color: #ffc107; }
+
+        .card h3 {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .card .number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Filter & Report Controls */
+        .controls-panel {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .filter-group, .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* Buttons & Inputs */
+        btn, button, input, select {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            outline: none;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.btn-success { background-color: #28a745; }
+        button.btn-danger { background-color: #dc3545; }
+        button.btn-warning { background-color: #ffc107; color: #333; }
+        button.btn-secondary { background-color: #6c757d; }
+
+        /* Document Form Section */
+        .form-section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .form-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Data Table */
+        .table-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 700px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 500;
+        }
+        .badge-in { background-color: #28a745; }
+        .badge-out { background-color: #007bff; }
+        .badge-pending { background-color: #ffc107; color: #333; }
+        .badge-done { background-color: #6c757d; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.4rem; }
+            .controls-panel, .action-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <h1>ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ (IT Center)</h1>
+        <p>ມະຫາວິທະຍາໄລແຫ່ງຊາດ - ລະບົບຕິດຕາມເອກະສານ ຂ້າ-ອອກ (Personal Work Dashboard)</p>
+    </header>
+
+    <div class="container">
+
+        <!-- KPI / Summary Cards -->
+        <div class="kpi-grid">
+            <div class="card">
+                <h3>ເອກະສານທັງໝົດ</h3>
+                <div class="number" id="total-docs">0</div>
+            </div>
+            <div class="card in">
+                <h3>ເອກະສານຂາເຂົ້າ</h3>
+                <div class="number" id="total-in">0</div>
+            </div>
+            <div class="card out">
+                <h3>ເອກະສານຂາອອກ</h3>
+                <div class="number" id="total-out">0</div>
+            </div>
+            <div class="card pending">
+                <h3>ກຳລັງດຳເນີນການ</h3>
+                <div class="number" id="total-pending">0</div>
+            </div>
+        </div>
+
+        <!-- Form: Add/Edit Document -->
+        <div class="form-section">
+            <h2 id="form-title">ເພີ່ມເອກະສານໃໝ່</h2>
+            <form id="doc-form">
+                <input type="hidden" id="doc-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="doc-num">ເລກທີເອກະສານ</label>
+                        <input type="text" id="doc-num" placeholder="ex: 012/IT.NUOL" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-type">ປະເພດເອກະສານ</label>
+                        <select id="doc-type" required>
+                            <option value="ເຂົ້າ">ຂາເຂົ້າ (IN)</option>
+                            <option value="ອອກ">ຂາອອກ (OUT)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-date">ວັນທີ</label>
+                        <input type="date" id="doc-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-title">ຫົວຂໍ້ / ເນື້ອໃນ</label>
+                        <input type="text" id="doc-title" placeholder="ປ້ອນຫົວຂໍ້ເອກະສານ..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-org">ພາກສ່ວນກ່ຽວຂ້ອງ</label>
+                        <input type="text" id="doc-org" placeholder="ສົ່ງຈາກ / ສົ່ງເຖິງ..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doc-status">ສະຖານະ</label>
+                        <select id="doc-status">
+                            <option value="ກຳລັງດຳເນີນການ">ກຳລັງດຳເນີນການ</option>
+                            <option value="ສຳເລັດແລ້ວ">ສຳເລັດແລ້ວ</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-success" id="btn-save">ບັນທຶກຂໍ້ມູນ</button>
+                    <button type="button" class="btn-secondary" id="btn-cancel" onclick="resetForm()" style="display:none;">ຍົກເລີກ</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Controls: Reports & Backup -->
+        <div class="controls-panel">
+            <!-- Filter Report -->
+            <div class="filter-group">
+                <label><b>ລາຍງານ:</b></label>
+                <select id="report-filter" onchange="filterData()">
+                    <option value="all">ທັງໝົດ</option>
+                    <option value="daily">ປະຈຳມື້</option>
+                    <option value="weekly">ປະຈຳອາທິດ</option>
+                    <option value="monthly">ປະຈຳເດືອນ</option>
+                    <option value="yearly">ປະຈຳປີ</option>
+                </select>
+            </div>
+
+            <!-- Import/Export & Actions -->
+            <div class="action-group">
+                <button onclick="exportData()" class="btn-warning">📥 Export JSON</button>
+                <button onclick="document.getElementById('import-file').click()" class="btn-warning">📤 Import JSON</button>
+                <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+                <button onclick="clearAllData()" class="btn-danger">🗑️ ລ້າງຂໍ້ມູນທັງໝົດ</button>
+            </div>
+        </div>
+
+        <!-- Table Display -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ເລກທີ</th>
+                        <th>ປະເພດ</th>
+                        <th>ວັນທີ</th>
+                        <th>ຫົວຂໍ້</th>
+                        <th>ພາກສ່ວນ</th>
+                        <th>ສະຖານະ</th>
+                        <th>ຈັດການ</th>
+                    </tr>
+                </thead>
+                <tbody id="doc-table-body">
+                    <!-- Dynamic Data Here -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // Key for LocalStorage
+        const STORAGE_KEY = 'ITCENTER_DOCS_DATA';
+
+        // Sample Dummy Data
+        const dummyData = [
+            { id: 1, num: '101/ສຕຂ', type: 'ເຂົ້າ', date: '2026-03-01', title: 'ເຊີນຮ່ວມປະຊຸມວາງແຜນໄອທີ', org: 'ຫ້ອງການ ມຊ', status: 'ສຳເລັດແລ້ວ' },
+            { id: 2, num: '015/IT.NUOL', type: 'ອອກ', date: '2026-03-05', title: 'ແຈ້ງການບຳລຸງຮັກສາລະບົບເຄືອຂ່າຍ', org: 'ທຸກຄະນະວິຊາ', status: 'ສຳເລັດແລ້ວ' },
+            { id: 3, num: '108/ສຕຂ', type: 'ເຂົ້າ', date: getDateString(0), title: 'ຂໍອະນຸມັດງົບປະມານຊື້ເຄື່ອງອຸປະກອນ', org: 'ຄະນະວິທະຍາສາດ', status: 'ກຳລັງດຳເນີນການ' },
+            { id: 4, num: '018/IT.NUOL', type: 'ອອກ', date: getDateString(0), title: 'ໜັງສືສະເໜີຂໍອຸປະກອນແມ່ຂ່າຍ (Server)', org: 'ກະຊວງ ສສກ', status: 'ກຳລັງດຳເນີນການ' }
+        ];
+
+        // Helper date string for Today
+        function getDateString(offsetDays = 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            return d.toISOString().split('T')[0];
+        }
+
+        // Initialize Data
+        let documents = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+        if (documents.length === 0) {
+            documents = dummyData;
+            saveToStorage();
+        }
+
+        // DOM Elements
+        const docForm = document.getElementById('doc-form');
+        const docId = document.getElementById('doc-id');
+        const docNum = document.getElementById('doc-num');
+        const docType = document.getElementById('doc-type');
+        const docDate = document.getElementById('doc-date');
+        const docTitle = document.getElementById('doc-title');
+        const docOrg = document.getElementById('doc-org');
+        const docStatus = document.getElementById('doc-status');
+        const tableBody = document.getElementById('doc-table-body');
+        const formTitle = document.getElementById('form-title');
+        const btnCancel = document.getElementById('btn-cancel');
+
+        // Set default date input to Today
+        docDate.value = getDateString();
+
+        // Render Page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable(documents);
+            updateKPI();
+        });
+
+        // Save to LocalStorage
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+            updateKPI();
+        }
+
+        // Update Dashboard Statistics
+        function updateKPI() {
+            document.getElementById('total-docs').innerText = documents.length;
+            document.getElementById('total-in').innerText = documents.filter(d => d.type === 'ເຂົ້າ').length;
+            document.getElementById('total-out').innerText = documents.filter(d => d.type === 'ອອກ').length;
+            document.getElementById('total-pending').innerText = documents.filter(d => d.status === 'ກຳລັງດຳເນີນການ').length;
+        }
+
+        // Render Data Table
+        function renderTable(dataList) {
+            tableBody.innerHTML = '';
+            if (dataList.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">ບໍ່ມີຂໍ້ມູນເອກະສານ</td></tr>`;
+                return;
+            }
+
+            dataList.forEach(item => {
+                const tr = document.createElement('tr');
+                const badgeType = item.type === 'ເຂົ້າ' ? 'badge-in' : 'badge-out';
+                const badgeStatus = item.status === 'ສຳເລັດແລ້ວ' ? 'badge-done' : 'badge-pending';
+
+                tr.innerHTML = `
+                    <td><b>${item.num}</b></td>
+                    <td><span class="badge ${badgeType}">${item.type}</span></td>
+                    <td>${item.date}</td>
+                    <td>${item.title}</td>
+                    <td>${item.org}</td>
+                    <td><span class="badge ${badgeStatus}">${item.status}</span></td>
+                    <td>
+                        <button class="btn-warning" style="padding:4px 8px; font-size:0.8rem;" onclick="editDoc(${item.id})">ແກ້ໄຂ</button>
+                        <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteDoc(${item.id})">ລົບ</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Form Submit (Add / Edit)
+        docForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const id = docId.value ? parseInt(docId.value) : Date.now();
+            const newDoc = {
+                id: id,
+                num: docNum.value,
+                type: docType.value,
+                date: docDate.value,
+                title: docTitle.value,
+                org: docOrg.value,
+                status: docStatus.value
+            };
+
+            if (docId.value) {
+                // Edit mode
+                const index = documents.findIndex(d => d.id === id);
+                if (index !== -1) documents[index] = newDoc;
+            } else {
+                // Add mode
+                documents.push(newDoc);
+            }
+
+            saveToStorage();
+            filterData();
+            resetForm();
+        });
+
+        // Edit Document
+        function editDoc(id) {
+            const item = documents.find(d => d.id === id);
+            if (!item) return;
+
+            docId.value = item.id;
+            docNum.value = item.num;
+            docType.value = item.type;
+            docDate.value = item.date;
+            docTitle.value = item.title;
+            docOrg.value = item.org;
+            docStatus.value = item.status;
+
+            formTitle.innerText = "ແກ້ໄຂເອກະສານ";
+            btnCancel.style.display = 'inline-block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Delete Document
+        function deleteDoc(id) {
+            if (confirm('ທ່ານຕ້ອງການລົບເອກະສານນີ້ແມ່ນບໍ?')) {
+                documents = documents.filter(d => d.id !== id);
+                saveToStorage();
+                filterData();
+            }
+        }
+
+        // Reset Form
+        function resetForm() {
+            docForm.reset();
+            docId.value = '';
+            docDate.value = getDateString();
+            formTitle.innerText = "ເພີ່ມເອກະສານໃໝ່";
+            btnCancel.style.display = 'none';
+        }
+
+        // Filter / Report (Daily, Weekly, Monthly, Yearly)
+        function filterData() {
+            const filter = document.getElementById('report-filter').value;
+            const now = new Date();
+            
+            let filtered = documents.filter(item => {
+                const itemDate = new Date(item.date);
+
+                if (filter === 'daily') {
+                    return item.date === getDateString();
+                } else if (filter === 'weekly') {
+                    const diffTime = Math.abs(now - itemDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 7;
+                } else if (filter === 'monthly') {
+                    return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                } else if (filter === 'yearly') {
+                    return itemDate.getFullYear() === now.getFullYear();
+                }
+                return true; // all
+            });
+
+            renderTable(filtered);
+        }
+
+        // Clear All Data
+        function clearAllData() {
+            if (confirm('ຄຳເຕືອນ: ທ່ານຕ້ອງການລົບຂໍ້ມູນທັງໝົດໃນລະບົບແທ້ບໍ?')) {
+                documents = [];
+                localStorage.removeItem(STORAGE_KEY);
+                renderTable(documents);
+                updateKPI();
+            }
+        }
+
+        // Export Data to JSON
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ITCenter_Docs_${getDateString()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Import Data from JSON
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        documents = imported;
+                        saveToStorage();
+                        filterData();
+                        alert('ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບໄຟລ໌ບໍ່ຖືກຕ້ອງ!');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌!');
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
