@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Center NUOL - Personal Document Dashboard</title>
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nuol: {
+                            blue: '#0F2C59',
+                            gold: '#D4AF37',
+                            light: '#F8FAFC',
+                            accent: '#1E3E62'
+                        }
+                    },
+                    fontFamily: {
+                        lao: ['Noto Sans Lao', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: visible !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-lao min-h-screen flex flex-col">
+
+    <!-- Header / Branding -->
+    <header class="bg-nuol-blue text-white shadow-lg border-b-4 border-nuol-gold sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2 rounded-full text-nuol-blue font-bold text-xl w-12 h-12 flex items-center justify-center border-2 border-nuol-gold shadow">
+                    <i class="fa-solid fa-graduation-cap text-nuol-blue"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-wide leading-tight text-yellow-400">
+                        ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ (IT Center)
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-200">ມະຫາວິທະຍາໄລແ່ງຊາດ | National University of Laos</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 bg-nuol-accent px-3 py-1.5 rounded-lg border border-slate-600 text-xs sm:text-sm">
+                <i class="fa-solid fa-user-gear text-yellow-400"></i>
+                <span>ລະບົບຕິດຕາມເອກະສານສ່ວນບຸກຄົນ</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- Controls & Quick Actions -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shadow transition">
+                    <i class="fa-solid fa-plus"></i> ເພີ່ມເອກະສານໃໝ່
+                </button>
+                <button onclick="exportData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-file-export"></i> ສົ່ງອອກ (Export JSON)
+                </button>
+                <label class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 shadow cursor-pointer transition">
+                    <i class="fa-solid fa-file-import"></i> ນຳເຂົ້າ (Import)
+                    <input type="file" id="importFile" onchange="importData(event)" accept=".json" class="hidden">
+                </label>
+            </div>
+            <div>
+                <button onclick="confirmClearAll()" class="bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-trash-can"></i> ລຶບຂໍ້ມູນທັງໝົດ
+                </button>
+            </div>
+        </div>
+
+        <!-- Dynamic KPI Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase">ເອກະສານທັງໝົດ</p>
+                    <h3 id="statTotal" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-folder"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-emerald-600 uppercase">ເອກະສານຂາເຂົ້າ</p>
+                    <h3 id="statIn" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-arrow-down-left"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-indigo-600 uppercase">ເອກະສານຂາອອກ</p>
+                    <h3 id="statOut" class="text-2xl font-bold text-indigo-600 mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-arrow-up-right"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-amber-600 uppercase">ຄ້າງດຳເນີນການ/ເລ່ງດ່ວນ</p>
+                    <h3 id="statPending" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports & Chart Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pb-3 border-b">
+                <div>
+                    <h2 class="text-base font-bold text-nuol-blue flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-nuol-gold"></i> ລາຍງານສະຖິຕິເອກະສານ (Report Summary)
+                    </h2>
+                    <p class="text-xs text-slate-500">ສະຫຼຸບຂໍ້ມູນຕາມຊ່ວງເວລາ</p>
+                </div>
+                <!-- Report Filter Tabs -->
+                <div class="inline-flex p-1 bg-slate-100 rounded-lg text-xs font-medium border border-slate-200">
+                    <button onclick="setReportPeriod('daily')" id="btn-daily" class="px-3 py-1.5 rounded-md transition">ປະຈຳວັນ</button>
+                    <button onclick="setReportPeriod('weekly')" id="btn-weekly" class="px-3 py-1.5 rounded-md transition">ປະຈຳອາທິດ</button>
+                    <button onclick="setReportPeriod('monthly')" id="btn-monthly" class="px-3 py-1.5 rounded-md transition">ປະຈຳເດືອນ</button>
+                    <button onclick="setReportPeriod('yearly')" id="btn-yearly" class="px-3 py-1.5 rounded-md transition">ປະຈຳປີ</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                <div class="md:col-span-2 h-64">
+                    <canvas id="reportChart"></canvas>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-center space-y-3">
+                    <h4 class="text-sm font-bold text-slate-700 border-b pb-2">ສະຫຼຸບຂໍ້ມູນຕາມຊ່ວງ: <span id="periodLabel" class="text-nuol-blue">ປະຈຳເດືອນ</span></h4>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-600">ຂາເຂົ້າທັງໝົດ:</span>
+                        <span id="periodInCount" class="font-bold text-emerald-600">0 ບົດ</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-600">ຂາອອກທັງໝົດ:</span>
+                        <span id="periodOutCount" class="font-bold text-indigo-600">0 ບົດ</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-600">ສຳເລັດແລ້ວ:</span>
+                        <span id="periodDoneCount" class="font-bold text-blue-600">0 ບົດ</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-600">ກຳລັງດຳເນີນການ:</span>
+                        <span id="periodPendingCount" class="font-bold text-amber-600">0 ບົດ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data List Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- Table Filter & Search Header -->
+            <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row gap-3 justify-between items-center">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <h3 class="font-bold text-slate-700 text-sm whitespace-nowrap">รายการเอกสาร</h3>
+                    <select id="filterType" onchange="renderTable()" class="bg-white border border-slate-300 rounded-lg text-xs px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-nuol-blue">
+                        <option value="all">ທັງໝົດ (ຂາເຂົ້າ & ຂາອອກ)</option>
+                        <option value="in">ສະເພາະ ຂາເຂົ້າ</option>
+                        <option value="out">ສະເພາະ ຂາອອກ</option>
+                    </select>
+                </div>
+                <div class="relative w-full sm:w-72">
+                    <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="ຄົ້ນຫາ ເລກທີ, ເລື່ອງ, ຜູ້ສົ່ງ/ຮັບ..." class="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-nuol-blue">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+
+            <!-- Table Responsive Container -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left text-slate-600">
+                    <thead class="text-xs uppercase bg-slate-100 text-slate-700 border-b">
+                        <tr>
+                            <th class="py-3 px-4">ປະເພດ</th>
+                            <th class="py-3 px-4">ເລກທີເອກະສານ</th>
+                            <th class="py-3 px-4">ວັນທີ</th>
+                            <th class="py-3 px-4">ເນື້ອໃນ / ເລື່ອງ</th>
+                            <th class="py-3 px-4">ຈາກ / ເຖິງ</th>
+                            <th class="py-3 px-4">ໝວດໝູ່</th>
+                            <th class="py-3 px-4">ສະຖານະ</th>
+                            <th class="py-3 px-4 text-center">ຈັດການ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docTableBody" class="divide-y divide-slate-100">
+                        <!-- JS Insert Rows Here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="noDataMessage" class="hidden p-8 text-center text-slate-400 text-sm">
+                <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
+                ບໍ່ພົບຂໍ້ມູນເອກະສານ
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 text-xs py-4 text-center border-t border-slate-700 mt-8">
+        <p>© IT Center - National University of Laos (NUOL). Local Storage Personal Work Dashboard.</p>
+    </footer>
+
+    <!-- Add/Edit Document Modal Form -->
+    <div id="docModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50 p-4">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
+
+        <div class="modal-container bg-white w-full max-w-lg mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
+            <!-- Header Modal -->
+            <div class="bg-nuol-blue text-white px-5 py-4 flex justify-between items-center rounded-t-xl">
+                <h3 id="modalTitle" class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-plus text-yellow-400"></i> ເພີ່ມເອກະສານໃໝ່
+                </h3>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+
+            <!-- Form Body -->
+            <form id="docForm" onsubmit="handleSaveDoc(event)" class="p-5 space-y-4 text-xs">
+                <input type="hidden" id="docId">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ປະເພດເອກະສານ *</label>
+                        <select id="docType" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none">
+                            <option value="in">📥 ຂາເຂົ້າ (In)</option>
+                            <option value="out">📤 ຂາອອກ (Out)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ເລກທີເອກະສານ *</label>
+                        <input type="text" id="docNo" required placeholder="ຕົວຢ່າງ: 05/ສຕຂ" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ວັນທີເອກະສານ *</label>
+                        <input type="date" id="docDate" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ໝວດໝູ່ເອກະສານ</label>
+                        <select id="docCategory" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none">
+                            <option value="ໜັງສືສະເໜີ">ໜັງສືສະເໜີ</option>
+                            <option value="ແຈ້ງການ">ແຈ້ງການ</option>
+                            <option value="ຄຳສັ່ງ">ຄຳສັ່ງ</option>
+                            <option value="ບົດບັນທຶກ">ບົດບັນທຶກ</option>
+                            <option value="ຂໍ້ຕົກລົງ">ຂໍ້ຕົກລົງ</option>
+                            <option value="ອື່ນໆ">ອື່ນໆ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">ເລື່ອງ / ເນື້ອໃນ *</label>
+                    <textarea id="docTitle" required rows="2" placeholder="ລະບຸເນື້ອໃນຫຍໍ້ຂອງເອກະສານ..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ຈາກ / ເຖິງ *</label>
+                        <input type="text" id="docFromTo" required placeholder="ຕົວຢ່າງ: ຫ້ອງການອະທິການບໍດີ" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ສະຖານະ *</label>
+                        <select id="docStatus" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none">
+                            <option value="ສຳເລັດ">✅ ສຳເລັດ</option>
+                            <option value="ກຳລັງດຳເນີນການ">⏳ ກຳລັງດຳເນີນການ</option>
+                            <option value="ເລ່ງດ່ວນ">🚨 ເລ່ງດ່ວນ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">ໝາຍເຫດ</label>
+                    <input type="text" id="docNote" placeholder="ໝາຍເຫດເພີ່ມເຕີມ (ຖ້າມີ)" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-nuol-blue outline-none">
+                </div>
+
+                <!-- Footer Modal Buttons -->
+                <div class="flex justify-end gap-2 border-t pt-3 mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-medium">ຍົກເລີກ</button>
+                    <button type="submit" class="bg-nuol-blue hover:bg-nuol-accent text-white px-5 py-2 rounded-lg font-semibold shadow">ບັນທຶກ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const STORAGE_KEY = 'nuol_itcenter_docs_v1';
+        let documents = [];
+        let currentPeriod = 'monthly';
+        let myChart = null;
+
+        // Dummy Initial Data
+        const sampleData = [
+            { id: '1', type: 'in', docNo: '102/ສຕຂ', date: new Date().toISOString().split('T')[0], title: 'ແຈ້ງການປະຊຸມກ່ຽວກັບການອັບເກຣດລະບົບເຄືອຂ່າຍ', fromTo: 'ຫ້ອງການອະທິການບໍດີ', category: 'ແຈ້ງການ', status: 'ສຳເລັດ', note: 'ເຂົ້າຮ່ວມເວລາ 9:00' },
+            { id: '2', type: 'out', docNo: '45/ສຕຂ.ອຕ', date: new Date().toISOString().split('T')[0], title: 'ໜັງສືສະເໜີຈັດຊື້ອຸປະກອນ Server ໃໝ່', fromTo: 'ຄະນະວິທະຍາສາດທຳມະຊາດ', category: 'ໜັງສືສະເໜີ', status: 'ກຳລັງດຳເນີນການ', note: 'ລໍຖ້າການອະນຸມັດ' },
+            { id: '3', type: 'in', docNo: '88/ກສ', date: '2026-09-02', title: 'ບົດບັນທຶກຄວາມເຂົ້າໃຈການຮ່ວມມືດ້ານ IT', fromTo: 'ບໍລິສັດ ເຕັກໂນໂລຊີ', category: 'ບົດບັນທຶກ', status: 'ເລ່ງດ່ວນ', note: 'ຕ້ອງສົ່ງຄຳອັດທິບາຍຄືນ' },
+            { id: '4', type: 'out', docNo: '12/ສຕຂ.ອຕ', date: '2026-08-28', title: 'ແຈ້ງການປິດປັບປຸງລະບົບເວັບໄຊຊົ່ວຄາວ', fromTo: 'ທຸກຄະນະວິຊາ', category: 'ແຈ້ງການ', status: 'ສຳເລັດ', note: 'ດຳເນີນການແລ້ວ' }
+        ];
+
+        // Init Load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLocalStorage();
+            setReportPeriod('monthly');
+        });
+
+        function loadLocalStorage() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                try {
+                    documents = JSON.parse(data);
+                } catch (e) {
+                    documents = [...sampleData];
+                }
+            } else {
+                documents = [...sampleData];
+                saveLocalStorage();
+            }
+            refreshApp();
+        }
+
+        function saveLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+        }
+
+        function refreshApp() {
+            renderTable();
+            renderKPIs();
+            renderChart();
+        }
+
+        // Render KPIs
+        function renderKPIs() {
+            const total = documents.length;
+            const inCount = documents.filter(d => d.type === 'in').length;
+            const outCount = documents.filter(d => d.type === 'out').length;
+            const pendingCount = documents.filter(d => d.status === 'ກຳລັງດຳເນີນການ' || d.status === 'ເລ່ງດ່ວນ').length;
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statIn').innerText = inCount;
+            document.getElementById('statOut').innerText = outCount;
+            document.getElementById('statPending').innerText = pendingCount;
+        }
+
+        // Render Table
+        function renderTable() {
+            const tbody = document.getElementById('docTableBody');
+            const filterType = document.getElementById('filterType').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const noData = document.getElementById('noDataMessage');
+
+            tbody.innerHTML = '';
+
+            const filtered = documents.filter(doc => {
+                const matchType = filterType === 'all' || doc.type === filterType;
+                const matchSearch = doc.docNo.toLowerCase().includes(searchInput) ||
+                                    doc.title.toLowerCase().includes(searchInput) ||
+                                    doc.fromTo.toLowerCase().includes(searchInput) ||
+                                    doc.category.toLowerCase().includes(searchInput);
+                return matchType && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                noData.classList.remove('hidden');
+            } else {
+                noData.classList.add('hidden');
+            }
+
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(doc => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+                const typeBadge = doc.type === 'in' 
+                    ? `<span class="bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full text-[10px]"><i class="fa-solid fa-arrow-down-left mr-1"></i>ຂາເຂົ້າ</span>`
+                    : `<span class="bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full text-[10px]"><i class="fa-solid fa-arrow-up-right mr-1"></i>ຂາອອກ</span>`;
+
+                let statusBadge = '';
+                if(doc.status === 'ສຳເລັດ') {
+                    statusBadge = `<span class="bg-blue-100 text-blue-700 font-medium px-2 py-0.5 rounded text-[10px]">✅ ສຳເລັດ</span>`;
+                } else if(doc.status === 'ເລ່ງດ່ວນ') {
+                    statusBadge = `<span class="bg-rose-100 text-rose-700 font-medium px-2 py-0.5 rounded text-[10px]">🚨 ເລ່ງດ່ວນ</span>`;
+                } else {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 font-medium px-2 py-0.5 rounded text-[10px]">⏳ ກຳລັງດຳເນີນການ</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4">${typeBadge}</td>
+                    <td class="py-3 px-4 font-bold text-slate-800">${escapeHtml(doc.docNo)}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${doc.date}</td>
+                    <td class="py-3 px-4 max-w-xs">
+                        <div class="font-medium text-slate-800">${escapeHtml(doc.title)}</div>
+                        ${doc.note ? `<div class="text-[10px] text-slate-400 mt-0.5"><i class="fa-regular fa-note-sticky mr-1"></i>${escapeHtml(doc.note)}</div>` : ''}
+                    </td>
+                    <td class="py-3 px-4">${escapeHtml(doc.fromTo)}</td>
+                    <td class="py-3 px-4"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[10px]">${escapeHtml(doc.category)}</span></td>
+                    <td class="py-3 px-4">${statusBadge}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex justify-center items-center gap-2">
+                            <button onclick="editDoc('${doc.id}')" class="text-blue-600 hover:text-blue-800 p-1" title="ແກ້ໄຂ"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteDoc('${doc.id}')" class="text-rose-500 hover:text-rose-700 p-1" title="ລຶບ"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Modal Open/Close
+        function openModal(editId = null) {
+            const modal = document.getElementById('docModal');
+            const form = document.getElementById('docForm');
+            form.reset();
+
+            if (editId) {
+                const doc = documents.find(d => d.id === editId);
+                if (doc) {
+                    document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-yellow-400"></i> ແກ້ໄຂເອກະສານ`;
+                    document.getElementById('docId').value = doc.id;
+                    document.getElementById('docType').value = doc.type;
+                    document.getElementById('docNo').value = doc.docNo;
+                    document.getElementById('docDate').value = doc.date;
+                    document.getElementById('docCategory').value = doc.category;
+                    document.getElementById('docTitle').value = doc.title;
+                    document.getElementById('docFromTo').value = doc.fromTo;
+                    document.getElementById('docStatus').value = doc.status;
+                    document.getElementById('docNote').value = doc.note || '';
+                }
+            } else {
+                document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-file-circle-plus text-yellow-400"></i> ເພີ່ມເອກະສານໃໝ່`;
+                document.getElementById('docId').value = '';
+                document.getElementById('docDate').value = new Date().toISOString().split('T')[0];
+            }
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('docModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('modal-active');
+        }
+
+        // Add / Edit Doc Handlers
+        function handleSaveDoc(e) {
+            e.preventDefault();
+            const id = document.getElementById('docId').value;
+            const newDoc = {
+                id: id ? id : Date.now().toString(),
+                type: document.getElementById('docType').value,
+                docNo: document.getElementById('docNo').value.trim(),
+                date: document.getElementById('docDate').value,
+                category: document.getElementById('docCategory').value,
+                title: document.getElementById('docTitle').value.trim(),
+                fromTo: document.getElementById('docFromTo').value.trim(),
+                status: document.getElementById('docStatus').value,
+                note: document.getElementById('docNote').value.trim()
+            };
+
+            if (id) {
+                const idx = documents.findIndex(d => d.id === id);
+                if (idx !== -1) documents[idx] = newDoc;
+            } else {
+                documents.push(newDoc);
+            }
+
+            saveLocalStorage();
+            refreshApp();
+            closeModal();
+        }
+
+        function editDoc(id) {
+            openModal(id);
+        }
+
+        function deleteDoc(id) {
+            if (confirm('ທ່ານຕ້ອງການລຶບເອກະສານນີ້ແມ່ນບໍ?')) {
+                documents = documents.filter(d => d.id !== id);
+                saveLocalStorage();
+                refreshApp();
+            }
+        }
+
+        function confirmClearAll() {
+            if (confirm('⚠️ ທ່ານແນ່ໃຈບໍທີ່ຈະລຶບຂໍ້ມູນເອກະສານທັງໝົດ? ຂໍ້ມູນບໍ່ສາມາດກູ້ຄືນໄດ້!')) {
+                documents = [];
+                saveLocalStorage();
+                refreshApp();
+            }
+        }
+
+        // Export & Import Data Features
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ITCenter_Documents_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        documents = imported;
+                        saveLocalStorage();
+                        refreshApp();
+                        alert('ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ!');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌ JSON!');
+                }
+            };
+            if (event.target.files[0]) {
+                reader.readAsText(event.target.files[0]);
+            }
+        }
+
+        // Report Filtering & Chart Handling
+        function setReportPeriod(period) {
+            currentPeriod = period;
+            ['daily', 'weekly', 'monthly', 'yearly'].forEach(p => {
+                const btn = document.getElementById(`btn-${p}`);
+                if (p === period) {
+                    btn.className = "px-3 py-1.5 rounded-md bg-nuol-blue text-white shadow font-semibold transition";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-md text-slate-600 hover:bg-slate-200 transition";
+                }
+            });
+
+            const periodNames = { daily: 'ປະຈຳວັນ', weekly: 'ປະຈຳອາທິດ (7 ວັນຜ່ານມາ)', monthly: 'ປະຈຳເດືອນ', yearly: 'ປະຈຳປີ' };
+            document.getElementById('periodLabel').innerText = periodNames[period];
+
+            renderChart();
+        }
+
+        function filterDocsByPeriod() {
+            const now = new Date();
+            return documents.filter(doc => {
+                const d = new Date(doc.date);
+                if (isNaN(d.getTime())) return false;
+
+                if (currentPeriod === 'daily') {
+                    return d.toISOString().split('T')[0] === now.toISOString().split('T')[0];
+                } else if (currentPeriod === 'weekly') {
+                    const diffTime = Math.abs(now - d);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 7;
+                } else if (currentPeriod === 'monthly') {
+                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                } else if (currentPeriod === 'yearly') {
+                    return d.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        function renderChart() {
+            const filteredDocs = filterDocsByPeriod();
+
+            const inCount = filteredDocs.filter(d => d.type === 'in').length;
+            const outCount = filteredDocs.filter(d => d.type === 'out').length;
+            const doneCount = filteredDocs.filter(d => d.status === 'ສຳເລັດ').length;
+            const pendingCount = filteredDocs.filter(d => d.status !== 'ສຳເລັດ').length;
+
+            document.getElementById('periodInCount').innerText = `${inCount} ບົດ`;
+            document.getElementById('periodOutCount').innerText = `${outCount} ບົດ`;
+            document.getElementById('periodDoneCount').innerText = `${doneCount} ບົດ`;
+            document.getElementById('periodPendingCount').innerText = `${pendingCount} ບົດ`;
+
+            const ctx = document.getElementById('reportChart').getContext('2d');
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['ເອກະສານຂາເຂົ້າ', 'ເອກະສານຂາອອກ', 'ສຳເລັດແລ້ວ', 'ຄ້າງດຳເນີນການ/ເລ່ງດ່ວນ'],
+                    datasets: [{
+                        label: 'ຈຳນວນເອກະສານ',
+                        data: [inCount, outCount, doneCount, pendingCount],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.85)',
+                            'rgba(99, 102, 241, 0.85)',
+                            'rgba(59, 130, 246, 0.85)',
+                            'rgba(245, 158, 11, 0.85)'
+                        ],
+                        borderRadius: 6,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper Utility
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
