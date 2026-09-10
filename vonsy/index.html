@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຄຸ້ມຄອງເອກະສານຂາເຂົ້າ-ຂາອອກ - FEB NUOL</title>
+    <!-- Noto Sans Lao Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --feb-blue: #0c2340;        /* FEB NUOL Primary Blue */
+            --feb-gold: #d4af37;        /* Accent Gold */
+            --feb-light-blue: #1d3557;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #2b2b2b;
+            --border-color: #e2e8f0;
+            --success-color: #2e7d32;
+            --danger-color: #c62828;
+            --info-color: #0288d1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header / Branding */
+        header {
+            background-color: var(--feb-blue);
+            color: #ffffff;
+            padding: 15px 20px;
+            border-bottom: 4px solid var(--feb-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-icon {
+            font-size: 2.2rem;
+            color: var(--feb-gold);
+        }
+
+        .brand-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .brand-text p {
+            font-size: 0.85rem;
+            color: #d1d5db;
+        }
+
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Dashboard Summary Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--feb-blue);
+        }
+
+        .metric-card.in { border-left-color: var(--success-color); }
+        .metric-card.out { border-left-color: var(--info-color); }
+
+        .metric-info h3 {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .metric-info .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .metric-icon {
+            font-size: 2rem;
+            opacity: 0.2;
+        }
+
+        /* Controls Section */
+        .controls-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .filter-group, .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background-color: var(--feb-blue); color: white; }
+        .btn-primary:hover { background-color: var(--feb-light-blue); }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        
+        select, input[type="text"], input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            display: none; /* hidden by default */
+        }
+
+        .form-card.active { display: block; }
+
+        .form-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--feb-blue);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 700px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--feb-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-in { background-color: #e8f5e9; color: var(--success-color); }
+        .badge-out { background-color: #e1f5fe; color: var(--info-color); }
+
+        .action-icon {
+            cursor: pointer;
+            padding: 5px;
+            margin: 0 2px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .action-icon.edit { color: var(--info-color); }
+        .action-icon.delete { color: var(--danger-color); }
+        .action-icon:hover { background-color: #eee; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: #777;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header { flex-direction: column; align-items: flex-start; }
+            .controls-card { flex-direction: column; align-items: stretch; }
+            .filter-group, .action-buttons { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="brand">
+            <i class="fa-solid fa-graduation-cap brand-icon"></i>
+            <div class="brand-text">
+                <h1>ຄະນະເສດຖະສາດ ແລະ ບໍລິຫານທຸລະກິດ (FEB)</h1>
+                <p>ມະຫາວິທະຍາໄລແຫ່ງຊາດ | ລະບົບຄຸ້ມຄອງເອກະສານສ່ວນບຸກຄົນ</p>
+            </div>
+        </div>
+        <div class="user-panel">
+            <i class="fa-solid fa-user-gear"></i>
+            <span>ໜ້າວຽກສ່ວນບຸກຄົນ</span>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Dashboard Summary Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3>ເອກະສານທັງໝົດ</h3>
+                    <div class="number" id="count-total">0</div>
+                </div>
+                <i class="fa-solid fa-folder-open metric-icon"></i>
+            </div>
+            <div class="metric-card in">
+                <div class="metric-info">
+                    <h3>ເອກະສານຂາເຂົ້າ</h3>
+                    <div class="number" id="count-in">0</div>
+                </div>
+                <i class="fa-solid fa-file-import metric-icon" style="color: var(--success-color);"></i>
+            </div>
+            <div class="metric-card out">
+                <div class="metric-info">
+                    <h3>ເອກະສານຂາອອກ</h3>
+                    <div class="number" id="count-out">0</div>
+                </div>
+                <i class="fa-solid fa-file-export metric-icon" style="color: var(--info-color);"></i>
+            </div>
+        </div>
+
+        <!-- Controls (Filters, Data Import/Export, Add button) -->
+        <div class="controls-card">
+            <div class="filter-group">
+                <label for="report-filter"><i class="fa-solid fa-filter"></i> ລາຍງານ:</label>
+                <select id="report-filter" onchange="renderData()">
+                    <option value="all">ທັງໝົດ (All)</option>
+                    <option value="daily">ປະຈຳວັນ (Daily)</option>
+                    <option value="weekly">ປະຈຳອາທິດ (Weekly)</option>
+                    <option value="monthly">ປະຈຳເດືອນ (Monthly)</option>
+                    <option value="yearly">ປະຈຳປີ (Yearly)</option>
+                </select>
+
+                <input type="text" id="search-input" placeholder="ຄົ້ນຫາເອກະສານ..." onkeyup="renderData()">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="toggleForm()">
+                    <i class="fa-solid fa-plus"></i> ເພີ່ມເອກະສານ
+                </button>
+                <button class="btn btn-secondary" onclick="exportData()" title="ສົ່ງອອກຂໍ້ມູນ JSON">
+                    <i class="fa-solid fa-download"></i> Export
+                </button>
+                <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()" title="ນຳເຂົ້າຂໍ້ມູນ JSON">
+                    <i class="fa-solid fa-upload"></i> Import
+                </button>
+                <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
+                <button class="btn btn-danger" onclick="clearAllData()" title="ລົບຂໍ້ມູນທັງໝົດ">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Form for Add/Edit Record -->
+        <div class="form-card" id="document-form-card">
+            <div class="form-title" id="form-title-text">ເພີ່ມເອກະສານໃໝ່</div>
+            <form id="doc-form" onsubmit="saveDocument(event)">
+                <input type="hidden" id="doc-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ປະເພດເອກະສານ</label>
+                        <select id="doc-type" required>
+                            <option value="ຂາເຂົ້າ">ເອກະສານຂາເຂົ້າ (Document In)</option>
+                            <option value="ຂາອອກ">ເອກະສານຂາອອກ (Document Out)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ເລກທີເອກະສານ</label>
+                        <input type="text" id="doc-number" placeholder="ex: 123/FEB" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ວັນທີ</label>
+                        <input type="date" id="doc-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ຈາກ/ເຖິງ (ໜ່ວຍງານ/ບຸກຄົນ)</label>
+                        <input type="text" id="doc-sender" placeholder="ex: ຫ້ອງການ ມນຊ" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>ເນື້ອໃນຫຍໍ້ / ເລື່ອງ</label>
+                        <input type="text" id="doc-title" placeholder="ລະບຸເນື້ອໃນເອກະສານ..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>ໝາຍເຫດ</label>
+                        <input type="text" id="doc-note" placeholder="ໝາຍເຫດເພີ່ມເຕີມ...">
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="toggleForm(false)">ຍົກເລີກ</button>
+                    <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> ບັນທຶກ</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Document List Table -->
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ປະເພດ</th>
+                        <th>ເລກທີ</th>
+                        <th>ວັນທີ</th>
+                        <th>ເນື້ອໃນ / ເລື່ອງ</th>
+                        <th>ຈາກ/ເຖິງ</th>
+                        <th>ໝາຍເຫດ</th>
+                        <th>ຈັດການ</th>
+                    </tr>
+                </thead>
+                <tbody id="document-list">
+                    <!-- Dynamic Rows Will Be Rendered Here -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; ລະບົບຕິດຕາມເອກະສານ - ພາກວິຊາ / ຄະນະເສດຖະສາດ ແລະ ບໍລິຫານທຸລະກິດ (FEB NUOL)
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const STORAGE_KEY = 'FEB_NUOL_DOCUMENTS_DATA';
+
+        // Sample initial dummy data
+        const dummyData = [
+            { id: 1, type: 'ຂາເຂົ້າ', number: '045/FEB', date: new Date().toISOString().split('T')[0], title: 'ໜັງສືເຊີນຮ່ວມກອງປະຊຸມວິຊາການ', sender: 'ຫ້ອງການ ມນຊ', note: 'ສຳຄັນ' },
+            { id: 2, type: 'ຂາອອກ', number: '102/ຄສບ', date: new Date().toISOString().split('T')[0], title: 'ບົດລາຍງານການເງິນປະຈຳເດືອນ', sender: 'ຄະນະບໍດີ', note: 'ສົ່ງແລ້ວ' },
+            { id: 3, type: 'ຂາເຂົ້າ', number: '012/ກຜ', date: '2026-01-15', title: 'ແຈ້ງການກ່ຽວກັບການເປີດສົກຮຽນໃໝ່', sender: 'ກະຊວງສຶກສາທິການ', note: '' }
+        ];
+
+        // Initialize App Data
+        function getStoredData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dummyData));
+                return dummyData;
+            }
+            return JSON.parse(data);
+        }
+
+        function saveStoredData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            renderData();
+        }
+
+        // Toggle Add/Edit Form
+        function toggleForm(show = true) {
+            const formCard = document.getElementById('document-form-card');
+            if (show) {
+                formCard.classList.add('active');
+            } else {
+                formCard.classList.remove('active');
+                document.getElementById('doc-form').reset();
+                document.getElementById('doc-id').value = '';
+                document.getElementById('form-title-text').innerText = 'ເພີ່ມເອກະສານໃໝ່';
+            }
+        }
+
+        // Save or Update Document
+        function saveDocument(e) {
+            e.preventDefault();
+            const id = document.getElementById('doc-id').value;
+            const type = document.getElementById('doc-type').value;
+            const number = document.getElementById('doc-number').value;
+            const date = document.getElementById('doc-date').value;
+            const sender = document.getElementById('doc-sender').value;
+            const title = document.getElementById('doc-title').value;
+            const note = document.getElementById('doc-note').value;
+
+            let documents = getStoredData();
+
+            if (id) {
+                // Edit mode
+                documents = documents.map(doc => doc.id == id ? { id: Number(id), type, number, date, sender, title, note } : doc);
+            } else {
+                // Add mode
+                const newDoc = {
+                    id: Date.now(),
+                    type, number, date, sender, title, note
+                };
+                documents.unshift(newDoc);
+            }
+
+            saveStoredData(documents);
+            toggleForm(false);
+        }
+
+        // Edit Document
+        function editDoc(id) {
+            const documents = getStoredData();
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('doc-id').value = doc.id;
+            document.getElementById('doc-type').value = doc.type;
+            document.getElementById('doc-number').value = doc.number;
+            document.getElementById('doc-date').value = doc.date;
+            document.getElementById('doc-sender').value = doc.sender;
+            document.getElementById('doc-title').value = doc.title;
+            document.getElementById('doc-note').value = doc.note;
+
+            document.getElementById('form-title-text').innerText = 'ແກ້ໄຂເອກະສານ';
+            toggleForm(true);
+        }
+
+        // Delete Document
+        function deleteDoc(id) {
+            if (confirm('ທ່ານຕັ້ງໃຈຈະລົບເອກະສານນີ້ແທ້ບໍ?')) {
+                let documents = getStoredData();
+                documents = documents.filter(d => d.id !== id);
+                saveStoredData(documents);
+            }
+        }
+
+        // Clear All Data
+        function clearAllData() {
+            if (confirm('ເຕືອນ: ທ່ານຕ້ອງການລົບຂໍ້ມູນທັງໝົດອອກຈາກເຄື່ອງບໍ?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                renderData();
+            }
+        }
+
+        // Date Filter Helper
+        function filterByPeriod(documents, period) {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+
+            return documents.filter(doc => {
+                const docDate = new Date(doc.date);
+                if (isNaN(docDate)) return true;
+
+                if (period === 'daily') {
+                    return doc.date === todayStr;
+                } else if (period === 'weekly') {
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(now.getDate() - 7);
+                    return docDate >= oneWeekAgo && docDate <= now;
+                } else if (period === 'monthly') {
+                    return docDate.getMonth() === now.getMonth() && docDate.getFullYear() === now.getFullYear();
+                } else if (period === 'yearly') {
+                    return docDate.getFullYear() === now.getFullYear();
+                }
+                return true; // 'all'
+            });
+        }
+
+        // Render Data and Update Counter Cards
+        function renderData() {
+            let documents = getStoredData();
+            const period = document.getElementById('report-filter').value;
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+
+            // Apply Period Filter
+            documents = filterByPeriod(documents, period);
+
+            // Apply Search Filter
+            if (searchQuery) {
+                documents = documents.filter(d => 
+                    d.title.toLowerCase().includes(searchQuery) ||
+                    d.number.toLowerCase().includes(searchQuery) ||
+                    d.sender.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            // Update Counts
+            let total = documents.length;
+            let inCount = documents.filter(d => d.type === 'ຂາເຂົ້າ').length;
+            let outCount = documents.filter(d => d.type === 'ຂາອອກ').length;
+
+            document.getElementById('count-total').innerText = total;
+            document.getElementById('count-in').innerText = inCount;
+            document.getElementById('count-out').innerText = outCount;
+
+            // Render Table Rows
+            const tbody = document.getElementById('document-list');
+            tbody.innerHTML = '';
+
+            if (documents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: #888;">ບໍ່ພົບຂໍ້ມູນເອກະສານ</td></tr>`;
+                return;
+            }
+
+            documents.forEach((doc, index) => {
+                const badgeClass = doc.type === 'ຂາເຂົ້າ' ? 'badge-in' : 'badge-out';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><span class="badge ${badgeClass}">${doc.type}</span></td>
+                    <td><b>${doc.number}</b></td>
+                    <td>${doc.date}</td>
+                    <td>${doc.title}</td>
+                    <td>${doc.sender}</td>
+                    <td>${doc.note || '-'}</td>
+                    <td>
+                        <i class="fa-solid fa-pen-to-square action-icon edit" onclick="editDoc(${doc.id})" title="ແກ້ໄຂ"></i>
+                        <i class="fa-solid fa-trash action-icon delete" onclick="deleteDoc(${doc.id})" title="ລົບ"></i>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Export Data to JSON File
+        function exportData() {
+            const data = getStoredData();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `FEB_NUOL_Documents_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Import Data from JSON File
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedDocs = JSON.parse(e.target.result);
+                    if (Array.isArray(importedDocs)) {
+                        saveStoredData(importedDocs);
+                        alert('ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ!');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌!');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderData();
+            // Set default date picker to today
+            document.getElementById('doc-date').value = new Date().toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>
