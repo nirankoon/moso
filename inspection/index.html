@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຕິດຕາມວຽກງານກວດກາ | ມະຫາວິທະຍາໄລແຫ່ງຊາດ</title>
+    
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #003366;  /* NUOL Blue */
+            --accent-red: #8b0000;    /* Inspection Red/Burgundy */
+            --accent-gold: #D4AF37;
+            --bg-light: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header / Branding */
+        header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border-bottom: 4px solid var(--accent-red);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-red);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .brand-title h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .brand-title p {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--accent-gold); color: #000; font-weight: 600; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-outline { background: transparent; color: white; border: 1px solid white; }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { opacity: 0.9; }
+
+        /* Container Layout */
+        .container {
+            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Filter & Report Section */
+        .filter-bar {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        select, input[type="text"], input[type="date"], textarea {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .kpi-card h3 {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .kpi-card .number {
+            font-size: 1.7rem;
+            font-weight: 700;
+        }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        /* Charts & Content Area */
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+        }
+
+        th {
+            background: var(--bg-light);
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-in { background: #dbeafe; color: #1e40af; }
+        .badge-out { background: #e0e7ff; color: #3730a3; }
+        .badge-invest { background: #fef3c7; color: #92400e; }
+        .badge-corrupt { background: #fee2e2; color: #991b1b; }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .status-pending { background: #fef3c7; color: #b45309; }
+        .status-process { background: #e0f2fe; color: #0369a1; }
+        .status-done { background: #d1fae5; color: #047857; }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .brand-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="brand-container">
+            <div class="brand-logo">
+                <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <div class="brand-title">
+                <h1>ຫ້ອງການກວດກາ ມະຫາວິທະຍາໄລແຫ່ງຊາດ</h1>
+                <p>Inspection Office - NUOL Personal Work Dashboard (ວຽກງານກວດກາການລົງທຶນ & ການຕ້ານການສໍ້ລາດບັງຫຼວງ)</p>
+            </div>
+        </div>
+        <div class="action-btns">
+            <button class="btn btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> ເພີ່ມຂໍ້ມູນ/ເອກະສານ</button>
+            <button class="btn btn-outline" onclick="exportData()"><i class="fa-solid fa-file-export"></i> ສົ່ງອອກ (JSON)</button>
+            <button class="btn btn-outline" onclick="document.getElementById('importFile').click()"><i class="fa-solid fa-file-import"></i> ນຳເຂົ້າ</button>
+            <input type="file" id="importFile" style="display:none" onchange="importData(event)" accept=".json">
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Controls & Reporting Filter -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label><i class="fa-solid fa-filter"></i> <b>ລາຍງານຕາມໄລຍະເວລາ:</b></label>
+                <select id="timeReportFilter" onchange="updateDashboard()">
+                    <option value="all">ທັງໝົດ (All)</option>
+                    <option value="daily">ປະຈຳວັນ (Daily)</option>
+                    <option value="weekly">ປະຈຳອາທິດ (Weekly)</option>
+                    <option value="monthly">ປະຈຳເດືອນ (Monthly)</option>
+                    <option value="yearly">ປະຈຳປີ (Yearly)</option>
+                </select>
+
+                <label style="margin-left: 10px;"><b>ໝວດໂຄງ/ເອກະສານ:</b></label>
+                <select id="categoryFilter" onchange="updateDashboard()">
+                    <option value="all">ທັງໝົດ</option>
+                    <option value="DOC_IN">ເອກະສານຂາເຂົ້າ</option>
+                    <option value="DOC_OUT">ເອກະສານຂາອອກ</option>
+                    <option value="INVESTMENT">ກວດກາການລົງທຶນຂອງລັດ</option>
+                    <option value="CORRUPTION">ກວດກາການສໍ້ລາດບັງຫຼວງ/ຮ້ອງຟ້ອງ</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <input type="text" id="searchInput" placeholder="ຄົ້ນຫາ ເລກທີ/หัวข้อ/ພາກສ່ວນ..." onkeyup="updateDashboard()">
+                <button class="btn btn-danger" onclick="clearAllData()"><i class="fa-solid fa-trash"></i> ລຶບຂໍ້ມູນທັງໝົດ</button>
+            </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div>
+                    <h3>ເລື່ອງ/ເອກະສານທັງໝົດ</h3>
+                    <div class="number" id="totalDocs">0</div>
+                </div>
+                <div class="kpi-icon" style="background: #e0f2fe; color: #0284c7;">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <h3>ກວດກາການລົງທຶນລັດ</h3>
+                    <div class="number" id="totalInvest">0</div>
+                </div>
+                <div class="kpi-icon" style="background: #fef3c7; color: #d97706;">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <h3>ກວດກາການສໍ້ລາດບັງຫຼວງ</h3>
+                    <div class="number" id="totalCorruption">0</div>
+                </div>
+                <div class="kpi-icon" style="background: #fee2e2; color: #dc2626;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div>
+                    <h3>ກຳລັງກວດກາ/ດຳເນີນການ</h3>
+                    <div class="number" id="totalPending">0</div>
+                </div>
+                <div class="kpi-icon" style="background: #e0f2fe; color: #0369a1;">
+                    <i class="fa-solid fa-spinner"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="dashboard-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-chart-bar"></i> ສະຖິຕິວຽກງານກວດກາ (Overview Chart)</span>
+                </div>
+                <canvas id="docChart" height="110"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fa-solid fa-chart-pie"></i> ສັດສ່ວນປະເພດວຽກງານ</span>
+                </div>
+                <canvas id="typeChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Main Document & Case Table -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="fa-solid fa-list-check"></i> ລາຍການເອກະສານ, ໂຄງການລົງທຶນ ແລະ ເລື່ອງຮ້ອງຟ້ອງ</span>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ເລກທີ / ລະຫັດ</th>
+                            <th>ໝວດວຽກ</th>
+                            <th>หัวข้อ / ເນື້ອໃນກວດກາ</th>
+                            <th>ພາກສ່ວນກ່ຽວຂ້ອງ/ເປົ້າໝາຍ</th>
+                            <th>ວັນທີບັນທຶກ</th>
+                            <th>ສະຖານະ</th>
+                            <th>ຈັດການ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentTableBody">
+                        <!-- Dynamic Rows loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Form for Add/Edit -->
+    <div class="modal" id="docModal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="margin-bottom: 15px; font-size: 1.1rem; color: var(--primary-blue);">ເພີ່ມຂໍ້ມູນວຽກງານກວດກາ</h2>
+            <form id="docForm" onsubmit="saveDocument(event)">
+                <input type="hidden" id="docId">
+                <div class="form-group">
+                    <label>ໝວດວຽກງານ</label>
+                    <select id="docType" required>
+                        <option value="INVESTMENT">ກວດກາການລົງທຶນຂອງລັດ (State Investment Inspection)</option>
+                        <option value="CORRUPTION">ກວດກາການສໍ້ລາດບັງຫຼວງ / ເລື່ອງຮ້ອງຟ້ອງ (Corruption & Claims)</option>
+                        <option value="DOC_IN">ເອກະສານຂາເຂົ້າ (Document In)</option>
+                        <option value="DOC_OUT">ເອກະສານຂາອອກ (Document Out)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ເລກທີເອກະສານ / ລະຫັດສຳນວນ</label>
+                    <input type="text" id="docNo" required placeholder="Ex: 012/ຫກ.ມຊ, INV-2026-01">
+                </div>
+                <div class="form-group">
+                    <label>หัวข้อ / ເນື້ອໃນກວດກາ / ເລື່ອງ</label>
+                    <input type="text" id="docTitle" required placeholder="ລະບຸເນື້ອຫາຫຍໍ້...">
+                </div>
+                <div class="form-group">
+                    <label>ພາກສ່ວນ/ໂຄງການ/ເປົ້າໝາຍກ່ຽວຂ້ອງ</label>
+                    <input type="text" id="docSender" required placeholder="Ex: ໂຄງການກໍ່ສ້າງອາຄານ, ຄະນະວິທະຍາສາດ...">
+                </div>
+                <div class="form-group">
+                    <label>ສະຖານະການດຳເນີນງານ</label>
+                    <select id="docStatus">
+                        <option value="PROCESS">ກຳລັງກວດກາ/ດຳເນີນການ (Under Inspection)</option>
+                        <option value="PENDING">ຄອງຖ້າຂໍ້ມູນ/ຫຼັກຖານ (Pending Info)</option>
+                        <option value="DONE">ກວດກາສິ້ນສຸດ/ສໍາເລັດ (Completed/Resolved)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ວັນທີບັນທຶກ/ລົງວັນທີ</label>
+                    <input type="date" id="docDate" required>
+                </div>
+                <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn" style="background:#ccc;" onclick="closeModal()">ຍົກເລີກ</button>
+                    <button type="submit" class="btn btn-primary">ບັນທຶກຂໍ້ມູນ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Sample Initial Data tailored for Inspection Office
+        const sampleData = [
+            { id: '1', type: 'INVESTMENT', no: 'INV-001/2026', title: 'ກວດກາໂຄງການກໍ່ສ້າງຫ້ອງທົດລອງ ຄະນະວິທະຍາສາດ', sender: 'ບໍລິສັດ ຮັບເໝົາກໍ່ສ້າງ A', status: 'PROCESS', date: '2026-03-01' },
+            { id: '2', type: 'CORRUPTION', no: 'CR-002/2026', title: 'ກວດກາຄຳຮ້ອງຟ້ອງຄວາມບໍ່ໂປ່ງໃສການເກັບຄ່າທຳນຽມ', sender: 'ພາກສ່ວນກ່ຽວຂ້ອງ ມຊ', status: 'PENDING', date: '2026-03-03' },
+            { id: '3', type: 'DOC_IN', no: '105/ຫກ.ມຊ', title: 'ໜັງສືສະເໜີຕິດຕາມການຈັດຊື້ອຸປະກອນໄອທີ', sender: 'ຫ້ອງການອະທິການບໍດີ', status: 'DONE', date: '2026-03-05' },
+            { id: '4', type: 'DOC_OUT', no: '018/ຫກກ.ມຊ', title: 'ແຈ້ງຜົນການກວດກາໂຄງການປັບປຸງເຄືອຂ່າຍອິນເຕີເນັດ', sender: 'ຄະນະວິທະຍາສາດທຳມະຊາດ', status: 'DONE', date: '2026-03-08' }
+        ];
+
+        let documents = [];
+        let barChartInstance = null;
+        let pieChartInstance = null;
+
+        // Initialize App
+        window.onload = function() {
+            const localData = localStorage.getItem('nuol_inspection_docs');
+            if (localData) {
+                documents = JSON.parse(localData);
+            } else {
+                documents = sampleData;
+                saveToLocalStorage();
+            }
+            updateDashboard();
+        };
+
+        function saveToLocalStorage() {
+            localStorage.setItem('nuol_inspection_docs', JSON.stringify(documents));
+        }
+
+        // Filter Logic for Time Period
+        function filterByTime(docs, filterValue) {
+            const now = new Date();
+            return docs.filter(doc => {
+                const docDate = new Date(doc.date);
+                if (isNaN(docDate)) return true;
+
+                if (filterValue === 'daily') {
+                    return docDate.toDateString() === now.toDateString();
+                } else if (filterValue === 'weekly') {
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(now.getDate() - 7);
+                    return docDate >= oneWeekAgo && docDate <= now;
+                } else if (filterValue === 'monthly') {
+                    return docDate.getMonth() === now.getMonth() && docDate.getFullYear() === now.getFullYear();
+                } else if (filterValue === 'yearly') {
+                    return docDate.getFullYear() === now.getFullYear();
+                }
+                return true; // 'all'
+            });
+        }
+
+        // Render Dashboard
+        function updateDashboard() {
+            const timeFilter = document.getElementById('timeReportFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+
+            // Filter logic
+            let filteredDocs = filterByTime(documents, timeFilter);
+
+            if (categoryFilter !== 'all') {
+                filteredDocs = filteredDocs.filter(d => d.type === categoryFilter);
+            }
+
+            if (searchKeyword) {
+                filteredDocs = filteredDocs.filter(d => 
+                    d.no.toLowerCase().includes(searchKeyword) || 
+                    d.title.toLowerCase().includes(searchKeyword) ||
+                    d.sender.toLowerCase().includes(searchKeyword)
+                );
+            }
+
+            // Update KPI Counts
+            const investCount = filteredDocs.filter(d => d.type === 'INVESTMENT').length;
+            const corruptCount = filteredDocs.filter(d => d.type === 'CORRUPTION').length;
+            const docInCount = filteredDocs.filter(d => d.type === 'DOC_IN').length;
+            const docOutCount = filteredDocs.filter(d => d.type === 'DOC_OUT').length;
+            const pendingCount = filteredDocs.filter(d => d.status === 'PROCESS' || d.status === 'PENDING').length;
+
+            document.getElementById('totalDocs').innerText = filteredDocs.length;
+            document.getElementById('totalInvest').innerText = investCount;
+            document.getElementById('totalCorruption').innerText = corruptCount;
+            document.getElementById('totalPending').innerText = pendingCount;
+
+            // Render Table & Charts
+            renderTable(filteredDocs);
+            renderCharts(investCount, corruptCount, docInCount, docOutCount);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('documentTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">ບໍ່ພົບຂໍ້ມູນກວດກາ ຫຼື ເອກະສານ</td></tr>`;
+                return;
+            }
+
+            data.forEach(doc => {
+                const tr = document.createElement('tr');
+                
+                // Type Badge
+                let badgeClass = 'badge-in';
+                let typeText = 'ຂາເຂົ້າ';
+                if (doc.type === 'DOC_OUT') { badgeClass = 'badge-out'; typeText = 'ຂາອອກ'; }
+                else if (doc.type === 'INVESTMENT') { badgeClass = 'badge-invest'; typeText = 'ກວດກາການລົງທຶນ'; }
+                else if (doc.type === 'CORRUPTION') { badgeClass = 'badge-corrupt'; typeText = 'ກວດກາສໍ້ລາດບັງຫຼວງ'; }
+
+                // Status Badge
+                let statusClass = 'status-process';
+                let statusText = 'ກຳລັງກວດກາ';
+                if (doc.status === 'PENDING') { statusClass = 'status-pending'; statusText = 'ຄອງຖ້າຂໍ້ມູນ'; }
+                else if (doc.status === 'DONE') { statusClass = 'status-done'; statusText = 'ສໍາເລັດ'; }
+
+                tr.innerHTML = `
+                    <td><b>${doc.no}</b></td>
+                    <td><span class="badge ${badgeClass}">${typeText}</span></td>
+                    <td>${doc.title}</td>
+                    <td>${doc.sender}</td>
+                    <td>${doc.date}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button onclick="editDoc('${doc.id}')" style="background:none; border:none; color:var(--primary-blue); cursor:pointer; margin-right:8px;"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteDoc('${doc.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Charts Logic
+        function renderCharts(invest, corrupt, docIn, docOut) {
+            const ctxBar = document.getElementById('docChart').getContext('2d');
+            const ctxPie = document.getElementById('typeChart').getContext('2d');
+
+            if (barChartInstance) barChartInstance.destroy();
+            if (pieChartInstance) pieChartInstance.destroy();
+
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['ກວດກາການລົງທຶນ', 'ກວດກາສໍ້ລາດບັງຫຼວງ', 'ເອກະສານຂາເຂົ້າ', 'ເອກະສານຂາອອກ'],
+                    datasets: [{
+                        label: 'ຈຳນວນ (ເລື່ອງ/ສະບັບ)',
+                        data: [invest, corrupt, docIn, docOut],
+                        backgroundColor: ['#d97706', '#dc2626', '#1d4ed8', '#4f46e5']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            pieChartInstance = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ກວດກາການລົງທຶນ', 'ກວດກາສໍ້ລາດບັງຫຼວງ', 'ຂາເຂົ້າ', 'ຂາອອກ'],
+                    datasets: [{
+                        data: [invest, corrupt, docIn, docOut],
+                        backgroundColor: ['#d97706', '#dc2626', '#1d4ed8', '#4f46e5']
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        // Modal Controls
+        function openModal() {
+            document.getElementById('docForm').reset();
+            document.getElementById('docId').value = '';
+            document.getElementById('modalTitle').innerText = 'ເພີ່ມຂໍ້ມູນວຽກງານກວດກາ';
+            document.getElementById('docDate').valueAsDate = new Date();
+            document.getElementById('docModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('docModal').style.display = 'none';
+        }
+
+        // Save & Edit CRUD Actions
+        function saveDocument(e) {
+            e.preventDefault();
+            const id = document.getElementById('docId').value;
+            const type = document.getElementById('docType').value;
+            const no = document.getElementById('docNo').value;
+            const title = document.getElementById('docTitle').value;
+            const sender = document.getElementById('docSender').value;
+            const status = document.getElementById('docStatus').value;
+            const date = document.getElementById('docDate').value;
+
+            if (id) {
+                // Edit
+                const index = documents.findIndex(d => d.id === id);
+                documents[index] = { id, type, no, title, sender, status, date };
+            } else {
+                // Add New
+                const newDoc = { id: Date.now().toString(), type, no, title, sender, status, date };
+                documents.unshift(newDoc);
+            }
+
+            saveToLocalStorage();
+            updateDashboard();
+            closeModal();
+        }
+
+        function editDoc(id) {
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('docId').value = doc.id;
+            document.getElementById('docType').value = doc.type;
+            document.getElementById('docNo').value = doc.no;
+            document.getElementById('docTitle').value = doc.title;
+            document.getElementById('docSender').value = doc.sender;
+            document.getElementById('docStatus').value = doc.status || 'PROCESS';
+            document.getElementById('docDate').value = doc.date;
+
+            document.getElementById('modalTitle').innerText = 'ແກ້ໄຂຂໍ້ມູນວຽກງານກວດກາ';
+            document.getElementById('docModal').style.display = 'flex';
+        }
+
+        function deleteDoc(id) {
+            if (confirm('ທ່ານຕ້ອງການລຶບຂໍ້ມູນລາຍການນີ້ແມ່ນບໍ່?')) {
+                documents = documents.filter(d => d.id !== id);
+                saveToLocalStorage();
+                updateDashboard();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('ເຕືອນ: ທ່ານຕ້ອງການລຶບຂໍ້ມູນທັງໝົດໃນລະບົບແມ່ນບໍ່?')) {
+                documents = [];
+                saveToLocalStorage();
+                updateDashboard();
+            }
+        }
+
+        // Import / Export JSON Features
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `NUOL_Inspection_Data_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedDocs = JSON.parse(e.target.result);
+                    if (Array.isArray(importedDocs)) {
+                        documents = importedDocs;
+                        saveToLocalStorage();
+                        updateDashboard();
+                        alert('ນຳເຂົ້າຂໍ້ມູນ ສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌');
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
