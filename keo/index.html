@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ແຜງຄວບຄຸມສ່ວນບຸກຄົນ - IT Center NUOL</title>
+    
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header / Branding -->
+    <header class="bg-blue-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-12 h-12 bg-white text-blue-900 rounded-full flex items-center justify-center font-bold text-xl shadow">
+                    ITC
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold leading-tight">ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ</h1>
+                    <p class="text-xs text-blue-200">ມະຫາວິທະຍາໄລແຫ່ງຊາດ (National University of Laos)</p>
+                </div>
+            </div>
+            <div class="text-center md:text-right">
+                <h2 class="text-lg font-semibold text-yellow-400">ແຜງຕິດຕາມເອກະສານສ່ວນບຸກຄົນ</h2>
+                <p id="current-date" class="text-xs text-gray-300"></p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- Controls Bar: Add & Data Actions -->
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <button onclick="openModal()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                ເພີ່ມເອກະສານໃໝ່
+            </button>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="exportJSON()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-xs font-medium">Export JSON</button>
+                <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-md text-xs font-medium">Export CSV</button>
+                <label class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-md text-xs font-medium cursor-pointer">
+                    Import JSON
+                    <input type="file" id="importFile" onchange="importJSON(event)" class="hidden" accept=".json">
+                </label>
+                <button onclick="clearData()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-xs font-medium">ລຶບຂໍ້ມູນທັງໝົດ</button>
+            </div>
+        </div>
+
+        <!-- Filter / Report Options -->
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <span class="font-semibold text-gray-700">ລາຍງານຕາມช่วงເວລາ:</span>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterReport('all')" id="btn-all" class="filter-btn bg-blue-100 text-blue-800 px-3 py-1.5 rounded-md text-sm font-medium">ທັງໝົດ</button>
+                    <button onclick="filterReport('daily')" id="btn-daily" class="filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded-md text-sm font-medium">ປະຈຳວັນ</button>
+                    <button onclick="filterReport('weekly')" id="btn-weekly" class="filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded-md text-sm font-medium">ປະຈຳອາທິດ</button>
+                    <button onclick="filterReport('monthly')" id="btn-monthly" class="filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded-md text-sm font-medium">ປະຈຳເດືອນ</button>
+                    <button onclick="filterReport('yearly')" id="btn-yearly" class="filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded-md text-sm font-medium">ປະຈຳປີ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm border-l-4 border-l-blue-600">
+                <p class="text-sm text-gray-500 font-medium">ເອກະສານທັງໝົດ</p>
+                <p id="stat-total" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm border-l-4 border-l-emerald-500">
+                <p class="text-sm text-gray-500 font-medium">ເອກະສານຂາເຂົ້າ (IN)</p>
+                <p id="stat-in" class="text-3xl font-bold text-emerald-600 mt-1">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm border-l-4 border-l-amber-500">
+                <p class="text-sm text-gray-500 font-medium">ເອກະສານຂາອອກ (OUT)</p>
+                <p id="stat-out" class="text-3xl font-bold text-amber-600 mt-1">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm border-l-4 border-l-indigo-500">
+                <p class="text-sm text-gray-500 font-medium">ກຳລັງດຳເນີນການ</p>
+                <p id="stat-pending" class="text-3xl font-bold text-indigo-600 mt-1">0</p>
+            </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200 text-gray-600 text-xs font-semibold uppercase tracking-wider">
+                            <th class="p-3">ເລກທີເອກະສານ</th>
+                            <th class="p-3">ປະເພດ</th>
+                            <th class="p-3">หัวຂໍ້ / ເນື້ອໃນ</th>
+                            <th class="p-3">ຈາກ/ເຖິງ ພາກສ່ວນ</th>
+                            <th class="p-3">ວັນທີ</th>
+                            <th class="p-3">ສະຖານະ</th>
+                            <th class="p-3 text-right">ຈັດການ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="document-table-body" class="divide-y divide-gray-200 text-sm">
+                        <!-- Rows rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form (Add / Edit) -->
+    <div id="docModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+            <h3 id="modal-title" class="text-lg font-bold text-gray-800 mb-4">ເພີ່ມເອກະສານ</h3>
+            <form id="docForm" onsubmit="saveDocument(event)">
+                <input type="hidden" id="doc-id">
+                
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">ເລກທີເອກະສານ</label>
+                    <input type="text" id="doc-number" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">ປະເພດເອກະສານ</label>
+                        <select id="doc-type" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="IN">ຂາເຂົ້າ (IN)</option>
+                            <option value="OUT">ຂາອອກ (OUT)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">ວັນທີ</label>
+                        <input type="date" id="doc-date" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">หัวຂໍ້ / ເນື້ອໃນສັ້ນ</label>
+                    <input type="text" id="doc-title" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">ຈາກ / ເຖິງ (ພາກສ່ວນ)</label>
+                    <input type="text" id="doc-sender" required class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">ສະຖານະ</label>
+                    <select id="doc-status" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="ດຳເນີນການ">ດຳເນີນການ (Pending)</option>
+                        <option value="ສຳເລັດ">ສຳເລັດ (Completed)</option>
+                        <option value="ຍົກເລີກ">ຍົກເລີກ (Cancelled)</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-sm font-medium">ຍົກເລີກ</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded text-sm font-medium">ບັນທຶກ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-4 text-center text-xs mt-auto">
+        &copy; 2026 IT Center - National University of Laos (NUOL). All Rights Reserved. Saved locally on device.
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const STORAGE_KEY = 'nuol_itc_documents';
+        let documents = [];
+        let currentFilter = 'all';
+
+        // Initial Dummy Data
+        const dummyData = [
+            { id: '1', number: '012/ITC.26', type: 'IN', title: 'ໜັງສືເຊີນຮ່ວມກອງປະຊຸມວາງແຜນ ICT', sender: 'ຫ້ອງການອະທິການບໍດີ', date: new Date().toISOString().split('T')[0], status: 'ສຳເລັດ' },
+            { id: '2', number: '005/ITC.OUT', type: 'OUT', title: 'ສະເໜີຈັດຊື້ອຸປະກອນເຄືອຂ່າຍ Server', sender: 'ຄະນະວິທະຍາສາດທຳມະຊາດ', date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0], status: 'ດຳເນີນການ' },
+            { id: '3', number: '088/NUOL.26', type: 'IN', title: 'ແຈ້ງການກ່ຽວກັບການອັບເດດລະບົບ Cyber Security', sender: 'ກະຊວງເຕັກໂນໂລຊີ ແລະ ການສື່ສານ', date: new Date(Date.now() - 86400000 * 10).toISOString().split('T')[0], status: 'ສຳເລັດ' }
+        ];
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('lo-LA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            loadData();
+        });
+
+        // Load data from localStorage
+        function loadData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) {
+                documents = dummyData;
+                saveToLocalStorage();
+            } else {
+                documents = JSON.parse(data);
+            }
+            renderTable();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+            renderTable();
+        }
+
+        // Render Table and Metrics
+        function renderTable() {
+            const tbody = document.getElementById('document-table-body');
+            tbody.innerHTML = '';
+
+            const filteredDocs = getFilteredDocuments();
+
+            // Update stats
+            document.getElementById('stat-total').innerText = filteredDocs.length;
+            document.getElementById('stat-in').innerText = filteredDocs.filter(d => d.type === 'IN').length;
+            document.getElementById('stat-out').innerText = filteredDocs.filter(d => d.type === 'OUT').length;
+            document.getElementById('stat-pending').innerText = filteredDocs.filter(d => d.status === 'ດຳເນີນການ').length;
+
+            if (filteredDocs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">ບໍ່ມີຂໍ້ມູນເອກະສານ</td></tr>`;
+                return;
+            }
+
+            filteredDocs.forEach(doc => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                
+                const typeBadge = doc.type === 'IN' 
+                    ? `<span class="px-2 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded">ຂາເຂົ້າ</span>`
+                    : `<span class="px-2 py-1 text-xs font-semibold bg-amber-100 text-amber-800 rounded">ຂາອອກ</span>`;
+
+                let statusBadge = '';
+                if(doc.status === 'ສຳເລັດ') statusBadge = `<span class="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">ສຳເລັດ</span>`;
+                else if(doc.status === 'ດຳເນີນການ') statusBadge = `<span class="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">ດຳເນີນການ</span>`;
+                else statusBadge = `<span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">ຍົກເລີກ</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-gray-900">${doc.number}</td>
+                    <td class="p-3">${typeBadge}</td>
+                    <td class="p-3">${doc.title}</td>
+                    <td class="p-3 text-gray-600">${doc.sender}</td>
+                    <td class="p-3 text-gray-500 text-xs">${doc.date}</td>
+                    <td class="p-3">${statusBadge}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="editDocument('${doc.id}')" class="text-blue-600 hover:text-blue-900 mr-2 text-xs font-semibold">ແກ້ໄຂ</button>
+                        <button onclick="deleteDocument('${doc.id}')" class="text-red-600 hover:text-red-900 text-xs font-semibold">ລຶບ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filtering Logic
+        function filterReport(range) {
+            currentFilter = range;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded-md text-sm font-medium";
+            });
+            document.getElementById(`btn-${range}`).className = "filter-btn bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium";
+            renderTable();
+        }
+
+        function getFilteredDocuments() {
+            const now = new Date();
+            return documents.filter(doc => {
+                const docDate = new Date(doc.date);
+                if (currentFilter === 'daily') {
+                    return docDate.toDateString() === now.toDateString();
+                } else if (currentFilter === 'weekly') {
+                    const diffTime = Math.abs(now - docDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 7;
+                } else if (currentFilter === 'monthly') {
+                    return docDate.getMonth() === now.getMonth() && docDate.getFullYear() === now.getFullYear();
+                } else if (currentFilter === 'yearly') {
+                    return docDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        // Add & Edit Actions
+        function openModal(editMode = false) {
+            document.getElementById('docModal').classList.remove('hidden');
+            if (!editMode) {
+                document.getElementById('modal-title').innerText = "ເພີ່ມເອກະສານໃໝ່";
+                document.getElementById('docForm').reset();
+                document.getElementById('doc-id').value = '';
+                document.getElementById('doc-date').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('docModal').classList.add('hidden');
+        }
+
+        function saveDocument(e) {
+            e.preventDefault();
+            const id = document.getElementById('doc-id').value;
+            const number = document.getElementById('doc-number').value;
+            const type = document.getElementById('doc-type').value;
+            const date = document.getElementById('doc-date').value;
+            const title = document.getElementById('doc-title').value;
+            const sender = document.getElementById('doc-sender').value;
+            const status = document.getElementById('doc-status').value;
+
+            if (id) {
+                // Edit existing
+                const index = documents.findIndex(d => d.id === id);
+                if (index !== -1) {
+                    documents[index] = { id, number, type, date, title, sender, status };
+                }
+            } else {
+                // Add new
+                const newDoc = { id: Date.now().toString(), number, type, date, title, sender, status };
+                documents.push(newDoc);
+            }
+
+            saveToLocalStorage();
+            closeModal();
+        }
+
+        function editDocument(id) {
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('modal-title').innerText = "ແກ້ໄຂເອກະສານ";
+            document.getElementById('doc-id').value = doc.id;
+            document.getElementById('doc-number').value = doc.number;
+            document.getElementById('doc-type').value = doc.type;
+            document.getElementById('doc-date').value = doc.date;
+            document.getElementById('doc-title').value = doc.title;
+            document.getElementById('doc-sender').value = doc.sender;
+            document.getElementById('doc-status').value = doc.status;
+
+            openModal(true);
+        }
+
+        function deleteDocument(id) {
+            if (confirm("ທ່ານຕ້ອງການລຶບເອກະສານນີ້ແມ່ນບໍ?")) {
+                documents = documents.filter(d => d.id !== id);
+                saveToLocalStorage();
+            }
+        }
+
+        function clearData() {
+            if (confirm("ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນເອກະສານທັງໝົດ? Action ທ່ານບໍ່ສາມາດຍົກເລີກໄດ້!")) {
+                documents = [];
+                saveToLocalStorage();
+            }
+        }
+
+        // Export/Import Features
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `ITCenter_Docs_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchorElem.click();
+        }
+
+        function exportCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Add BOM for Lao UTF-8 support
+            csvContent += "ID,ເລກທີ,ປະເພດ,หัวຂໍ້,ຈາກ/ເຖິງ,ວັນທີ,ສະຖານະ\n";
+
+            documents.forEach(d => {
+                csvContent += `"${d.id}","${d.number}","${d.type}","${d.title}","${d.sender}","${d.date}","${d.status}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `ITCenter_Report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.click();
+        }
+
+        function importJSON(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        documents = importedData;
+                        saveToLocalStorage();
+                        alert("ນຳເຂົ້າຂໍ້ມູນ ສຳເລັດແລ້ວ!");
+                    } else {
+                        alert("ຮູບແບບໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ");
+                    }
+                } catch (err) {
+                    alert("ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌: " + err.message);
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
