@@ -1,4 +1,4 @@
-name: Deploy to Surge
+name: Deploy to Surge and Cloudflare Pages
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -18,10 +18,24 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Surge & Deploy
+      - name: Deploy to Surge
         env:
           SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
         run: |
           npm install -g surge
           surge . moso.surge.sh
+
+      - name: Prepare Cloudflare Apps Directory
+        run: |
+          mkdir -p dist/apps
+          rsync -av --exclude='dist' --exclude='.git' --exclude='.github' . dist/apps/
+
+      - name: Deploy to Cloudflare Pages
+        uses: Cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'itc-nuol'
+          directory: 'dist'
+          gitBranch: 'main'
