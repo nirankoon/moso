@@ -3,316 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ແຜງຄວບຄຸມສ່ວນບຸກຄົນ - ITCenter NUOL</title>
-    <!-- Google Fonts: Noto Sans Lao -->
+    <title>IT Center - NUOL | Personal Document Dashboard</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Noto Sans Lao Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary-color: #003366; /* NUOL Navy Blue */
-            --accent-color: #d97706;  /* Warm Gold */
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-color: #1f2937;
-            --border-color: #e5e7eb;
-            --danger-color: #dc2626;
-            --success-color: #16a34a;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans Lao', sans-serif;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 20px;
-            font-size: 14px;
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #f3f4f6;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Header Branding */
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .brand-logo {
-            width: 50px;
-            height: 50px;
-            background: white;
-            color: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .brand-text h1 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .brand-text p {
-            font-size: 13px;
-            opacity: 0.8;
-        }
-
-        /* Controls & Buttons */
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: opacity 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn:hover { opacity: 0.9; }
-        .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-accent { background-color: var(--accent-color); color: white; }
-        .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-secondary { background-color: #6b7280; color: white; }
-
-        /* Dashboard Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        @media(min-width: 768px) {
-            .grid-stats {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .grid-main {
-                grid-template-columns: 350px 1fr;
-            }
-        }
-
-        /* Stat Cards */
-        .stat-card {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .stat-card h3 { font-size: 12px; color: #6b7280; text-transform: uppercase; }
-        .stat-card p { font-size: 24px; font-weight: bold; margin-top: 5px; }
-
-        /* Card Panels */
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 8px;
-            color: var(--primary-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Form Controls */
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            outline: none;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-        }
-
-        /* Table Responsive */
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: #f9fafb;
-            color: #4b5563;
-        }
-
-        .badge {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .badge-in { background: #dbeafe; color: #1e40af; }
-        .badge-out { background: #fef3c7; color: #92400e; }
-
-        /* Action Buttons Small */
-        .action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 3px 6px;
-            border-radius: 4px;
-        }
-        .action-edit { color: var(--accent-color); }
-        .action-delete { color: var(--danger-color); }
-
     </style>
 </head>
-<body>
+<body class="text-gray-800">
 
-<div class="container">
-    <!-- Header / Branding -->
-    <header>
-        <div class="brand">
-            <div class="brand-logo">ITC</div>
-            <div class="brand-text">
-                <h1>ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ</h1>
-                <p>ມະຫາວິທະຍາໄລແຫ່ງຊາດ (ITCenter NUOL) - ແຜງຄວບຄຸມວຽກສ່ວນບຸກຄົນ</p>
+    <!-- Header / Navbar -->
+    <header class="bg-blue-900 text-white shadow-lg border-b-4 border-yellow-500 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2 rounded-full text-blue-900 font-bold text-xl w-12 h-12 flex items-center justify-center border-2 border-yellow-500 shadow">
+                    ITC
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold leading-tight">ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ</h1>
+                    <p class="text-xs text-yellow-300">ມະຫາວິທະຍາໄລແຫ່ງຊາດ (Information Technology Center, NUOL)</p>
+                </div>
             </div>
-        </div>
-        <div class="btn-group">
-            <button class="btn btn-secondary" onclick="exportData()">📥 ສົ່ງອອກ (JSON)</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 ນຳເຂົ້າ (JSON)</button>
-            <input type="file" id="importFile" style="display:none" onchange="importData(event)">
-            <button class="btn btn-danger" onclick="clearData()">🗑️ ລຶບຂໍ້ມູນທັງໝົດ</button>
+            
+            <div class="flex items-center gap-2 flex-wrap justify-center">
+                <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 transition shadow">
+                    <i data-lucide="download" class="w-4 h-4"></i> ສົ່ງອອກ JSON
+                </button>
+                <label class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 cursor-pointer transition shadow">
+                    <i data-lucide="upload" class="w-4 h-4"></i> ນຳເຂົ້າ JSON
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                </label>
+                <button onclick="clearAllData()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 transition shadow">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> ລ້າງຂໍ້ມູນ
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- Stat Overview -->
-    <div class="grid grid-stats" style="margin-bottom: 20px;">
-        <div class="stat-card">
-            <h3>ເອກະສານທັງໝົດ</h3>
-            <p id="stat-total">0</p>
-        </div>
-        <div class="stat-card" style="border-left-color: #1e40af;">
-            <h3>ເອກະສານຂາເຂົ້າ</h3>
-            <p id="stat-in">0</p>
-        </div>
-        <div class="stat-card" style="border-left-color: #92400e;">
-            <h3>ເອກະສານຂາອອກ</h3>
-            <p id="stat-out">0</p>
-        </div>
-        <div class="stat-card" style="border-left-color: var(--success-color);">
-            <h3>ບັນທຶກເດືອນນີ້</h3>
-            <p id="stat-month">0</p>
-        </div>
-    </div>
+    <!-- Main Container -->
+    <main class="container mx-auto px-4 py-6">
 
-    <!-- Main Content Area -->
-    <div class="grid grid-main">
-        
-        <!-- Left: Form Input -->
-        <div>
-            <div class="card">
-                <div class="card-title">
-                    <span id="form-title">ເພີ່ມເອກະສານໃໝ່</span>
-                </div>
-                <form id="docForm" onsubmit="saveDocument(event)">
-                    <input type="hidden" id="docId">
-                    <div class="form-group">
-                        <label>ປະເພດເອກະສານ</label>
-                        <select id="type" class="form-control" required>
-                            <option value="IN">ຂາເຂົ້າ (IN)</option>
-                            <option value="OUT">ຂາອອກ (OUT)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>ເລກທີເອກະສານ</label>
-                        <input type="text" id="docNo" class="form-control" placeholder="ເຊັ່ນ: 012/ສຕຂ" required>
-                    </div>
-                    <div class="form-group">
-                        <label>ຫົວຂໍ້ / ເນື້ອໃນ</label>
-                        <input type="text" id="title" class="form-control" placeholder="ໃສ່ຫົວຂໍ້ເອກະສານ" required>
-                    </div>
-                    <div class="form-group">
-                        <label>ໜ່ວຍງານກ່ຽວຂ້ອງ / ບ່ອນສົ່ງ-ຮັບ</label>
-                        <input type="text" id="organization" class="form-control" placeholder="ເຊັ່ນ: ຫ້ອງການມະຫາວິທະຍາໄລ" required>
-                    </div>
-                    <div class="form-group">
-                        <label>ວັນທີ</label>
-                        <input type="date" id="date" class="form-control" required>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">ບັນທຶກ</button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()">ຍົກເລີກ</button>
-                    </div>
-                </form>
+        <!-- Banner Personal Work -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border-l-4 border-blue-900 flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-bold text-blue-900">ແຜງຄວບຄຸມສ່ວນຕົວ: ລະບົບຕິດຕາມ ເອກະສານຂາເຂົ້າ - ຂາອອກ</h2>
+                <p class="text-xs text-gray-500">ຈັດການ ແລະ ບັນທຶກເອກະສານວຽກງານສ່ວນຕົວ (ຂໍ້ມູນຖືກບັນທຶກໃນອຸປະກອນນີ້)</p>
             </div>
+            <button onclick="openModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 shadow transition">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i> ເພີ່ມເອກະສານ
+            </button>
+        </div>
 
-            <!-- Report Filter -->
-            <div class="card">
-                <div class="card-title">ລາຍງານ (Report)</div>
-                <div class="form-group">
-                    <label>ເລືອກໄລຍະເວລາ</label>
-                    <select id="reportPeriod" class="form-control" onchange="filterData()">
-                        <option value="all">ທັງໝົດ</option>
+        <!-- Filter & Report Cards (Summary Stat) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 font-medium">ເອກະສານທັງໝົດ</p>
+                    <h3 class="text-2xl font-bold text-gray-800" id="statTotal">0</h3>
+                </div>
+                <div class="p-3 bg-blue-50 text-blue-900 rounded-lg">
+                    <i data-lucide="files" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 font-medium">ເອກະສານຂາເຂົ້າ (IN)</p>
+                    <h3 class="text-2xl font-bold text-green-600" id="statIn">0</h3>
+                </div>
+                <div class="p-3 bg-green-50 text-green-600 rounded-lg">
+                    <i data-lucide="arrow-down-left" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 font-medium">ເອກະສານຂາອອກ (OUT)</p>
+                    <h3 class="text-2xl font-bold text-orange-600" id="statOut">0</h3>
+                </div>
+                <div class="p-3 bg-orange-50 text-orange-600 rounded-lg">
+                    <i data-lucide="arrow-up-right" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-gray-500 font-medium">ກຳລັງດໍາເນີນການ</p>
+                    <h3 class="text-2xl font-bold text-yellow-600" id="statPending">0</h3>
+                </div>
+                <div class="p-3 bg-yellow-50 text-yellow-600 rounded-lg">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Reports & Filters -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 pb-3 border-b border-gray-100">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-blue-900"></i>
+                    <h3 class="font-bold text-gray-700">ລາຍງານ ແລະ ສັງລວມ (Report)</h3>
+                </div>
+                <!-- Timeframe Select -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500">ເລືອກໄລຍະເວລາ:</span>
+                    <select id="reportPeriod" onchange="renderDashboard()" class="border rounded-lg px-3 py-1.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-900">
+                        <option value="all">ທັງໝົດ (All Time)</option>
                         <option value="daily">ມື້ນີ້ (Daily)</option>
                         <option value="weekly">ອາທິດນີ້ (Weekly)</option>
                         <option value="monthly">ເດືອນນີ້ (Monthly)</option>
@@ -320,247 +125,363 @@
                     </select>
                 </div>
             </div>
-        </div>
-
-        <!-- Right: Data Table -->
-        <div>
-            <div class="card">
-                <div class="card-title">
-                    <span>ລາຍການເອກະສານ ຂາເຂົ້າ - ຂາອອກ</span>
-                    <input type="text" id="search" placeholder="ຄົ້ນຫາ..." class="form-control" style="width: 200px; display:inline-block;" onkeyup="filterData()">
-                </div>
-
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ວັນທີ</th>
-                                <th>ປະເພດ</th>
-                                <th>ເລກທີ</th>
-                                <th>ຫົວຂໍ້</th>
-                                <th>ຈາກ/ເຖິງ</th>
-                                <th>ຈັດການ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="docTableBody">
-                            <!-- Dynamic Content -->
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Chart Container -->
+            <div class="w-full h-64">
+                <canvas id="docChart"></canvas>
             </div>
         </div>
 
-    </div>
-</div>
+        <!-- Document Table Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <!-- Table Header Tools -->
+            <div class="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-3">
+                <h3 class="font-bold text-gray-700 flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5 text-blue-900"></i>
+                    ລາຍການເອກະສານ
+                </h3>
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <input type="text" id="searchInput" onkeyup="renderDashboard()" placeholder="ຄົ້ນຫາ ເລກທີ, ເລື່ອງ..." class="w-full md:w-64 border rounded-lg px-3 py-1.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-900">
+                    <select id="typeFilter" onchange="renderDashboard()" class="border rounded-lg px-3 py-1.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-900">
+                        <option value="all">ທຸກປະເພດ</option>
+                        <option value="IN">ຂາເຂົ້າ (IN)</option>
+                        <option value="OUT">ຂາອອກ (OUT)</option>
+                    </select>
+                </div>
+            </div>
 
-<script>
-    // Initial Dummy Data
-    const dummyData = [
-        { id: 1, type: "IN", docNo: "105/ມຊ", title: "ເຊີນຮ່ວມປະຊຸມວາງແຜນໄອທີ", organization: "ຫ້ອງການ ມຊ", date: "2026-03-01" },
-        { id: 2, type: "OUT", docNo: "12/ສຕຂ", title: "ລາຍງານສະພາບເຄືອຂ່າຍອິນເຕີເນັດ", organization: "ອະທິການບໍດີ", date: "2026-03-02" },
-        { id: 3, type: "IN", docNo: "08/ສຕຂ", title: "ແຈ້ງການບຳລຸງຮັກສາລະບົບ", organization: "ສູນເຕັກໂນໂລຊີ", date: new Date().toISOString().split('T')[0] }
-    ];
+            <!-- Table Responsive -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-600 text-xs border-b">
+                            <th class="p-3">ວັນທີ</th>
+                            <th class="p-3">ປະເພດ</th>
+                            <th class="p-3">ເລກທີເອກະສານ</th>
+                            <th class="p-3">ຫົວຂໍ້ / ເນື້ອໃນ</th>
+                            <th class="p-3">ຈາກ / ເຖິງ</th>
+                            <th class="p-3">ສະຖານະ</th>
+                            <th class="p-3 text-center">ຈັດການ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentTableBody" class="divide-y divide-gray-100 text-sm">
+                        <!-- Data will be dynamically rendered here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-    // Load Data
-    function getDocuments() {
-        const stored = localStorage.getItem('itc_documents');
-        if (!stored) {
-            localStorage.setItem('itc_documents', JSON.stringify(dummyData));
-            return dummyData;
-        }
-        return JSON.parse(stored);
-    }
+    </main>
 
-    // Save Data
-    function saveDocuments(data) {
-        localStorage.setItem('itc_documents', JSON.stringify(data));
-        render();
-    }
-
-    // Render App
-    function render() {
-        filterData();
-    }
-
-    // Save/Update Single Document
-    function saveDocument(e) {
-        e.preventDefault();
-        const id = document.getElementById('docId').value;
-        const type = document.getElementById('type').value;
-        const docNo = document.getElementById('docNo').value;
-        const title = document.getElementById('title').value;
-        const organization = document.getElementById('organization').value;
-        const date = document.getElementById('date').value;
-
-        let docs = getDocuments();
-
-        if (id) {
-            // Edit
-            docs = docs.map(d => d.id == id ? { id: Number(id), type, docNo, title, organization, date } : d);
-        } else {
-            // New
-            const newDoc = { id: Date.now(), type, docNo, title, organization, date };
-            docs.push(newDoc);
-        }
-
-        saveDocuments(docs);
-        resetForm();
-    }
-
-    // Edit Document
-    function editDoc(id) {
-        const docs = getDocuments();
-        const doc = docs.find(d => d.id == id);
-        if (doc) {
-            document.getElementById('docId').value = doc.id;
-            document.getElementById('type').value = doc.type;
-            document.getElementById('docNo').value = doc.docNo;
-            document.getElementById('title').value = doc.title;
-            document.getElementById('organization').value = doc.organization;
-            document.getElementById('date').value = doc.date;
-            document.getElementById('form-title').innerText = "ແກ້ໄຂເອກະສານ";
-        }
-    }
-
-    // Delete Document
-    function deleteDoc(id) {
-        if (confirm("ທ່ານຕ້ອງການລຶບເອກະສານນີ້ແທ້ບໍ?")) {
-            let docs = getDocuments();
-            docs = docs.filter(d => d.id != id);
-            saveDocuments(docs);
-        }
-    }
-
-    // Clear All Data
-    function clearData() {
-        if (confirm("ທ່ານແນ່ໃຈບໍທີ່ຈະລຶບຂໍ້ມູນທັງໝົດ? ຂໍ້ມູນບໍ່ສາມາດກູ້ຄືນໄດ້!")) {
-            localStorage.removeItem('itc_documents');
-            render();
-        }
-    }
-
-    // Reset Form
-    function resetForm() {
-        document.getElementById('docForm').reset();
-        document.getElementById('docId').value = '';
-        document.getElementById('form-title').innerText = "ເພີ່ມເອກະສານໃໝ່";
-        // Default to today
-        document.getElementById('date').value = new Date().toISOString().split('T')[0];
-    }
-
-    // Filter & Search Logic (Reports)
-    function filterData() {
-        const docs = getDocuments();
-        const period = document.getElementById('reportPeriod').value;
-        const search = document.getElementById('search').value.toLowerCase();
-        
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-
-        let filtered = docs.filter(doc => {
-            // Search text
-            const matchSearch = doc.title.toLowerCase().includes(search) || 
-                                doc.docNo.toLowerCase().includes(search) || 
-                                doc.organization.toLowerCase().includes(search);
+    <!-- Modal Form (Add / Edit) -->
+    <div id="docModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="bg-blue-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold" id="modalTitle">ເພີ່ມເອກະສານໃໝ່</h3>
+                <button onclick="closeModal()" class="text-white hover:text-gray-300">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
             
-            if (!matchSearch) return false;
+            <form id="docForm" onsubmit="saveDocument(event)" class="p-6 space-y-4">
+                <input type="hidden" id="docId">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">ປະເພດເອກະສານ</label>
+                        <select id="docType" required class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+                            <option value="IN">ຂາເຂົ້າ (IN)</option>
+                            <option value="OUT">ຂາອອກ (OUT)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">ວັນທີ</label>
+                        <input type="date" id="docDate" required class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+                    </div>
+                </div>
 
-            // Report period filter
-            const docDate = new Date(doc.date);
-            if (period === 'daily') {
-                return doc.date === todayStr;
-            } else if (period === 'weekly') {
-                const diffTime = Math.abs(now - docDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays <= 7;
-            } else if (period === 'monthly') {
-                return docDate.getMonth() === now.getMonth() && docDate.getFullYear() === now.getFullYear();
-            } else if (period === 'yearly') {
-                return docDate.getFullYear() === now.getFullYear();
-            }
-            return true;
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">ເລກທີເອກະສານ</label>
+                    <input type="text" id="docNumber" required placeholder="ເຊັ່ນ: 124/ສຕຂ" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">ຫົວຂໍ້ / ເລື່ອງ</label>
+                    <input type="text" id="docTitle" required placeholder="ປ້ອນຫົວຂໍ້ເອກະສານ..." class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">ສົ່ງຈາກ / ເຖິງ (ໜ່ວຍງານ)</label>
+                        <input type="text" id="docParty" placeholder="ເຊັ່ນ: ຫ້ອງການ ມນ" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">ສະຖານະ</label>
+                        <select id="docStatus" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+                            <option value="ສໍາເລັດ">ສໍາເລັດ</option>
+                            <option value="ກໍາລັງດໍາເນີນການ">ກໍາລັງດໍາເນີນການ</option>
+                            <option value="ລໍຖ້າອະນຸມັດ">ລໍຖ້າອະນຸມັດ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg text-sm font-medium hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-900 text-white rounded-lg text-sm font-medium hover:bg-blue-800">ບັນທຶກ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Application Logic -->
+    <script>
+        // Dummy Initial Data
+        const dummyData = [
+            { id: "1", type: "IN", number: "045/ສຕຂ", title: "ໜັງສືເຊີນຮ່ວມປະຊຸມວາງແຜນໄອທີ ປີ 2026", party: "ຫ້ອງການ ມຫາວິທະຍາໄລ", date: "2026-03-01", status: "ສໍາເລັດ" },
+            { id: "2", type: "OUT", number: "012/ສຕຂ.26", title: "ລາຍງານຄວາມຄືບໜ້າລະບົບເຄືອຂ່າຍ Internet NUOL", party: "ອະທິການບໍດີ", date: "2026-03-03", status: "ສໍາເລັດ" },
+            { id: "3", type: "IN", number: "102/ຫກ", title: "ແຈ້ງການເລື່ອງການອັບເກຣດ Sever ສູນຂໍ້ມູນ", party: "ກະຊວງ ສສກ", date: "2026-03-05", status: "ກໍາລັງດໍາເນີນການ" },
+            { id: "4", type: "OUT", number: "015/ສຕຂ.26", title: "ເອກະສານສະເໜີຈັດຊື້ປະກອນ IT ໃໝ່", party: "ຮອງອະທິການບໍດີ", date: "2026-03-07", status: "ລໍຖ້າອະນຸມັດ" }
+        ];
+
+        // Global State & LocalStorage
+        let documents = JSON.parse(localStorage.getItem("itc_nuol_docs")) || dummyData;
+        let chartInstance = null;
+
+        // Initialize App
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            document.getElementById('docDate').valueAsDate = new Date();
+            renderDashboard();
         });
 
-        renderTable(filtered);
-        updateStats(docs);
-    }
-
-    // Render Table Body
-    function renderTable(docs) {
-        const tbody = document.getElementById('docTableBody');
-        tbody.innerHTML = '';
-
-        if (docs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">ບໍ່ພົບຂໍ້ມູນເອກະສານ</td></tr>`;
-            return;
+        function saveToLocal() {
+            localStorage.setItem("itc_nuol_docs", JSON.stringify(documents));
         }
 
-        docs.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(doc => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${doc.date}</td>
-                <td><span class="badge ${doc.type === 'IN' ? 'badge-in' : 'badge-out'}">${doc.type === 'IN' ? 'ຂາເຂົ້າ' : 'ຂາອອກ'}</span></td>
-                <td><strong>${doc.docNo}</strong></td>
-                <td>${doc.title}</td>
-                <td>${doc.organization}</td>
-                <td>
-                    <button class="action-btn action-edit" onclick="editDoc(${doc.id})">✏️</button>
-                    <button class="action-btn action-delete" onclick="deleteDoc(${doc.id})">🗑️</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
+        // Filter Logic based on Period
+        function getFilteredData() {
+            const period = document.getElementById("reportPeriod").value;
+            const search = document.getElementById("searchInput").value.toLowerCase();
+            const type = document.getElementById("typeFilter").value;
 
-    // Update Top Cards Stats
-    function updateStats(docs) {
-        const now = new Date();
-        document.getElementById('stat-total').innerText = docs.length;
-        document.getElementById('stat-in').innerText = docs.filter(d => d.type === 'IN').length;
-        document.getElementById('stat-out').innerText = docs.filter(d => d.type === 'OUT').length;
-        
-        const thisMonth = docs.filter(d => {
-            const dDate = new Date(d.date);
-            return dDate.getMonth() === now.getMonth() && dDate.getFullYear() === now.getFullYear();
-        }).length;
-        document.getElementById('stat-month').innerText = thisMonth;
-    }
+            const now = new Date();
+            
+            return documents.filter(doc => {
+                const docDate = new Date(doc.date);
+                
+                // Text Search & Type Filter
+                const matchSearch = doc.title.toLowerCase().includes(search) || doc.number.toLowerCase().includes(search) || doc.party.toLowerCase().includes(search);
+                const matchType = type === "all" || doc.type === type;
 
-    // Export Data to JSON
-    function exportData() {
-        const docs = getDocuments();
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(docs, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `ITCenter_Docs_Backup_${new Date().toISOString().split('T')[0]}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
-
-    // Import Data from JSON
-    function importData(event) {
-        const fileReader = new FileReader();
-        fileReader.onload = function (e) {
-            try {
-                const importedDocs = JSON.parse(e.target.result);
-                if (Array.isArray(importedDocs)) {
-                    saveDocuments(importedDocs);
-                    alert("ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!");
-                } else {
-                    alert("ຮູບແບບໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ");
+                // Timeframe Filter
+                let matchPeriod = true;
+                if (period === "daily") {
+                    matchPeriod = docDate.toDateString() === now.toDateString();
+                } else if (period === "weekly") {
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(now.getDate() - 7);
+                    matchPeriod = docDate >= oneWeekAgo && docDate <= now;
+                } else if (period === "monthly") {
+                    matchPeriod = docDate.getMonth() === now.getMonth() && docDate.getFullYear() === now.getFullYear();
+                } else if (period === "yearly") {
+                    matchPeriod = docDate.getFullYear() === now.getFullYear();
                 }
-            } catch (err) {
-                alert("ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌");
+
+                return matchSearch && matchType && matchPeriod;
+            });
+        }
+
+        // Render Dashboard Data & View
+        function renderDashboard() {
+            const filteredDocs = getFilteredData();
+            
+            // 1. Render Table
+            const tbody = document.getElementById("documentTableBody");
+            tbody.innerHTML = "";
+
+            if (filteredDocs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">ບໍ່ພົບຂໍ້ມູນເອກະສານ</td></tr>`;
+            } else {
+                filteredDocs.forEach(doc => {
+                    const badgeClass = doc.type === "IN" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700";
+                    const statusClass = doc.status === "ສໍາເລັດ" ? "bg-blue-100 text-blue-800" : "bg-yellow-100 text-yellow-800";
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-3 whitespace-nowrap">${doc.date}</td>
+                            <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded ${badgeClass}">${doc.type}</span></td>
+                            <td class="p-3 font-semibold text-gray-700">${doc.number}</td>
+                            <td class="p-3 max-w-xs truncate" title="${doc.title}">${doc.title}</td>
+                            <td class="p-3 text-gray-600">${doc.party}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 text-xs rounded-full ${statusClass}">${doc.status}</span></td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button onclick="editDocument('${doc.id}')" class="text-blue-600 hover:text-blue-900"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                    <button onclick="deleteDocument('${doc.id}')" class="text-red-600 hover:text-red-900"><i data-lucide="trash" class="w-4 h-4"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
             }
-        };
-        fileReader.readAsText(event.target.files[0]);
-    }
 
-    // Set Initial Form Date and Run App
-    document.getElementById('date').value = new Date().toISOString().split('T')[0];
-    render();
+            // 2. Render Statistics Stats
+            document.getElementById("statTotal").innerText = filteredDocs.length;
+            document.getElementById("statIn").innerText = filteredDocs.filter(d => d.type === "IN").length;
+            document.getElementById("statOut").innerText = filteredDocs.filter(d => d.type === "OUT").length;
+            document.getElementById("statPending").innerText = filteredDocs.filter(d => d.status !== "ສໍາເລັດ").length;
 
-</script>
+            // Re-render Icons inside dynamic HTML
+            lucide.createIcons();
+
+            // 3. Render Chart
+            renderChart(filteredDocs);
+        }
+
+        // Render Chart.js
+        function renderChart(docsData) {
+            const ctx = document.getElementById('docChart').getContext('2d');
+            
+            const inCount = docsData.filter(d => d.type === "IN").length;
+            const outCount = docsData.filter(d => d.type === "OUT").length;
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['ເອກະສານຂາເຂົ້າ (IN)', 'ເອກະສານຂາອອກ (OUT)'],
+                    datasets: [{
+                        label: 'ຈຳນວນເອກະສານ',
+                        data: [inCount, outCount],
+                        backgroundColor: ['#16a34a', '#ea580c'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        // Modal Functions
+        function openModal() {
+            document.getElementById("docForm").reset();
+            document.getElementById("docId").value = "";
+            document.getElementById("docDate").valueAsDate = new Date();
+            document.getElementById("modalTitle").innerText = "ເພີ່ມເອກະສານໃໝ່";
+            document.getElementById("docModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("docModal").classList.add("hidden");
+        }
+
+        // Save Form (Add / Update)
+        function saveDocument(e) {
+            e.preventDefault();
+            const id = document.getElementById("docId").value;
+            const type = document.getElementById("docType").value;
+            const date = document.getElementById("docDate").value;
+            const number = document.getElementById("docNumber").value;
+            const title = document.getElementById("docTitle").value;
+            const party = document.getElementById("docParty").value;
+            const status = document.getElementById("docStatus").value;
+
+            if (id) {
+                // Edit
+                const index = documents.findIndex(d => d.id === id);
+                if (index !== -1) {
+                    documents[index] = { id, type, date, number, title, party, status };
+                }
+            } else {
+                // Create
+                const newDoc = {
+                    id: Date.now().toString(),
+                    type, date, number, title, party, status
+                };
+                documents.unshift(newDoc);
+            }
+
+            saveToLocal();
+            closeModal();
+            renderDashboard();
+        }
+
+        // Edit Action
+        function editDocument(id) {
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById("docId").value = doc.id;
+            document.getElementById("docType").value = doc.type;
+            document.getElementById("docDate").value = doc.date;
+            document.getElementById("docNumber").value = doc.number;
+            document.getElementById("docTitle").value = doc.title;
+            document.getElementById("docParty").value = doc.party;
+            document.getElementById("docStatus").value = doc.status;
+
+            document.getElementById("modalTitle").innerText = "ແກ້ໄຂເອກະສານ";
+            document.getElementById("docModal").classList.remove("hidden");
+        }
+
+        // Delete Action
+        function deleteDocument(id) {
+            if (confirm("ທ່ານຕ້ອງການລົບເອກະສານນີ້ແທ້ບໍ?")) {
+                documents = documents.filter(d => d.id !== id);
+                saveToLocal();
+                renderDashboard();
+            }
+        }
+
+        // Clear All Data
+        function clearAllData() {
+            if (confirm("ເຕືອນ! ຂໍ້ມູນທັງໝົດຈະຖືກລົບອອກຈາກເຄື່ອງ. ທ່ານແນ່ໃຈບໍ?")) {
+                documents = [];
+                saveToLocal();
+                renderDashboard();
+            }
+        }
+
+        // Export Data to JSON File
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ITCenter_Docs_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Import Data from JSON File
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        documents = imported;
+                        saveToLocal();
+                        renderDashboard();
+                        alert("ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!");
+                    } else {
+                        alert("ຮູບແບບ ໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ.");
+                    }
+                } catch (err) {
+                    alert("ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌!");
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+    </script>
 </body>
 </html>
