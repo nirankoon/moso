@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຕິດຕາມການຮຽນ-ການສອນ ແລະ ຕັດເກດ</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Phetsarath OT', 'Noto Sans Lao', sans-serif; }
+        body { background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a5276; margin-bottom: 20px; }
+        
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+            gap: 12px; 
+            margin-bottom: 20px; 
+            background: #ebf5fb; 
+            padding: 18px; 
+            border-radius: 8px; 
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #2c3e50; }
+        .form-group input, .form-group select { padding: 9px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 14px; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #3498db; }
+        
+        .btn-add { 
+            grid-column: 1 / -1; 
+            background: #27ae60; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-add:hover { background: #219150; }
+        
+        .filter-section { 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
+        .filter-section select { padding: 6px 12px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #dee2e6; padding: 10px 8px; text-align: center; font-size: 14px; }
+        th { background-color: #1a5276; color: white; font-weight: 500; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; color: white; font-size: 12px; }
+        .grade-A { background: #27ae60; } 
+        .grade-B { background: #2980b9; }
+        .grade-C { background: #f39c12; } 
+        .grade-D { background: #e67e22; } 
+        .grade-F { background: #c0392b; }
+        
+        .btn-action { border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; color: white; margin: 2px; font-size: 12px; }
+        .btn-edit { background: #f39c12; } 
+        .btn-del { background: #e74c3c; }
+        .btn-edit:hover { background: #d68910; }
+        .btn-del:hover { background: #c0392b; }
+        
+        #loading { display: none; text-align: center; color: #7f8c8d; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📋 ລະບົບຕິດຕາມການຮຽນ-ການສອນ ແລະ ຕັດເກດ</h2>
+
+    <!-- ຟອມປ້ອນຂໍ້ມູນ -->
+    <div class="form-grid">
+        <input type="hidden" id="edit-id">
+        <div class="form-group" style="grid-column: span 2;">
+            <label>ຊື່ ແລະ ນາມສະກຸນ</label>
+            <input type="text" id="name" placeholder="ປ້ອນຊື່ນັກຮຽນ">
+        </div>
+        <div class="form-group">
+            <label>ຊັ້ນປີ</label>
+            <select id="year">
+                <option value="ປີ 1">ປີ 1</option>
+                <option value="ປີ 2">ປີ 2</option>
+                <option value="ປີ 3">ປີ 3</option>
+                <option value="ປີ 4">ປີ 4</option>
+            </select>
+        </div>
+        <div class="form-group"><label>ມາຮຽນ (10%)</label><input type="number" id="attendance" min="0" max="10" placeholder="0-10"></div>
+        <div class="form-group"><label>ກິດຈະກຳ (20%)</label><input type="number" id="homework" min="0" max="20" placeholder="0-20"></div>
+        <div class="form-group"><label>ກາງພາກ (30%)</label><input type="number" id="midterm" min="0" max="30" placeholder="0-30"></div>
+        <div class="form-group"><label>ທ້າຍພາກ (40%)</label><input type="number" id="final" min="0" max="40" placeholder="0-40"></div>
+        <button class="btn-add" id="btn-save" onclick="saveData()">➕ ບັນທຶກ / ເພີ່ມຂໍ້ມູນ</button>
+    </div>
+
+    <!-- ຕົວຕັ່ງກອງຄົ້ນຫາຕາມຊັ້ນປີ -->
+    <div class="filter-section">
+        <label><strong>🔍 ເລືອກເບິ່ງຕາມຊັ້ນປີ:</strong></label>
+        <select id="filter-year" onchange="renderTable()">
+            <option value="ALL">ທັງໝົດ (ປີ 1 - ປີ 4)</option>
+            <option value="ປີ 1">ປີ 1</option>
+            <option value="ປີ 2">ປີ 2</option>
+            <option value="ປີ 3">ປີ 3</option>
+            <option value="ປີ 4">ປີ 4</option>
+        </select>
+    </div>
+
+    <div id="loading">⏳ ກຳລັງປະມວນຜົນຂໍ້ມູນ...</div>
+
+    <!-- ຕາຕະລາງສະແດງຜົນ -->
+    <table>
+        <thead>
+            <tr>
+                <th>ຊື່ ແລະ ນາມສະກຸນ</th>
+                <th>ຊັ້ນປີ</th>
+                <th>ມາຮຽນ</th>
+                <th>ກິດຈະກຳ</th>
+                <th>ກາງພາກ</th>
+                <th>ທ້າຍພາກ</th>
+                <th>ລວມ</th>
+                <th>ເກດ</th>
+                <th>ຈັດການ (Admin)</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+    </table>
+</div>
+
+<script>
+    // ⚠️ ແທນທີ່ URL ນີ້ດ້ວຍ Web App URL ທີ່ໄດ້ຈາກ Google Apps Script ຂອງທ່ານ (ຕ້ອງລົງທ້າຍດ້ວຍ /exec)
+    const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_WEB_APP_ID/exec"; 
+    
+    let allStudentsData = [];
+
+    // ຟັງຊັນຄິດໄລ່ເກດ
+    function calculateGrade(total) {
+        if (total >= 85) return { grade: 'A', class: 'grade-A' };
+        if (total >= 75) return { grade: 'B', class: 'grade-B' };
+        if (total >= 65) return { grade: 'C', class: 'grade-C' };
+        if (total >= 50) return { grade: 'D', class: 'grade-D' };
+        return { grade: 'F', class: 'grade-F' };
+    }
+
+    // ດຶງຂໍ້ມູນຈາກ Google Sheet
+    async function loadData() {
+        document.getElementById('loading').style.display = 'block';
+        try {
+            const res = await fetch(SCRIPT_URL);
+            allStudentsData = await res.json();
+            renderTable();
+        } catch (err) {
+            console.error(err);
+        }
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    // ສະແດງຂໍ້ມູນໃສ່ຕາຕະລາງ
+    function renderTable() {
+        const filterYear = document.getElementById('filter-year').value;
+        const tbody = document.getElementById('studentTable');
+        tbody.innerHTML = '';
+        
+        if (!Array.isArray(allStudentsData)) return;
+
+        allStudentsData.forEach(row => {
+            const id = row[0];
+            const name = row[1];
+            const year = row[2];
+            const att = row[3];
+            const hw = row[4];
+            const mid = row[5];
+            const fin = row[6];
+            const total = row[7];
+            const grade = row[8];
+
+            if (filterYear !== "ALL" && year !== filterYear) return;
+
+            const gradeInfo = calculateGrade(total);
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align:left;">${name}</td>
+                    <td><strong>${year}</strong></td>
+                    <td>${att}</td>
+                    <td>${hw}</td>
+                    <td>${mid}</td>
+                    <td>${fin}</td>
+                    <td><strong>${total}</strong></td>
+                    <td><span class="badge ${gradeInfo.class}">${grade}</span></td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editData('${id}', '${name}', '${year}', ${att}, ${hw}, ${mid}, ${fin})">ແກ້ໄຂ</button>
+                        <button class="btn-action btn-del" onclick="deleteData('${id}')">ລົບ</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // ບັນທຶກ ຫຼື ເພີ່ມຂໍ້ມູນ
+    async function saveData() {
+        const id = document.getElementById('edit-id').value;
+        const name = document.getElementById('name').value.trim();
+        const year = document.getElementById('year').value;
+        const att = parseFloat(document.getElementById('attendance').value) || 0;
+        const hw = parseFloat(document.getElementById('homework').value) || 0;
+        const mid = parseFloat(document.getElementById('midterm').value) || 0;
+        const fin = parseFloat(document.getElementById('final').value) || 0;
+
+        if (!name) return alert('ກະລຸນາປ້ອນຊື່ ແລະ ນາມສະກຸນ!');
+
+        const total = att + hw + mid + fin;
+        const grade = calculateGrade(total).grade;
+        let password = null;
+        let action = "ADD";
+
+        if (id) {
+            action = "EDIT";
+            password = prompt("ກະລຸນາປ້ອນລະຫັດຜ່ານ Admin ເພື່ອບັນທຶກການແກ້ໄຂ:");
+            if (!password) return;
+        }
+
+        document.getElementById('loading').style.display = 'block';
+
+        try {
+            // ເພີ່ມ mode: 'no-cors' ເພື່ອປ້ອງກັນ Browser ບລັອກ
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, id, name, year, attendance: att, homework: hw, midterm: mid, final: fin, total, grade, password })
+            });
+            
+            alert("✅ ບັນທຶກ/ສົ່ງຂໍ້ມູນຮຽບຮ້ອຍແລ້ວ!");
+            clearForm();
+            setTimeout(loadData, 1500);
+        } catch (err) {
+            alert("ເກີດຂໍ້ຜິດພາດໃນການສົ່ງຂໍ້ມູນ!");
+            console.error(err);
+        }
+
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    // ລົບຂໍ້ມູນ (Admin)
+    async function deleteData(id) {
+        const password = prompt("ກະລຸນາປ້ອນລະຫັດຜ່ານ Admin ເພື່ອລົບຂໍ້ມູນ:");
+        if (!password) return;
+
+        document.getElementById('loading').style.display = 'block';
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "DELETE", id, password })
+            });
+
+            alert("🗑️ ສົ່ງຄຳຂໍລົບຂໍ້ມູນຮຽບຮ້ອຍແລ້ວ!");
+            setTimeout(loadData, 1500);
+        } catch (err) {
+            alert("ເກີດຂໍ້ຜິດພາດໃນການລົບຂໍ້ມູນ!");
+            console.error(err);
+        }
+
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    // ດຶງຂໍ້ມູນມາໃສ່ຟອມເພື່ອແກ້ໄຂ
+    function editData(id, name, year, att, hw, mid, fin) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('name').value = name;
+        document.getElementById('year').value = year;
+        document.getElementById('attendance').value = att;
+        document.getElementById('homework').value = hw;
+        document.getElementById('midterm').value = mid;
+        document.getElementById('final').value = fin;
+        document.getElementById('btn-save').textContent = "💾 ບັນທຶກການແກ້ໄຂ (Admin)";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ລ້າງຟອມ
+    function clearForm() {
+        document.getElementById('edit-id').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('attendance').value = '';
+        document.getElementById('homework').value = '';
+        document.getElementById('midterm').value = '';
+        document.getElementById('final').value = '';
+        document.getElementById('btn-save').textContent = "➕ ບັນທຶກ / ເພີ່ມຂໍ້ມູນ";
+    }
+
+    // ໂຫລດຂໍ້ມູນເມື່ອເປີດໜ້າເວັບ
+    loadData();
+</script>
+
+</body>
+</html>
