@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist ກຽມການຝຶກອົບຮົມພະນັກງານ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for Completion Effects -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        lao: ['Noto Sans Lao', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #f8fafc;
+        }
+        .task-checkbox:checked + label {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col pb-12">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-3 bg-blue-600 text-white rounded-2xl shadow-md shadow-blue-500/20">
+                        <i class="fa-solid fa-clipboard-check text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 leading-tight"> Check List ກຽມການຝຶກອົບຮົມພະນັກງານ</h1>
+                        <p class="text-xs sm:text-sm text-slate-500">ລະບົບຕິດຕາມ ແລະ ຄຸ້ມຄອງການກຽມຄວາມພ້ອມງານອົບຮົມ</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openAddTaskModal()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition duration-150 shadow-sm hover:shadow active:scale-95">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>ເພີ່ມລາຍການ</span>
+                    </button>
+                    <button onclick="exportSummary()" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-3.5 py-2.5 rounded-xl transition duration-150 active:scale-95">
+                        <i class="fa-solid fa-file-export text-slate-500"></i>
+                        <span class="hidden sm:inline">ສົ່ງອອກ / ສຳເນົາ</span>
+                    </button>
+                    <button onclick="confirmReset()" class="inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium px-3.5 py-2.5 rounded-xl transition duration-150 active:scale-95" title="ຕັ້ງຄ່າໃໝ່">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span class="hidden md:inline">ລືບ ແລະ ຕັ້ງໃໝ່</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex-grow w-full">
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 mb-6 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+                
+                <!-- Progress Circle / Percentage Bar -->
+                <div class="md:col-span-2 border-b md:border-b-0 md:border-r border-slate-100 pb-5 md:pb-0 md:pr-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-slate-600 uppercase tracking-wider">ຄວາມຄືບໜ້າທັງໝົດ</span>
+                        <span id="overallPercentage" class="text-2xl font-extrabold text-blue-600">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden p-0.5">
+                        <div id="overallProgressBar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                    </div>
+                    <p id="progressStatusText" class="text-xs text-slate-500 mt-2">
+                        ກຳລັງໂຫຼດຂໍ້ມູນ...
+                    </p>
+                </div>
+
+                <!-- Metrics Overview -->
+                <div class="grid grid-cols-3 gap-3 md:col-span-2">
+                    <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                        <span class="block text-xs font-medium text-slate-500 mb-1">ທັງໝົດ</span>
+                        <span id="statTotal" class="text-xl font-bold text-slate-800">0</span>
+                    </div>
+                    <div class="bg-emerald-50 rounded-xl p-3 text-center border border-emerald-100">
+                        <span class="block text-xs font-medium text-emerald-600 mb-1">ສຳເລັດແລ້ວ</span>
+                        <span id="statCompleted" class="text-xl font-bold text-emerald-700">0</span>
+                    </div>
+                    <div class="bg-amber-50 rounded-xl p-3 text-center border border-amber-100">
+                        <span class="block text-xs font-medium text-amber-600 mb-1">ຍັງຄ້າງ</span>
+                        <span id="statPending" class="text-xl font-bold text-amber-700">0</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
+            <!-- Filter Tabs -->
+            <div class="inline-flex p-1 bg-slate-200/70 rounded-xl text-sm w-full sm:w-auto">
+                <button onclick="setFilter('all')" id="filter-all" class="filter-tab px-4 py-1.5 rounded-lg font-medium transition duration-150 w-1/3 sm:w-auto text-center bg-white text-slate-800 shadow-sm">
+                    ທັງໝົດ (<span id="cnt-all">0</span>)
+                </button>
+                <button onclick="setFilter('pending')" id="filter-pending" class="filter-tab px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition duration-150 w-1/3 sm:w-auto text-center">
+                    ຍັງບໍ່ແລ້ວ (<span id="cnt-pending">0</span>)
+                </button>
+                <button onclick="setFilter('completed')" id="filter-completed" class="filter-tab px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition duration-150 w-1/3 sm:w-auto text-center">
+                    ສຳເລັດແລ້ວ (<span id="cnt-completed">0</span>)
+                </button>
+            </div>
+
+            <!-- Search Box -->
+            <div class="relative w-full sm:w-72">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="ຄົ້ນຫາລາຍການ..." 
+                       class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+            </div>
+        </div>
+
+        <div id="categoriesContainer" class="space-y-6">
+            <!-- Dynamic task categories will be injected here via JS -->
+        </div>
+
+        <!-- Empty state fallback -->
+        <div id="emptyState" class="hidden text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+            <i class="fa-solid fa-list-check text-4xl text-slate-300 mb-3"></i>
+            <h3 class="text-base font-semibold text-slate-700">ບໍ່ພົບລາຍການໃດໆ</h3>
+            <p class="text-xs text-slate-500 mt-1">ລອງປ່ຽນຄຳຄົ້ນຫາ ຫຼື ເພີ່ມລາຍການໃໝ່ເຂົ້າໃນ Check List</p>
+        </div>
+
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div id="taskModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden transform scale-95 transition-transform duration-200" id="modalContent">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <h3 id="modalTitle" class="font-bold text-slate-800 text-base">ເພີ່ມລາຍການໃໝ່</h3>
+                <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="taskForm" onsubmit="saveTask(event)" class="p-6 space-y-4">
+                <input type="hidden" id="taskId">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ໝວດໝູ່ <span class="text-red-500">*</span></label>
+                    <select id="taskCategory" required class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none">
+                        <option value="before">1. ກ່ອນການຝຶກອົບຮົມ (Before Training)</option>
+                        <option value="during">2. ລະຫວ່າງການຝຶກອົບຮົມ (During Training)</option>
+                        <option value="after">3. ຫຼັງການຝຶກອົບຮົມ (After Training)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ຫົວຂໍ້ / ລາຍການວຽກ <span class="text-red-500">*</span></label>
+                    <input type="text" id="taskTitle" required placeholder="ຕົວຢ່າງ: ກວດເຊັກລະບົບໄຟ ແລະ ໂປຣເຈັກເຕີ" 
+                           class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ລະດັບຄວາມສໍາຄັນ</label>
+                    <select id="taskPriority" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none">
+                        <option value="normal">ປານກາງ (Normal)</option>
+                        <option value="high">ສູງ (High Priority)</option>
+                        <option value="low">ຕ່ຳ (Low Priority)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ໝາຍເຫດ / ລາຍລະອຽດເພີ່ມເຕີມ</label>
+                    <textarea id="taskNotes" rows="2" placeholder="ເພີ່ມໝາຍເຫດ ຫຼື ລາຍລະອຽດກ່ຽວກັບວຽກນີ້..." 
+                              class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none"></textarea>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 rounded-xl text-sm text-slate-600 hover:bg-slate-100 transition font-medium">
+                        ຍົກເລີກ
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm text-white bg-blue-600 hover:bg-blue-700 transition font-medium shadow-sm">
+                        ບັນທຶກ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-sm">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage">ບັນທຶກ ສຳເລັດແລ້ວ</span>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        const STORAGE_KEY = 'lao_training_checklist_v1';
+
+        // Default Checklist Data according to user requirements
+        const DEFAULT_CATEGORIES = [
+            {
+                id: 'before',
+                title: 'ກ່ອນການຝຶກອົບຮົມ (Before Training)',
+                icon: 'fa-calendar-days',
+                color: 'blue'
+            },
+            {
+                id: 'during',
+                title: 'ລະຫວ່າງການຝຶກອົບຮົມ (During Training)',
+                icon: 'fa-clock',
+                color: 'amber'
+            },
+            {
+                id: 'after',
+                title: 'ຫຼັງການຝຶກອົບຮົມ (After Training)',
+                icon: 'fa-graduation-cap',
+                color: 'emerald'
+            }
+        ];
+
+        const DEFAULT_TASKS = [
+            // Before Training
+            { id: 'b1', categoryId: 'before', title: 'ຈອງຫ້ອງອົບຮົມ (Book Training Room)', completed: false, priority: 'high', notes: 'ຈອງຫ້ອງປະຊຸມໃຫຍ່ ພ້ອມກວດເຊັກເຄື່ອງປັບອາກາດ ແລະ ໂຕະເກົ້າອີ້' },
+            { id: 'b2', categoryId: 'before', title: 'ກຽມເອກະສານ & ປື້ມຄູ່ມື (Prepare Training Materials)', completed: false, priority: 'high', notes: 'ພິມເອກະສານປະກອບການບັນຍາຍ, ໃບເຊັກຊື່, ແລະ ແບບຟອມປະເມີນ' },
+            { id: 'b3', categoryId: 'before', title: 'ຢືນຢັນລາຍຊື່ຜູ້ເຂົ້າຮ່ວມ (Confirm Participant List)', completed: false, priority: 'high', notes: 'ສົ່ງ Email / SMS ຢືນຢັນລາຍຊື່ ແລະ ເຄື່ອນໄຫວລາຍຊື່ຜູ້ເຂົ້າຮ່ວມສຸດທ້າຍ' },
+            { id: 'b4', categoryId: 'before', title: 'ກວດເຊັກອຸປະກອນໄອທີ & ໂປຣເຈັກເຕີ', completed: false, priority: 'normal', notes: 'ກວດສອບໄມໂຄຣໂຟນ, ລຳໂພງ, ໂປຣເຈັກເຕີ, ແລະ ສາຍຕໍ່ HDMI/Type-C' },
+            { id: 'b5', categoryId: 'before', title: 'ຕິດຕໍ່ສັ່ງອາຫານວ່າງ & ເຄື່ອງດື່ມ', completed: false, priority: 'normal', notes: 'ສັ່ງກາເຟ, ເຄື່ອງດື່ມ, ແລະ ຂະໜົມ ສຳລັບຊ່ວງພັກ Coffee Break' },
+
+            // During Training
+            { id: 'd1', categoryId: 'during', title: 'ລົງທະບຽນຜູ້ເຂົ້າຮ່ວມ (Participant Registration)', completed: false, priority: 'high', notes: 'ຕັ້ງໂຕະຕິດຕາມ, ຕ້ອນຮັບ, ແລະ ໃຫ້ຜູ້ເຂົ້າຮ່ວມເຊັກຊື່' },
+            { id: 'd2', categoryId: 'during', title: 'ຈັດຕັ້ງອາຫານວ່າງ & ເຄື່ອງດື່ມ (Coffee Break Setup)', completed: false, priority: 'normal', notes: 'ກວດເຊັກຄວາມຮຽບຮ້ອຍຂອງອາຫານວ່າງຕາມເວລາທີ່ກຳນົດ' },
+            { id: 'd3', categoryId: 'during', title: 'ບັນທຶກພາບ & ວິດີໂອບັນຍາກາດ', completed: false, priority: 'low', notes: 'ຖ່າຍຮູບພາບການຮຽນ-ການສອນ ແລະ ກິດຈະກຳກຸ່ມ' },
+            { id: 'd4', categoryId: 'during', title: 'ແຈກຢາຍແບບຟອມປະເມີນຜົນການຝຶກ', completed: false, priority: 'high', notes: 'ໃຫ້ຜູ້ເຂົ້າຮ່ວມປະເມີນຜົນກ່ອນຈົບການຝຶກອົບຮົມ (ແບບ Google Form ຫຼື ເອກະສານ)' },
+
+            // After Training
+            { id: 'a1', categoryId: 'after', title: 'ສົ່ງໃບຢັ້ງຢືນ / ໃບປະກາດ (Send Certificates)', completed: false, priority: 'high', notes: 'ອອກໃບຢັ້ງຢືນຜ່ານການຝຶກ ແລະ ສົ່ງໃຫ້ຜູ້ເຂົ້າຮ່ວມແຕ່ລະຄົນ' },
+            { id: 'a2', categoryId: 'after', title: 'ສະຫຼຸບຜົນປະເມີນ (Summarize Evaluation)', completed: false, priority: 'high', notes: 'ລວບລວມຄະແນນປະເມີນ, ຄຳຄິດເຫັນ, ແລະ ເຮັດບົດສະຫຼຸບສັງເກດ' },
+            { id: 'a3', categoryId: 'after', title: 'ສະຫຼຸບລາຍຈ່າຍ ແລະ ສົ່ງລາຍງານ', completed: false, priority: 'normal', notes: 'ເຄຼຍໃບບິນ, ສະຫຼຸບງົບປະມານ ແລະ ສົ່ງບົດສະຫຼຸບໃຫ້ຜູ້ບໍລິຫານ' },
+            { id: 'a4', categoryId: 'after', title: 'ທຳຄວາມສະອາດ & ເກັບຮັກສາອຸປະກອນ', completed: false, priority: 'normal', notes: 'ເຄື່ອນຍ້າຍອຸປະກອນກັບຄືນບ່ອນ ແລະ ກວດສອບຄວາມຮຽບຮ້ອຍຂອງຫ້ອງ' }
+        ];
+
+        let state = {
+            categories: [],
+            tasks: [],
+            currentFilter: 'all',
+            searchQuery: ''
+        };
+
+        function initApp() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    state.tasks = parsed.tasks || DEFAULT_TASKS;
+                    state.categories = parsed.categories || DEFAULT_CATEGORIES;
+                } catch (e) {
+                    console.error('Failed to parse storage data', e);
+                    state.tasks = [...DEFAULT_TASKS];
+                    state.categories = [...DEFAULT_CATEGORIES];
+                }
+            } else {
+                state.tasks = [...DEFAULT_TASKS];
+                state.categories = [...DEFAULT_CATEGORIES];
+            }
+
+            render();
+        }
+
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                tasks: state.tasks,
+                categories: state.categories
+            }));
+        }
+
+        function render() {
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            const emptyState = document.getElementById('emptyState');
+            categoriesContainer.innerHTML = '';
+
+            // Update Statistics
+            const totalTasks = state.tasks.length;
+            const completedTasks = state.tasks.filter(t => t.completed).length;
+            const pendingTasks = totalTasks - completedTasks;
+            const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            document.getElementById('statTotal').innerText = totalTasks;
+            document.getElementById('statCompleted').innerText = completedTasks;
+            document.getElementById('statPending').innerText = pendingTasks;
+            document.getElementById('overallPercentage').innerText = `${percentage}%`;
+            document.getElementById('overallProgressBar').style.width = `${percentage}%`;
+
+            // Status message based on percentage
+            const statusText = document.getElementById('progressStatusText');
+            if (percentage === 100 && totalTasks > 0) {
+                statusText.innerHTML = '<span class="text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check"></i> ສຳເລັດການກຽມງານທຸກຂັ້ນຕອນແລ້ວ! ພ້ອມສຳລັບການຝຶກອົບຮົມ</span>';
+            } else if (percentage >= 50) {
+                statusText.innerText = `ສໍາເລັດໄປແລ້ວ ${completedTasks} ຈາກ ${totalTasks} ລາຍການ, ກຳລັງໄປໄດ້ດີ!`;
+            } else {
+                statusText.innerText = `ດຳເນີນການແລ້ວ ${completedTasks} ຈາກ ${totalTasks} ລາຍການ, ກະລຸນາກວດເຊັກລາຍການທີ່ຄ້າງ.`;
+            }
+
+            // Category counts for filter tabs
+            document.getElementById('cnt-all').innerText = totalTasks;
+            document.getElementById('cnt-pending').innerText = pendingTasks;
+            document.getElementById('cnt-completed').innerText = completedTasks;
+
+            let visibleTasksCount = 0;
+
+            // Render each category
+            state.categories.forEach(cat => {
+                let catTasks = state.tasks.filter(t => t.categoryId === cat.id);
+
+                // Apply Search filter
+                if (state.searchQuery.trim() !== '') {
+                    const q = state.searchQuery.toLowerCase();
+                    catTasks = catTasks.filter(t => t.title.toLowerCase().includes(q) || (t.notes && t.notes.toLowerCase().includes(q)));
+                }
+
+                // Apply Status filter
+                if (state.currentFilter === 'pending') {
+                    catTasks = catTasks.filter(t => !t.completed);
+                } else if (state.currentFilter === 'completed') {
+                    catTasks = catTasks.filter(t => t.completed);
+                }
+
+                visibleTasksCount += catTasks.length;
+
+                if (catTasks.length === 0 && (state.searchQuery !== '' || state.currentFilter !== 'all')) {
+                    return; // Skip category if filtering hides all items
+                }
+
+                // Category Progress
+                const catTotal = state.tasks.filter(t => t.categoryId === cat.id).length;
+                const catDone = state.tasks.filter(t => t.categoryId === cat.id && t.completed).length;
+                const catPct = catTotal > 0 ? Math.round((catDone / catTotal) * 100) : 0;
+
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm animate-fade-in';
+                
+                categoryCard.innerHTML = `
+                    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center space-x-3">
+                            <span class="p-2 rounded-xl bg-slate-200/60 text-slate-700 text-sm">
+                                <i class="fa-solid ${cat.icon}"></i>
+                            </span>
+                            <div>
+                                <h2 class="font-bold text-slate-800 text-base">${cat.title}</h2>
+                                <span class="text-xs text-slate-500">ສຳເລັດ ${catDone}/${catTotal} ລາຍການ (${catPct}%)</span>
+                            </div>
+                        </div>
+
+                        <div class="w-24 sm:w-32 bg-slate-200 rounded-full h-2 overflow-hidden">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: ${catPct}%"></div>
+                        </div>
+                    </div>
+
+                    <ul class="divide-y divide-slate-100">
+                        ${catTasks.length > 0 ? catTasks.map(task => renderTaskItem(task)).join('') : `
+                            <li class="p-4 text-center text-xs text-slate-400 italic">ບໍ່ມີລາຍການໃນໝວດນີ້</li>
+                        `}
+                    </ul>
+                `;
+
+                categoriesContainer.appendChild(categoryCard);
+            });
+
+            if (visibleTasksCount === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        function renderTaskItem(task) {
+            let priorityBadge = '';
+            if (task.priority === 'high') {
+                priorityBadge = '<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-red-100 text-red-600">ສຳຄັນຫຼາຍ</span>';
+            } else if (task.priority === 'low') {
+                priorityBadge = '<span class="px-2 py-0.5 text-[10px] font-medium rounded-md bg-slate-100 text-slate-500">ຕ່ຳ</span>';
+            }
+
+            return `
+                <li class="p-4 hover:bg-slate-50/80 transition flex items-start justify-between gap-3 group">
+                    <div class="flex items-start space-x-3 min-w-0 flex-grow">
+                        <input type="checkbox" id="task-${task.id}" 
+                               ${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask('${task.id}')"
+                               class="task-checkbox mt-1 h-5 w-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                        
+                        <div class="min-w-0 flex-grow">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <label for="task-${task.id}" class="text-sm font-medium text-slate-800 cursor-pointer select-none">
+                                    ${escapeHtml(task.title)}
+                                </label>
+                                ${priorityBadge}
+                            </div>
+                            ${task.notes ? `<p class="text-xs text-slate-500 mt-1 leading-relaxed">${escapeHtml(task.notes)}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition">
+                        <button onclick="openEditTaskModal('${task.id}')" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="ແກ້ໄຂ">
+                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                        </button>
+                        <button onclick="deleteTask('${task.id}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="ລຶບ">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </li>
+            `;
+        }
+
+        function toggleTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveToStorage();
+                render();
+
+                // Trigger confetti if all tasks are completed
+                const allCompleted = state.tasks.every(t => t.completed);
+                if (allCompleted && state.tasks.length > 0) {
+                    triggerConfetti();
+                    showToast('🎉 ຍິນດີດ້ວຍ! ທ່ານເຮັດສໍາເລັດທຸກລາຍການແລ້ວ');
+                } else {
+                    showToast(task.completed ? 'ໝາຍວ່າ ສຳເລັດແລ້ວ' : 'ຍົກເລີກການໝາຍສຳເລັດ');
+                }
+            }
+        }
+
+        function setFilter(filter) {
+            state.currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(btn => {
+                btn.className = 'filter-tab px-4 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 transition duration-150 w-1/3 sm:w-auto text-center';
+            });
+            
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            if (activeBtn) {
+                activeBtn.className = 'filter-tab px-4 py-1.5 rounded-lg font-medium transition duration-150 w-1/3 sm:w-auto text-center bg-white text-slate-800 shadow-sm';
+            }
+
+            render();
+        }
+
+        function handleSearch() {
+            state.searchQuery = document.getElementById('searchInput').value;
+            render();
+        }
+
+        function openAddTaskModal() {
+            document.getElementById('taskId').value = '';
+            document.getElementById('modalTitle').innerText = 'ເພີ່ມລາຍການໃໝ່';
+            document.getElementById('taskForm').reset();
+            
+            const modal = document.getElementById('taskModal');
+            const modalContent = document.getElementById('modalContent');
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        function openEditTaskModal(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (!task) return;
+
+            document.getElementById('taskId').value = task.id;
+            document.getElementById('modalTitle').innerText = 'ແກ້ໄຂລາຍການ';
+            document.getElementById('taskCategory').value = task.categoryId;
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskPriority').value = task.priority || 'normal';
+            document.getElementById('taskNotes').value = task.notes || '';
+
+            const modal = document.getElementById('taskModal');
+            const modalContent = document.getElementById('modalContent');
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        function closeTaskModal() {
+            const modal = document.getElementById('taskModal');
+            const modalContent = document.getElementById('modalContent');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+        }
+
+        function saveTask(e) {
+            e.preventDefault();
+            const id = document.getElementById('taskId').value;
+            const categoryId = document.getElementById('taskCategory').value;
+            const title = document.getElementById('taskTitle').value.trim();
+            const priority = document.getElementById('taskPriority').value;
+            const notes = document.getElementById('taskNotes').value.trim();
+
+            if (!title) return;
+
+            if (id) {
+                // Update existing
+                const task = state.tasks.find(t => t.id === id);
+                if (task) {
+                    task.categoryId = categoryId;
+                    task.title = title;
+                    task.priority = priority;
+                    task.notes = notes;
+                    showToast('ອັບເດດລາຍການ ຮຽບຮ້ອຍ');
+                }
+            } else {
+                // Create new
+                const newTask = {
+                    id: 'task_' + Date.now(),
+                    categoryId,
+                    title,
+                    priority,
+                    notes,
+                    completed: false
+                };
+                state.tasks.push(newTask);
+                showToast('ເພີ່ມລາຍການໃໝ່ ສຳເລັດ');
+            }
+
+            saveToStorage();
+            closeTaskModal();
+            render();
+        }
+
+        function deleteTask(id) {
+            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບລາຍການນີ້?')) {
+                state.tasks = state.tasks.filter(t => t.id !== id);
+                saveToStorage();
+                render();
+                showToast('ລຶບລາຍການ ສຳເລັດ');
+            }
+        }
+
+        function confirmReset() {
+            if (confirm('ທ່ານຕ້ອງການຕັ້ງຄ່າຂໍ້ມູນທັງໝົດກັບຄືນເປັນຄ່າເລີ່ມຕົ້ນບໍ?')) {
+                state.tasks = [...DEFAULT_TASKS];
+                state.categories = [...DEFAULT_CATEGORIES];
+                saveToStorage();
+                render();
+                showToast('ຕັ້ງຄ່າເລີ່ມຕົ້ນ ຮຽບຮ້ອຍແລ້ວ');
+            }
+        }
+
+        function exportSummary() {
+            const completed = state.tasks.filter(t => t.completed).length;
+            const total = state.tasks.length;
+            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            let report = `📋 ບົດສະຫຼຸບຄວາມຄືບໜ້າ Check List ກຽມການຝຶກອົບຮົມ\n`;
+            report += `ຄວາມຄືບໜ້າ: ${completed}/${total} (${pct}%)\n`;
+            report += `-------------------------------------------\n\n`;
+
+            state.categories.forEach(cat => {
+                const tasks = state.tasks.filter(t => t.categoryId === cat.id);
+                report += `📌 ${cat.title}\n`;
+                tasks.forEach(t => {
+                    const status = t.completed ? '[✓]' : '[ ]';
+                    report += `${status} ${t.title}${t.notes ? ` (${t.notes})` : ''}\n`;
+                });
+                report += `\n`;
+            });
+
+            // Copy to clipboard fallback logic
+            const textarea = document.createElement('textarea');
+            textarea.value = report;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('ສຳເນົາລາຍງານເຂົ້າ Clipboard ຮຽບຮ້ອຍ!');
+            } catch (err) {
+                showToast('ບໍ່ສາມາດສຳເນົາໄດ້');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.innerText = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        // Initialize App on load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
