@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຕິດຕາມເອກະສານ - ຄະນະວິສະວະກຳສາດ ມຊ</title>
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0b2545; /* FE Dark Blue */
+            --secondary-color: #134074;
+            --accent-color: #8da9c4;
+            --danger-color: #d90429;
+            --warning-color: #f59e0b;
+            --success-color: #10b981;
+            --bg-color: #eef4f8;
+            --card-bg: #ffffff;
+            --text-color: #1d2d44;
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Noto Sans Lao', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-bottom: 5px solid #e63946;
+        }
+
+        header h1 { font-size: 1.8rem; margin-bottom: 5px; }
+        header p { font-size: 0.95rem; opacity: 0.9; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .stat-card.in { border-left-color: #0284c7; }
+        .stat-card.out { border-left-color: #f97316; }
+        .stat-card.pending { border-left-color: var(--warning-color); }
+        .stat-card.overdue { border-left-color: var(--danger-color); }
+
+        .stat-card h3 { font-size: 0.85rem; color: #64748b; margin-bottom: 5px; }
+        .stat-card .number { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-primary { background: var(--secondary-color); color: white; }
+        .btn-primary:hover { background: #0b2545; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-danger:hover { background: #b00320; }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-secondary:hover { background: #475569; }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            min-width: 220px;
+        }
+
+        .table-responsive { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th, td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: var(--primary-color); white-space: nowrap; }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-in { background: #e0f2fe; color: #0369a1; }
+        .badge-out { background: #ffedd5; color: #c2410c; }
+        
+        .prio-normal { color: #10b981; font-weight: bold; }
+        .prio-urgent { color: #f59e0b; font-weight: bold; }
+        .prio-top { color: #d90429; font-weight: bold; }
+
+        .status-pending { background: #fef3c7; color: #b45309; }
+        .status-progress { background: #e0e7ff; color: #4338ca; }
+        .status-forward { background: #f3e8ff; color: #7e22ce; }
+        .status-completed { background: #dcfce7; color: #15803d; }
+
+        .row-overdue { background-color: #fff1f2; }
+
+        .action-btn { padding: 4px 8px; font-size: 0.75rem; margin-right: 3px; }
+        .link-btn { color: #0284c7; text-decoration: none; font-weight: bold; }
+        .link-btn:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            header h1 { font-size: 1.3rem; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .search-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ຄະນະວິສະວະກຳສາດ (Faculty of Engineering)</h1>
+        <p>ມະຫາວິທະຍາໄລແຫ່ງຊາດ - ລະບົບຕິດຕາມເອກະສານ ຂາເຂົ້າ-ຂາອອກ (Personal Work Dashboard)</p>
+    </header>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>ເອກະສານທັງໝົດ</h3>
+            <div class="number" id="stat-total">0</div>
+        </div>
+        <div class="stat-card in">
+            <h3>ເອກະສານຂາເຂົ້າ</h3>
+            <div class="number" id="stat-in">0</div>
+        </div>
+        <div class="stat-card out">
+            <h3>ເອກະສານຂາອອກ</h3>
+            <div class="number" id="stat-out">0</div>
+        </div>
+        <div class="stat-card pending">
+            <h3>ກຳລັງດຳເນີນການ</h3>
+            <div class="number" id="stat-pending">0</div>
+        </div>
+        <div class="stat-card overdue">
+            <h3>ກາຍກຳນົດ (Overdue)</h3>
+            <div class="number" id="stat-overdue">0</div>
+        </div>
+    </div>
+
+    <!-- Document Form -->
+    <div class="card">
+        <h2 id="form-title">ເພີ່ມເອກະສານໃໝ່</h2>
+        <form id="doc-form">
+            <input type="hidden" id="doc-id">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ເລກທີເອກະສານ / ລະຫັດ *</label>
+                    <input type="text" id="doc-no" required placeholder="ex: ຄຄວ.012/2026">
+                </div>
+                <div class="form-group">
+                    <label>ປະເພດເອກະສານ *</label>
+                    <select id="doc-type" required>
+                        <option value="IN">ຂາເຂົ້າ (IN)</option>
+                        <option value="OUT">ຂາອອກ (OUT)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ໝວດໝູ່ເອກະສານ *</label>
+                    <select id="doc-cat" required>
+                        <option value="ADMIN">ບໍລິຫານທົ່ວໄປ</option>
+                        <option value="ACADEMIC">ວິຊາການ & ການສຶກສາ</option>
+                        <option value="RESEARCH">ຄົ້ນຄວ້າ & ໂຄງການ</option>
+                        <option value="FINANCE">ການເງິນ & ງົບປະມານ</option>
+                        <option value="HR">ຈັດຕັ້ງ & ບຸກຄະລາກອນ</option>
+                        <option value="MOU">MOU & ການຮ່ວມມື</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ວັນທີເອກະສານ *</label>
+                    <input type="date" id="doc-date" required>
+                </div>
+                <div class="form-group">
+                    <label>ກຳນົດເວລາ (Due Date)</label>
+                    <input type="date" id="doc-due">
+                </div>
+                <div class="form-group">
+                    <label>ລະດັບຄວາມດ່ວນ</label>
+                    <select id="doc-prio">
+                        <option value="NORMAL">🟢 ປົກກະຕິ</option>
+                        <option value="URGENT">🟡 ດ່ວນ</option>
+                        <option value="TOP">🔴 ດ່ວນທີສຸດ</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>ຫົວຂໍ້ / ເນື້ອໃນ *</label>
+                    <input type="text" id="doc-title" required placeholder="ປ້ອນຫົວຂໍ້ເອກະສານ...">
+                </div>
+                <div class="form-group">
+                    <label>ພາກສ່ວນກ່ຽວຂ້ອງ (ສົ່ງຈາກ/ເຖິງ)</label>
+                    <input type="text" id="doc-source" placeholder="ex: ຫ້ອງການ ມຊ / ພາກວິຊາໄຟຟ້າ">
+                </div>
+                <div class="form-group">
+                    <label>ຜູ້ຮັບຜິດຊອບ (Assigned)</label>
+                    <input type="text" id="doc-assignee" placeholder="ຊື່ເຈົ້າໜ້າທີ່/ອາຈານ...">
+                </div>
+                <div class="form-group">
+                    <label>ບ່ອນເກັບຕົ້ນສະບັບ (Storage)</label>
+                    <input type="text" id="doc-storage" placeholder="ex: ຕູ້ A, ແຟ້ມ 03">
+                </div>
+                <div class="form-group">
+                    <label>ສະຖານະ</label>
+                    <select id="doc-status">
+                        <option value="PENDING">ລໍຖ້າອະນຸມັດ/ລໍຖ້າເຊັນ</option>
+                        <option value="PROGRESS">ກຳລັງດຳເນີນການ</option>
+                        <option value="FORWARDED">ສົ່ງຕໍ່ພາກສ່ວນອື່ນ</option>
+                        <option value="COMPLETED">ສຳເລັດແລ້ວ</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>ລິ້ງແນບ (Drive / Cloud Link)</label>
+                    <input type="url" id="doc-link" placeholder="https://drive.google.com/...">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn-primary" id="btn-save">ບັນທຶກຂໍ້ມູນ</button>
+                <button type="button" class="btn-secondary" id="btn-cancel" onclick="resetForm()" style="display:none;">ຍົກເລີກ</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table & Tools -->
+    <div class="card">
+        <div class="toolbar">
+            <div class="filter-group">
+                <input type="text" id="search-input" class="search-box" placeholder="ຄົ້ນຫາ (ເລກທີ, ຫົວຂໍ້, ພາກສ່ວນ)..." oninput="renderData()">
+                <select id="report-filter" onchange="renderData()">
+                    <option value="ALL">ທຸກໄລຍະເວລາ</option>
+                    <option value="DAILY">ປະຈຳມື້</option>
+                    <option value="WEEKLY">ປະຈຳອາທິດ</option>
+                    <option value="MONTHLY">ປະຈຳເດືອນ</option>
+                    <option value="YEARLY">ປະຈຳປີ</option>
+                </select>
+                <select id="cat-filter" onchange="renderData()">
+                    <option value="ALL">ທຸກໝວດໝູ່</option>
+                    <option value="ADMIN">ບໍລິຫານທົ່ວໄປ</option>
+                    <option value="ACADEMIC">ວິຊາການ & ການສຶກສາ</option>
+                    <option value="RESEARCH">ຄົ້ນຄວ້າ & ໂຄງການ</option>
+                    <option value="FINANCE">ການເງິນ & ງົບປະມານ</option>
+                    <option value="HR">ຈັດຕັ້ງ & ບຸກຄະລາກອນ</option>
+                    <option value="MOU">MOU & ການຮ່ວມມື</option>
+                </select>
+            </div>
+            <div class="btn-group" style="margin-top:0;">
+                <button class="btn-secondary" onclick="exportData()">📥 Export JSON</button>
+                <button class="btn-secondary" onclick="document.getElementById('import-file').click()">📤 Import JSON</button>
+                <input type="file" id="import-file" style="display:none;" accept=".json" onchange="importData(event)">
+                <button class="btn-danger" onclick="clearAllData()">🗑️ ລ້າງຂໍ້ມູນ</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ເລກທີ</th>
+                        <th>ປະເພດ</th>
+                        <th>ໝວດໝູ່</th>
+                        <th>ດ່ວນ</th>
+                        <th>ວັນທີ / Due</th>
+                        <th>ຫົວຂໍ້</th>
+                        <th>ພາກສ່ວນ</th>
+                        <th>ຜູ້ຮັບຜິດຊອບ</th>
+                        <th>ສະຖານະ</th>
+                        <th>ໄຟລ໌</th>
+                        <th>ຈັດການ</th>
+                    </tr>
+                </thead>
+                <tbody id="doc-table-body">
+                    <!-- Rendered by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'fe_nuol_docs_v2';
+    let documents = [];
+
+    const categoryNames = {
+        'ADMIN': 'ບໍລິຫານ',
+        'ACADEMIC': 'ວິຊາການ',
+        'RESEARCH': 'ຄົ້ນຄວ້າ/ໂຄງການ',
+        'FINANCE': 'ການເງິນ',
+        'HR': 'ຈັດຕັ້ງ/ບຸກຄະລາກອນ',
+        'MOU': 'MOU/ຮ່ວມມື'
+    };
+
+    const statusNames = {
+        'PENDING': { label: 'ລໍຖ້າເຊັນ/ອະນຸມັດ', class: 'status-pending' },
+        'PROGRESS': { label: 'ກຳລັງດຳເນີນການ', class: 'status-progress' },
+        'FORWARDED': { label: 'ສົ່ງຕໍ່ແລ້ວ', class: 'status-forward' },
+        'COMPLETED': { label: 'ສຳເລັດ', class: 'status-completed' }
+    };
+
+    // Dummy Data Sample
+    const dummyData = [
+        { id: '1', docNo: 'ຄຄວ.012/2026', type: 'IN', cat: 'ADMIN', prio: 'URGENT', date: '2026-09-01', due: '2026-09-10', title: 'ເຊີນຮ່ວມປະຊຸມວາງແຜນຍຸດທະສາດ ມຊ', source: 'ຫ້ອງການ ມຊ', assignee: 'ອາຈານ ສົມໄຊ', storage: 'ຕູ້ A1', status: 'PROGRESS', link: '' },
+        { id: '2', docNo: 'ຄຄວ.088/2026', type: 'OUT', cat: 'ACADEMIC', prio: 'TOP', date: '2026-09-05', due: '2026-09-12', title: 'ສະເໜີປັບປຸງຫຼັກສູດວິສະວະກຳ IT', source: 'ພາກວິຊາ IT', assignee: 'ຫົວໜ້າພາກວິຊາ', storage: 'ແຟ້ມ 02', status: 'PENDING', link: 'https://drive.google.com' },
+        { id: '3', docNo: 'ຄຄວ.105/2026', type: 'IN', cat: 'FINANCE', prio: 'NORMAL', date: '2026-09-11', due: '2026-09-20', title: 'ຂໍອະນຸມັດງົບປະມານຊື້ອຸປະກອນຫ້ອງ Lab', source: 'ພາກວິຊາ ໂຍທາ', assignee: 'ຫ້ອງການ ຄຄວ', storage: 'ຕູ້ B3', status: 'PROGRESS', link: '' }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('doc-date').value = new Date().toISOString().split('T')[0];
+        loadData();
+    });
+
+    function loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            documents = JSON.parse(saved);
+        } else {
+            documents = dummyData;
+            saveToStorage();
+        }
+        renderData();
+    }
+
+    function saveToStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+    }
+
+    document.getElementById('doc-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('doc-id').value;
+        const docData = {
+            id: id || Date.now().toString(),
+            docNo: document.getElementById('doc-no').value,
+            type: document.getElementById('doc-type').value,
+            cat: document.getElementById('doc-cat').value,
+            date: document.getElementById('doc-date').value,
+            due: document.getElementById('doc-due').value,
+            prio: document.getElementById('doc-prio').value,
+            title: document.getElementById('doc-title').value,
+            source: document.getElementById('doc-source').value,
+            assignee: document.getElementById('doc-assignee').value,
+            storage: document.getElementById('doc-storage').value,
+            status: document.getElementById('doc-status').value,
+            link: document.getElementById('doc-link').value
+        };
+
+        if (id) {
+            const idx = documents.findIndex(d => d.id === id);
+            if (idx !== -1) documents[idx] = docData;
+        } else {
+            documents.push(docData);
+        }
+
+        saveToStorage();
+        resetForm();
+        renderData();
+    });
+
+    function editDoc(id) {
+        const doc = documents.find(d => d.id === id);
+        if (!doc) return;
+
+        document.getElementById('doc-id').value = doc.id;
+        document.getElementById('doc-no').value = doc.docNo;
+        document.getElementById('doc-type').value = doc.type;
+        document.getElementById('doc-cat').value = doc.cat;
+        document.getElementById('doc-date').value = doc.date;
+        document.getElementById('doc-due').value = doc.due || '';
+        document.getElementById('doc-prio').value = doc.prio || 'NORMAL';
+        document.getElementById('doc-title').value = doc.title;
+        document.getElementById('doc-source').value = doc.source || '';
+        document.getElementById('doc-assignee').value = doc.assignee || '';
+        document.getElementById('doc-storage').value = doc.storage || '';
+        document.getElementById('doc-status').value = doc.status;
+        document.getElementById('doc-link').value = doc.link || '';
+
+        document.getElementById('form-title').innerText = 'ແກ້ໄຂເອກະສານ';
+        document.getElementById('btn-save').innerText = 'ອັບເດດ';
+        document.getElementById('btn-cancel').style.display = 'inline-block';
+    }
+
+    function deleteDoc(id) {
+        if (confirm('ທ່ານຕ້ອງການລົບເອກະສານນີ້ ຫຼື ບໍ່?')) {
+            documents = documents.filter(d => d.id !== id);
+            saveToStorage();
+            renderData();
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('doc-form').reset();
+        document.getElementById('doc-id').value = '';
+        document.getElementById('doc-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('form-title').innerText = 'ເພີ່ມເອກະສານໃໝ່';
+        document.getElementById('btn-save').innerText = 'ບັນທຶກຂໍ້ມູນ';
+        document.getElementById('btn-cancel').style.display = 'none';
+    }
+
+    function filterDocuments() {
+        const timeFilter = document.getElementById('report-filter').value;
+        const catFilter = document.getElementById('cat-filter').value;
+        const searchKw = document.getElementById('search-input').value.toLowerCase().trim();
+        const now = new Date();
+
+        return documents.filter(doc => {
+            const docDate = new Date(doc.date);
+            let matchTime = true;
+
+            if (!isNaN(docDate)) {
+                if (timeFilter === 'DAILY') matchTime = docDate.toDateString() === now.toDateString();
+                else if (timeFilter === 'WEEKLY') {
+                    const weekAgo = new Date(now);
+                    weekAgo.setDate(now.getDate() - 7);
+                    matchTime = docDate >= weekAgo && docDate <= now;
+                }
+                else if (timeFilter === 'MONTHLY') matchTime = docDate.getMonth() === now.getMonth() && docDate.getFullYear() === now.getFullYear();
+                else if (timeFilter === 'YEARLY') matchTime = docDate.getFullYear() === now.getFullYear();
+            }
+
+            const matchCat = catFilter === 'ALL' || doc.cat === catFilter;
+            const matchSearch = !searchKw || 
+                (doc.docNo && doc.docNo.toLowerCase().includes(searchKw)) ||
+                (doc.title && doc.title.toLowerCase().includes(searchKw)) ||
+                (doc.source && doc.source.toLowerCase().includes(searchKw)) ||
+                (doc.assignee && doc.assignee.toLowerCase().includes(searchKw));
+
+            return matchTime && matchCat && matchSearch;
+        });
+    }
+
+    function renderData() {
+        const filteredDocs = filterDocuments();
+        const tbody = document.getElementById('doc-table-body');
+        tbody.innerHTML = '';
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        let overdueCount = 0;
+        let pendingCount = 0;
+
+        filteredDocs.forEach(d => {
+            if (d.status !== 'COMPLETED') {
+                pendingCount++;
+                if (d.due && d.due < todayStr) overdueCount++;
+            }
+        });
+
+        document.getElementById('stat-total').innerText = filteredDocs.length;
+        document.getElementById('stat-in').innerText = filteredDocs.filter(d => d.type === 'IN').length;
+        document.getElementById('stat-out').innerText = filteredDocs.filter(d => d.type === 'OUT').length;
+        document.getElementById('stat-pending').innerText = pendingCount;
+        document.getElementById('stat-overdue').innerText = overdueCount;
+
+        if (filteredDocs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; color:#888;">ບໍ່ມີຂໍ້ມູນເອກະສານ</td></tr>';
+            return;
+        }
+
+        filteredDocs.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(doc => {
+            const isOverdue = doc.status !== 'COMPLETED' && doc.due && doc.due < todayStr;
+            const tr = document.createElement('tr');
+            if (isOverdue) tr.classList.add('row-overdue');
+
+            const prioClass = doc.prio === 'TOP' ? 'prio-top' : (doc.prio === 'URGENT' ? 'prio-urgent' : 'prio-normal');
+            const prioText = doc.prio === 'TOP' ? '🔴 ດ່ວນທີສຸດ' : (doc.prio === 'URGENT' ? '🟡 ດ່ວນ' : '🟢 ປົກກະຕິ');
+            const st = statusNames[doc.status] || { label: doc.status, class: '' };
+
+            tr.innerHTML = `
+                <td><b>${doc.docNo}</b></td>
+                <td><span class="badge ${doc.type === 'IN' ? 'badge-in' : 'badge-out'}">${doc.type === 'IN' ? 'ເຂົ້າ' : 'ອອກ'}</span></td>
+                <td>${categoryNames[doc.cat] || doc.cat}</td>
+                <td><span class="${prioClass}">${prioText}</span></td>
+                <td>${doc.date}${doc.due ? `<br><small style="color:${isOverdue?'red':'#666'}">Due: ${doc.due}</small>` : ''}</td>
+                <td>${doc.title}${doc.storage ? `<br><small style="color:#64748b">📍 ${doc.storage}</small>` : ''}</td>
+                <td>${doc.source || '-'}</td>
+                <td>${doc.assignee || '-'}</td>
+                <td><span class="badge ${st.class}">${st.label}</span></td>
+                <td>${doc.link ? `<a href="${doc.link}" target="_blank" class="link-btn">🔗 ဖွင့်</a>` : '-'}</td>
+                <td>
+                    <button class="btn-primary action-btn" onclick="editDoc('${doc.id}')">ແກ້ໄຂ</button>
+                    <button class="btn-danger action-btn" onclick="deleteDoc('${doc.id}')">ລົບ</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+        const anchor = document.createElement('a');
+        anchor.setAttribute("href", dataStr);
+        anchor.setAttribute("download", `FE_NUOL_Docs_${new Date().toISOString().split('T')[0]}.json`);
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+    }
+
+    function importData(event) {
+        const fileReader = new FileReader();
+        fileReader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    documents = imported;
+                    saveToStorage();
+                    renderData();
+                    alert('ນຳເຂົ້າຂໍ້ມູນ ສຳເລັດແລ້ວ!');
+                } else alert('ຮູບແບບ JSON ບໍ່ຖືກຕ້ອງ.');
+            } catch (err) { alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌.'); }
+        };
+        fileReader.readAsText(event.target.files[0]);
+    }
+
+    function clearAllData() {
+        if (confirm('ທ່ານແນ່ໃຈບໍ ທີ່ຈະລ້າງຂໍ້ມູນທັງໝົດ?')) {
+            documents = [];
+            saveToStorage();
+            renderData();
+        }
+    }
+</script>
+
+</body>
+</html>
