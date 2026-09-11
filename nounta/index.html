@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ແຜງຄວບຄຸມສ່ວນບຸກຄົນ - ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ ມຊ</title>
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #0b3c5d;
+            --secondary-color: #328cc1;
+            --accent-color: #d9b310;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #1d2731;
+            --border-color: #e0e6ed;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        /* Header & Branding */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #07253b);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo {
+            width: 55px;
+            height: 55px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            border: 2px solid var(--accent-color);
+        }
+
+        .brand-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .brand-text p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Container & Cards */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .card.in { border-left-color: var(--success-color); }
+        .card.out { border-left-color: var(--warning-color); }
+        .card.total { border-left-color: var(--primary-color); }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* Controls & Filters */
+        .panel {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group, .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons & Inputs */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: #082d47; }
+        .btn-secondary { background: var(--secondary-color); color: white; }
+        .btn-secondary:hover { background: #26729e; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: #333; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); }
+        .btn-outline.active { background: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-in { background: #e6f4ea; color: #137333; }
+        .badge-out { background: #fef7e0; color: #b06000; }
+
+        .actions-cell {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive UI */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .filter-group, .btn-group {
+                width: 100%;
+            }
+            .filter-group .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="brand-container">
+            <div class="brand-logo">ITC</div>
+            <div class="brand-text">
+                <h1>ສູນເຕັກໂນໂລຊີຂໍ້ມູນຂ່າວສານ (ITCenter)</h1>
+                <p>ມະຫາວິທະຍາໄລແຫ່ງຊາດ - ແຜງຄວບຄຸມວຽກງານເອກະສານສ່ວນບຸກຄົນ</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="exportData()"><i class="fa-solid fa-file-export"></i> ສົ່ງອອກ (Export JSON)</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()"><i class="fa-solid fa-file-import"></i> ນຳເຂົ້າ (Import)</button>
+            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Report Period Filter -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class="fa-solid fa-filter"></i> ລາຍງານ ແລະ ຕົວຕອງຕາມໄລຍະເວລາ</div>
+                <div class="filter-group">
+                    <button class="btn btn-outline active" onclick="setReportPeriod('all', this)">ທັງໝົດ</button>
+                    <button class="btn btn-outline" onclick="setReportPeriod('daily', this)">ປະຈຳວັນ</button>
+                    <button class="btn btn-outline" onclick="setReportPeriod('weekly', this)">ປະຈຳອາທິດ</button>
+                    <button class="btn btn-outline" onclick="setReportPeriod('monthly', this)">ປະຈຳເດືອນ</button>
+                    <button class="btn btn-outline" onclick="setReportPeriod('yearly', this)">ປະຈຳປີ</button>
+                </div>
+            </div>
+            
+            <!-- Cards Summary -->
+            <div class="dashboard-grid">
+                <div class="card total">
+                    <div class="card-title">ເອກະສານທັງໝົດ</div>
+                    <div class="card-value" id="totalCount">0</div>
+                </div>
+                <div class="card in">
+                    <div class="card-title">ເອກະສານຂາເຂົ້າ</div>
+                    <div class="card-value" id="inCount">0</div>
+                </div>
+                <div class="card out">
+                    <div class="card-title">ເອກະສານຂາອອກ</div>
+                    <div class="card-value" id="outCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Form -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title" id="formTitle"><i class="fa-solid fa-plus-circle"></i> ເພີ່ມເອກະສານໃໝ່</div>
+                <button class="btn btn-outline btn-sm" id="cancelEditBtn" style="display: none;" onclick="resetForm()">ຍົກເລີກການແກ້ໄຂ</button>
+            </div>
+            <form id="docForm" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" id="docId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="docType">ປະເພດເອກະສານ *</label>
+                        <select id="docType" class="form-control" required>
+                            <option value="IN">ຂາເຂົ້າ (Document In)</option>
+                            <option value="OUT">ຂາອອກ (Document Out)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="docNumber">ເລກທີເອກະສານ *</label>
+                        <input type="text" id="docNumber" class="form-control" placeholder="ເຊັ່ນ: 0123/ສຕຂ" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docDate">ວັນທີ *</label>
+                        <input type="date" id="docDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docTitle">ຫົວຂໍ້ / ເນື້ອໃນ *</label>
+                        <input type="text" id="docTitle" class="form-control" placeholder="ໃສ່ຫົວຂໍ້ເອກະສານ" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docSender">ຈາກ / ເຖິງ *</label>
+                        <input type="text" id="docSender" class="form-control" placeholder="ພາກສ່ວນກ່ຽວຂ້ອງ" required>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <button type="submit" class="btn btn-primary" id="saveBtn"><i class="fa-solid fa-save"></i> ບັນທຶກຂໍ້ມູນ</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Document Table -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class="fa-solid fa-list-check"></i> ຕາຕະລາງรายการເອກະສານ</div>
+                <div class="btn-group">
+                    <button class="btn btn-danger btn-sm" onclick="clearAllData()"><i class="fa-solid fa-trash"></i> ລຶບຂໍ້ມູນທັງໝົດ</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ປະເພດ</th>
+                            <th>ເລກທີ</th>
+                            <th>ວັນທີ</th>
+                            <th>ຫົວຂໍ້ / ເນື້ອໃນ</th>
+                            <th>ຈາກ / ເຖິງ</th>
+                            <th>ຈັດການ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docTableBody">
+                        <!-- Dynamic Content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Key for localStorage
+        const STORAGE_KEY = 'itcenter_nuol_doc_dashboard';
+        
+        // Initial Dummy Data
+        const dummyData = [
+            { id: '1', type: 'IN', number: '102/ສຕຂ', date: new Date().toISOString().split('T')[0], title: 'ແຈ້ງການກ່ຽວກັບການອັບເດດລະບົບເຄືອຂ່າຍ ມຊ', sender: 'ຫ້ອງການອະທິການບໍດີ' },
+            { id: '2', type: 'OUT', number: '045/ສຕຂ', date: new Date().toISOString().split('T')[0], title: 'ໜັງສືສະເໜີຈັດຊື້ອຸປະກອນໄອທີ', sender: 'ຄະນະວິທະຍາສາດທຳມະຊາດ' },
+            { id: '3', type: 'IN', number: '088/ສຕຂ', date: '2026-09-01', title: 'ເຊີນຮ່ວມກອງປະຊຸມວາງແຜນໄອທີ ປະຈຳປີ', sender: 'ກະຊວງສຶກສາທິການ ແລະ ກິລາ' }
+        ];
+
+        let documents = [];
+        let currentPeriodFilter = 'all';
+
+        // Load Initial Data
+        window.addEventListener('DOMContentLoaded', () => {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                documents = JSON.parse(stored);
+            } else {
+                documents = dummyData;
+                saveToLocalStorage();
+            }
+            // Set default date picker to today
+            document.getElementById('docDate').value = new Date().toISOString().split('T')[0];
+            renderDashboard();
+        });
+
+        // Save to LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+        }
+
+        // Render Table & Cards based on Filter
+        function renderDashboard() {
+            const filteredDocs = filterDocumentsByPeriod(documents, currentPeriodFilter);
+            const tableBody = document.getElementById('docTableBody');
+            tableBody.innerHTML = '';
+
+            let inCount = 0;
+            let outCount = 0;
+
+            filteredDocs.forEach((doc, index) => {
+                if (doc.type === 'IN') inCount++;
+                if (doc.type === 'OUT') outCount++;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><span class="badge ${doc.type === 'IN' ? 'badge-in' : 'badge-out'}">${doc.type === 'IN' ? 'ຂາເຂົ້າ' : 'ຂາອອກ'}</span></td>
+                    <td><strong>${doc.number}</strong></td>
+                    <td>${doc.date}</td>
+                    <td>${doc.title}</td>
+                    <td>${doc.sender}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-secondary btn-sm" onclick="editDoc('${doc.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteDoc('${doc.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredDocs.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #888;">ບໍ່ມີຂໍ້ມູນເອກະສານໃດໆ</td></tr>`;
+            }
+
+            // Update Cards Summary
+            document.getElementById('totalCount').textContent = filteredDocs.length;
+            document.getElementById('inCount').textContent = inCount;
+            document.getElementById('outCount').textContent = outCount;
+        }
+
+        // Filter Logic for Daily, Weekly, Monthly, Yearly
+        function filterDocumentsByPeriod(docs, period) {
+            const today = new Date();
+            return docs.filter(doc => {
+                const docDate = new Date(doc.date);
+                if (isNaN(docDate.getTime())) return true;
+
+                if (period === 'daily') {
+                    return docDate.toDateString() === today.toDateString();
+                } else if (period === 'weekly') {
+                    const oneWeekAgo = new Date(today);
+                    oneWeekAgo.setDate(today.getDate() - 7);
+                    return docDate >= oneWeekAgo && docDate <= today;
+                } else if (period === 'monthly') {
+                    return docDate.getMonth() === today.getMonth() && docDate.getFullYear() === today.getFullYear();
+                } else if (period === 'yearly') {
+                    return docDate.getFullYear() === today.getFullYear();
+                }
+                return true; // 'all'
+            });
+        }
+
+        function setReportPeriod(period, btnElement) {
+            currentPeriodFilter = period;
+            document.querySelectorAll('.filter-group .btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderDashboard();
+        }
+
+        // Form Submit Handle (Add / Edit)
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('docId').value;
+            const type = document.getElementById('docType').value;
+            const number = document.getElementById('docNumber').value;
+            const date = document.getElementById('docDate').value;
+            const title = document.getElementById('docTitle').value;
+            const sender = document.getElementById('docSender').value;
+
+            if (id) {
+                // Edit
+                const index = documents.findIndex(d => d.id === id);
+                if (index !== -1) {
+                    documents[index] = { id, type, number, date, title, sender };
+                }
+            } else {
+                // Add
+                const newDoc = {
+                    id: Date.now().toString(),
+                    type, number, date, title, sender
+                };
+                documents.unshift(newDoc);
+            }
+
+            saveToLocalStorage();
+            resetForm();
+            renderDashboard();
+        }
+
+        // Edit Document
+        function editDoc(id) {
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('docId').value = doc.id;
+            document.getElementById('docType').value = doc.type;
+            document.getElementById('docNumber').value = doc.number;
+            document.getElementById('docDate').value = doc.date;
+            document.getElementById('docTitle').value = doc.title;
+            document.getElementById('docSender').value = doc.sender;
+
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> ແກ້ໄຂຂໍ້ມູນເອກະສານ';
+            document.getElementById('saveBtn').innerHTML = '<i class="fa-solid fa-save"></i> ບັນທຶກການແກ້ໄຂ';
+            document.getElementById('cancelEditBtn').style.display = 'inline-block';
+        }
+
+        // Reset Form
+        function resetForm() {
+            document.getElementById('docForm').reset();
+            document.getElementById('docId').value = '';
+            document.getElementById('docDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-plus-circle"></i> ເພີ່ມເອກະສານໃໝ່';
+            document.getElementById('saveBtn').innerHTML = '<i class="fa-solid fa-save"></i> ບັນທຶກຂໍ້ມູນ';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        // Delete Document
+        function deleteDoc(id) {
+            if (confirm('ທ່ານຕັ້ງໃຈຈະລຶບເອກະສານນີ້ແມ່ນບໍ່?')) {
+                documents = documents.filter(d => d.id !== id);
+                saveToLocalStorage();
+                renderDashboard();
+            }
+        }
+
+        // Clear All Data
+        function clearAllData() {
+            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນທັງໝົດ? Action ນີ້ບໍ່ສາມາດຍົກເລີກໄດ້!')) {
+                documents = [];
+                saveToLocalStorage();
+                renderDashboard();
+            }
+        }
+
+        // Export Data to JSON
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(documents, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ITCenter_Documents_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Import Data from JSON
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedDocs = JSON.parse(e.target.result);
+                    if (Array.isArray(importedDocs)) {
+                        documents = importedDocs;
+                        saveToLocalStorage();
+                        renderDashboard();
+                        alert('ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບไฟล์ JSON ບໍ່ຖືກຕ້ອງ!');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານไฟล์ JSON!');
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
