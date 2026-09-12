@@ -40,6 +40,19 @@
             color: white;
             padding: 1.2rem 2rem;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .role-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .container {
@@ -124,11 +137,11 @@
 
         /* Buttons */
         .btn {
-            padding: 8px 16px;
+            padding: 6px 14px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             transition: background 0.2s;
         }
@@ -137,6 +150,7 @@
         .btn-primary:hover { background: var(--primary-light); }
         .btn-danger { background: var(--danger); color: white; }
         .btn-secondary { background: #64748b; color: white; }
+        .btn-warning { background: #d97706; color: white; }
 
         /* Table */
         table {
@@ -165,6 +179,16 @@
         .chart-container {
             position: relative;
             height: 250px;
+        }
+
+        /* Lock Notification Badge */
+        .user-mode-notice {
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
         }
     </style>
 
@@ -196,7 +220,11 @@
 <body>
 
     <header>
-        <h1>📚 ລະບົບຕິດຕາມຜົນການຮຽນ-ການສອນ (Teaching Tracker)</h1>
+        <h1>📚 ລະບົບຕິດຕາມຜົນການຮຽນ-ການສອນ</h1>
+        <div class="role-badge">
+            <span>ສິດການໃຊ້ງານ: <b id="current-role">User ທົ່ວໄປ</b></span>
+            <button class="btn btn-warning" id="auth-btn" onclick="toggleAuth()">🔐 ເຂົ້າสู่ລະບົບ Admin</button>
+        </div>
     </header>
 
     <div class="container">
@@ -221,7 +249,7 @@
             <!-- Left Column: Form -->
             <div>
                 <div class="card">
-                    <h2 id="form-title">📝 ບັນທຶກການສອນ / ຕິດຕາມ</h2>
+                    <h2 id="form-title">📝 ບັນທຶກການສອນ (User / Admin)</h2>
                     <form id="teach-form" onsubmit="saveData(event)">
                         <input type="hidden" id="edit-id">
                         
@@ -259,7 +287,7 @@
                         </div>
 
                         <div style="display: flex; gap: 8px;">
-                            <button type="submit" class="btn btn-primary" style="flex: 1;">ບັນທຶກ</button>
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">➕ ບັນທຶກຂໍ້ມູນ</button>
                             <button type="button" class="btn btn-secondary" onclick="resetForm()">ຍົກເລີກ</button>
                         </div>
                     </form>
@@ -279,6 +307,9 @@
                 <!-- Table Card -->
                 <div class="card">
                     <h2>📋 ປະວັດການບັນທຶກ</h2>
+                    <div id="notice-box" class="user-mode-notice">
+                        🔒 <b>ໂໝດ User ທົ່ວໄປ:</b> ທ່ານສາມາດປ້ອນຂໍ້ມູນໃໝ່ໄດ້ເທົ່ານັ້ນ. ຖ້າຕ້ອງການ <b>ແກ້ໄຂ</b> ຫຼື <b>ລຶບ</b> ຂໍ້ມູນ ຕ້ອງເຂົ້າສູ່ລະບົບ Admin.
+                    </div>
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
@@ -288,7 +319,7 @@
                                     <th>ຫ້ອງ</th>
                                     <th>ຊມ</th>
                                     <th>ສະຖານະ</th>
-                                    <th>ຈັດການ</th>
+                                    <th id="action-header" style="display: none;">ຈັດການ (Admin)</th>
                                 </tr>
                             </thead>
                             <tbody id="table-body">
@@ -304,10 +335,12 @@
 
     <script>
         const STORAGE_KEY = 'teacher_tracker_data';
+        const ADMIN_PASSWORD = '123'; // 🔒 ລະຫັດຜ່ານ Admin (ສາມາດປ່ຽນໄດ້ຢູ່ບ່ອນນີ້)
+        
+        let isAdmin = false; // ສະຖານະສິດການເຂົ້າເຖິງ
         let records = [];
         let chart = null;
 
-        // Dummy initial data
         const initialData = [
             { id: '1', course: 'ຄະນິດສາດ', classroom: 'ມ.5/2', date: '2026-03-10', hours: 2, status: 'Present', topic: 'ພຶດຊະຄະນິດ' },
             { id: '2', course: 'ຟິຊິກສາດ', classroom: 'ມ.6/1', date: '2026-03-11', hours: 3, status: 'Present', topic: 'ກົດເກນນິວຕອນ' },
@@ -320,6 +353,23 @@
             render();
         });
 
+        // ລະບົບປ່ຽນສິດ Admin / User
+        function toggleAuth() {
+            if (isAdmin) {
+                isAdmin = false;
+                alert('ອອກຈາກລະບົບ Admin ແລ້ວ');
+            } else {
+                const pass = prompt('ກະລຸນາປ້ອນລະຫັດຜ່ານ Admin:');
+                if (pass === ADMIN_PASSWORD) {
+                    isAdmin = true;
+                    alert('ເຂົ້າສູ່ລະບົບ Admin ສຳເລັດ!');
+                } else if (pass !== null) {
+                    alert('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!');
+                }
+            }
+            render();
+        }
+
         function loadData() {
             const stored = localStorage.getItem(STORAGE_KEY);
             records = stored ? JSON.parse(stored) : initialData;
@@ -331,9 +381,33 @@
         }
 
         function render() {
+            updateRoleUI();
             renderTable();
             renderStats();
             updateChart();
+        }
+
+        function updateRoleUI() {
+            const roleText = document.getElementById('current-role');
+            const authBtn = document.getElementById('auth-btn');
+            const noticeBox = document.getElementById('notice-box');
+            const actionHeader = document.getElementById('action-header');
+
+            if (isAdmin) {
+                roleText.innerText = 'Admin (ຜູ້ດູແລລະບົບ)';
+                roleText.style.color = '#4ade80';
+                authBtn.innerText = '🚪 ອອກຈາກ Admin';
+                authBtn.className = 'btn btn-secondary';
+                noticeBox.style.display = 'none';
+                actionHeader.style.display = 'table-cell';
+            } else {
+                roleText.innerText = 'User ທົ່ວໄປ';
+                roleText.style.color = '#ffffff';
+                authBtn.innerText = '🔐 ເຂົ້າສູ່ລະບົບ Admin';
+                authBtn.className = 'btn btn-warning';
+                noticeBox.style.display = 'block';
+                actionHeader.style.display = 'none';
+            }
         }
 
         function renderTable() {
@@ -342,6 +416,17 @@
 
             records.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(rec => {
                 const tr = document.createElement('tr');
+                
+                let actionTd = '';
+                if (isAdmin) {
+                    actionTd = `
+                        <td>
+                            <button class="btn btn-primary" style="padding: 2px 6px; font-size: 0.75rem;" onclick="editRecord('${rec.id}')">ແກ້ໄຂ</button>
+                            <button class="btn btn-danger" style="padding: 2px 6px; font-size: 0.75rem;" onclick="deleteRecord('${rec.id}')">ລຶບ</button>
+                        </td>
+                    `;
+                }
+
                 tr.innerHTML = `
                     <td>${rec.date}</td>
                     <td><b>${rec.course}</b></td>
@@ -352,10 +437,7 @@
                             ${rec.status === 'Present' ? 'ມາສອນ' : 'ຂາດ/ລາ'}
                         </span>
                     </td>
-                    <td>
-                        <button class="btn btn-primary" style="padding: 2px 6px; font-size: 0.75rem;" onclick="editRecord('${rec.id}')">ແກ້ໄຂ</button>
-                        <button class="btn btn-danger" style="padding: 2px 6px; font-size: 0.75rem;" onclick="deleteRecord('${rec.id}')">ລຶບ</button>
-                    </td>
+                    ${actionTd}
                 `;
                 tbody.appendChild(tr);
             });
@@ -383,11 +465,17 @@
             const topic = document.getElementById('topic').value;
 
             if (id) {
+                // ເຊັກສິດ: ຖ້າຈະແກ້ໄຂຂໍ້ມູນ ຕ້ອງເປັນ Admin ເທົ່ານັ້ນ
+                if (!isAdmin) {
+                    alert('⛔ ທ່ານບໍ່ມີສິດແກ້ໄຂຂໍ້ມູນ! ເຂົ້າສູ່ລະບົບ Admin ກ່ອນ.');
+                    return;
+                }
                 const index = records.findIndex(r => r.id === id);
                 if (index !== -1) {
                     records[index] = { id, course, classroom, date, hours, status, topic };
                 }
             } else {
+                // User ທົ່ວໄປ ແລະ Admin ສາມາດເພີ່ມຂໍ້ມູນໃໝ່ໄດ້ຄືກັນ
                 records.push({
                     id: Date.now().toString(),
                     course, classroom, date, hours, status, topic
@@ -399,6 +487,11 @@
         }
 
         function editRecord(id) {
+            if (!isAdmin) {
+                alert('⛔ ສິດປະເສດ: เฉพาะ Admin ເທົ່ານັ້ນທີ່ສາມາດແກ້ໄຂໄດ້');
+                return;
+            }
+
             const rec = records.find(r => r.id === id);
             if (!rec) return;
 
@@ -410,11 +503,16 @@
             document.getElementById('status').value = rec.status;
             document.getElementById('topic').value = rec.topic;
 
-            document.getElementById('form-title').innerText = '✏️ ແກ້ໄຂຂໍ້ມູນການສອນ';
+            document.getElementById('form-title').innerText = '✏️ ແກ້ໄຂຂໍ້ມູນການສອນ (Admin Mode)';
         }
 
         function deleteRecord(id) {
-            if (confirm('ທ່ານຕ້ອງການລຶບຂໍ້ມູນນີ້ບໍ?')) {
+            if (!isAdmin) {
+                alert('⛔ ສິດປະເສດ: เฉพาะ Admin ເທົ່ານັ້ນທີ່ສາມາດລຶບໄດ້');
+                return;
+            }
+
+            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນນີ້?')) {
                 records = records.filter(r => r.id !== id);
                 saveDataToStorage();
             }
@@ -423,7 +521,7 @@
         function resetForm() {
             document.getElementById('teach-form').reset();
             document.getElementById('edit-id').value = '';
-            document.getElementById('form-title').innerText = '📝 ບັນທຶກການສອນ / ຕິດຕາມ';
+            document.getElementById('form-title').innerText = '📝 ບັນທຶກການສອນ (User / Admin)';
         }
 
         function initChart() {
