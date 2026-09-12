@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Canvas Confetti Library for Celebration Effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/json,{%22name%22:%22MOSO%20AI%20Portal%22,%22short_name%22:%22MOSO%20AI%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23f8fafc%22,%22theme_color%22:%22%230284c7%22}">
 
@@ -160,71 +163,139 @@
             cursor: not-allowed;
         }
 
+        /* Upload Progress Styling */
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-label-group {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
         /* Result Panel */
         .result-panel {
             display: none;
             margin-top: 24px;
-            padding: 20px;
-            background-color: #f8fafc;
-            border: 1px solid var(--border-light);
+            padding: 24px;
+            background-color: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
             border-radius: 12px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .result-header {
             color: var(--success);
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 14px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .url-group {
-            margin-bottom: 12px;
-        }
-
-        .url-label {
-            font-size: 0.8rem;
+        .result-instruction {
+            font-size: 0.9rem;
             color: var(--text-sub);
-            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .url-box {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
         }
 
         .url-link {
-            display: block;
+            flex-grow: 1;
             font-family: monospace;
             color: var(--primary);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 600;
             text-decoration: none;
             word-break: break-all;
-            margin-top: 2px;
         }
 
-        .url-link:hover {
-            text-decoration: underline;
-        }
-
-        .sync-notice {
-            background-color: var(--warning-bg);
-            color: var(--warning-text);
-            font-size: 0.78rem;
-            padding: 6px 10px;
+        .btn-copy {
+            background-color: #f1f5f9;
+            border: 1px solid var(--border);
+            padding: 6px 12px;
             border-radius: 6px;
-            margin-top: 6px;
-            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background-color: #e2e8f0;
         }
 
         .btn-open {
             display: block;
             text-align: center;
             text-decoration: none;
-            background-color: var(--text-main);
+            background-color: var(--primary);
             color: #ffffff;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
-            margin-top: 14px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-open:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-install {
+            display: none;
+            width: 100%;
+            text-align: center;
+            background-color: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-install:hover {
+            background-color: #1e293b;
         }
     </style>
 </head>
@@ -258,30 +329,42 @@
                 <input type="email" id="emailInput" placeholder="xxxx@nuol.edu.la" required>
             </div>
 
+            <!-- Animated Upload Progress Bar -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-label-group">
+                    <span id="progressStatus">ກຳລັງອັບໂຫຼດ...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+
             <button type="submit" class="btn-submit" id="submitBtn">ອັບໂຫຼດ ແລະ ເປີດໃຊ້ງານ</button>
         </form>
 
         <!-- Result Box -->
         <div class="result-panel" id="resultPanel">
-            <div class="result-header">✓ ອັບໂຫຼດ ສຳເລັດແລ້ວ!</div>
+            <div class="result-header">🎉 ອັບໂຫຼດ ສຳເລັດແລ້ວ! Bravo!</div>
+            <p class="result-instruction">ຄລິກລິ້ງດ້ານລຸ່ມເພື່ອເປີດ ຫຼື ຕິດຕັ້ງແອັບຂອງທ່ານໄດ້ເລີຍ:</p>
             
-            <div class="url-group">
-                <div class="url-label">URL ຫຼັກ (moso.surge.sh):</div>
+            <div class="url-box">
                 <a href="#" id="surgeUrl" class="url-link" target="_blank"></a>
+                <button class="btn-copy" id="copyBtn" onclick="copyLink()">ຄັດລອກ</button>
             </div>
 
-            <div class="url-group">
-                <div class="url-label">URL ສຳຮອງ (itc.nuol.edu.la):</div>
-                <a href="#" id="itcUrl" class="url-link" target="_blank"></a>
-                <div class="sync-notice">⏳ ກຳລັງຊິງຄ໌ຂໍ້ມູນໄປຫາ ITC Server (ໃຊ້ເວລາປະມານ 5-10 ນາທີ)</div>
+            <!-- Hidden ITC Backup Link (Disabled for now)
+            <div style="display:none;">
+                <a href="#" id="itcUrl"></a>
             </div>
+            -->
             
-            <a href="#" id="openBtn" class="btn-open" target="_blank">ໄປຫາໜ້າແອັບຂອງທ່ານ →</a>
+            <a href="#" id="openBtn" class="btn-open" target="_blank">🚀 ເປີດໜ້າແອັບຂອງທ່ານ</a>
+            <button class="btn-install" id="installBtn">📲 ຕິດຕັ້ງແອັບໃສ່ອຸປະກອນ (Install App)</button>
         </div>
     </div>
 
     <script>
-        // CONFIGURATION: Replace this with your Web App URL after deploying Apps Script
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxk0CifZpnM4LNNdDzkfnVvF6--fCIRoXe0Us848WyqrioXPneNWJdr4cWUBQh-39IP/exec";
 
         const dropZone = document.getElementById('dropZone');
@@ -292,6 +375,32 @@
         const submitBtn = document.getElementById('submitBtn');
         const resultPanel = document.getElementById('resultPanel');
         const dropTitle = document.getElementById('dropTitle');
+
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressStatus = document.getElementById('progressStatus');
+        const installBtn = document.getElementById('installBtn');
+
+        let deferredPrompt;
+
+        // Catch PWA install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
 
         // File Drag & Drop Setup
         dropZone.addEventListener('click', () => fileInput.click());
@@ -334,7 +443,6 @@
             urlPreview.innerText = `URL ແອັບ: moso.surge.sh/${cleanSlug || 'your-name'}`;
         });
 
-        // Helper: Convert File to Base64
         const fileToBase64 = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -342,13 +450,37 @@
             reader.onerror = error => reject(error);
         });
 
-        // Helper: Read HTML text
         const fileToText = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsText(file);
             reader.onload = () => resolve(reader.result);
             reader.onerror = error => reject(error);
         });
+
+        function updateProgress(percent, text) {
+            progressBar.style.width = percent + '%';
+            progressPercent.innerText = percent + '%';
+            if(text) progressStatus.innerText = text;
+        }
+
+        function triggerBravoConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function copyLink() {
+            const surgeUrl = document.getElementById('surgeUrl').href;
+            navigator.clipboard.writeText(surgeUrl).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.innerText = '✓ ຄັດລອກແລ້ວ';
+                setTimeout(() => copyBtn.innerText = 'ຄັດລອກ', 2000);
+            });
+        }
 
         // Form Submit Event
         appForm.addEventListener('submit', async (e) => {
@@ -366,10 +498,13 @@
                 return;
             }
 
-            submitBtn.innerText = "ກຳລັງອັບໂຫຼດ...";
             submitBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            resultPanel.style.display = 'none';
 
             try {
+                updateProgress(15, "ກຳລັງກຽມໄຟລ໌...");
+
                 let payload = {
                     slug: cleanSlug,
                     email: document.getElementById('emailInput').value,
@@ -387,36 +522,43 @@
                     payload.rawHtml = await fileToText(file);
                 }
 
+                updateProgress(45, "ກຳລັງສົ່ງຂໍ້ມູນໄປຫາ Server...");
+
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify(payload)
                 });
 
+                updateProgress(85, "ກຳລັງຕັ້ງຄ່າ Domain...");
+
                 const result = await response.json();
 
                 if (result.result === "success") {
+                    updateProgress(100, "ສຳເລັດແລ້ວ!");
+
                     const surgeLink = `https://moso.surge.sh/${cleanSlug}`;
-                    const itcLink = `https://itc.nuol.edu.la/apps/${cleanSlug}`;
 
                     document.getElementById('surgeUrl').innerText = surgeLink;
                     document.getElementById('surgeUrl').href = surgeLink;
-
-                    document.getElementById('itcUrl').innerText = itcLink;
-                    document.getElementById('itcUrl').href = itcLink;
-
                     document.getElementById('openBtn').href = surgeLink;
 
-                    resultPanel.style.display = 'block';
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                        resultPanel.style.display = 'block';
+                        triggerBravoConfetti();
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    }, 400);
+
                 } else {
                     alert("Upload error: " + result.message);
+                    progressContainer.style.display = 'none';
                 }
 
             } catch (err) {
                 alert("Submission failed: " + err.message);
+                progressContainer.style.display = 'none';
             } finally {
-                submitBtn.innerText = "ອັບໂຫຼດ ແລະ ເປີດໃຊ້ງານ";
                 submitBtn.disabled = false;
             }
         });
