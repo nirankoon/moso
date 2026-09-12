@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOSO-MyApp</title>
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti Library for Celebration Effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json,{%22name%22:%22MOSO%20AI%20Portal%22,%22short_name%22:%22MOSO%20AI%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23f8fafc%22,%22theme_color%22:%22%230284c7%22}">
+
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --border: #cbd5e1;
+            --border-light: #e2e8f0;
+            --success: #16a34a;
+            --warning-bg: #fef3c7;
+            --warning-text: #b45309;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans Lao', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .portal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 36px 30px;
+            width: 100%;
+            max-width: 540px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        /* Drag & Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--primary);
+            background-color: #f0f9ff;
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            background-color: #e0f2fe;
+            border-color: var(--primary-hover);
+        }
+
+        .drop-zone-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 10px;
+        }
+
+        .drop-zone-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background-color: #ffffff;
+        }
+
+        .url-preview {
+            margin-top: 6px;
+            font-size: 0.82rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-submit:disabled {
+            background-color: var(--border);
+            cursor: not-allowed;
+        }
+
+        /* Upload Progress Styling */
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-label-group {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
+        /* Result Panel */
+        .result-panel {
+            display: none;
+            margin-top: 24px;
+            padding: 24px;
+            background-color: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
+            border-radius: 12px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            color: var(--success);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-instruction {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 16px;
+        }
+
+        .url-box {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+        }
+
+        .url-link {
+            flex-grow: 1;
+            font-family: monospace;
+            color: var(--primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .btn-copy {
+            background-color: #f1f5f9;
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-open {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background-color: var(--primary);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-open:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-install {
+            display: none;
+            width: 100%;
+            text-align: center;
+            background-color: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-install:hover {
+            background-color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portal-card">
+        <div class="header">
+            <h1>MOSO MyApp</h1>
+            <p>ລະບົບອັບໂຫຼດ ແລະ ຈັດການແອັບພລິເຄຊັນ (moso.surge.sh)</p>
+        </div>
+
+        <form id="appForm">
+            <!-- Upload Area -->
+            <div class="drop-zone" id="dropZone">
+                <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--primary);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <div class="drop-zone-title" id="dropTitle">ລາກແຟ້ມ (Folder) ຫຼື ໄຟລ໌ HTML ມາຢູ່ນີ້</div>
+                <div class="drop-zone-subtitle">ຫຼື ຄລິກເພື່ອເລືອກໄຟລ໌ຈາກເຄື່ອງຂອງທ່ານ</div>
+                <input type="file" id="fileInput" accept=".html,.htm" hidden>
+            </div>
+
+            <!-- Slug Input -->
+            <div class="form-group">
+                <label for="slugInput">ຊື່ Slug / ຊື່ແອັບຂອງທ່ານ</label>
+                <input type="text" id="slugInput" placeholder="ຕົວຢ່າງ: panoy ຫຼື vonsy ຫຼື MyBansi" required>
+                <div class="url-preview" id="urlPreview">URL ແອັບ: moso.surge.sh/your-name</div>
+            </div>
+
+            <!-- Verification -->
+            <div class="form-group">
+                <label for="emailInput">ອີເມວ ມຊ ຫຼື PIN ຢືນຢັນຕົວຕົນ</label>
+                <input type="email" id="emailInput" placeholder="xxxx@nuol.edu.la" required>
+            </div>
+
+            <!-- Animated Upload Progress Bar -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-label-group">
+                    <span id="progressStatus">ກຳລັງອັບໂຫຼດ...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">ອັບໂຫຼດ ແລະ ເປີດໃຊ້ງານ</button>
+        </form>
+
+        <!-- Result Box -->
+        <div class="result-panel" id="resultPanel">
+            <div class="result-header">🎉 ອັບໂຫຼດ ສຳເລັດແລ້ວ! Bravo!</div>
+            <p class="result-instruction">ຄລິກລິ້ງດ້ານລຸ່ມເພື່ອເປີດ ຫຼື ຕິດຕັ້ງແອັບຂອງທ່ານໄດ້ເລີຍ:</p>
+            
+            <div class="url-box">
+                <a href="#" id="surgeUrl" class="url-link" target="_blank"></a>
+                <button class="btn-copy" id="copyBtn" onclick="copyLink()">ຄັດລອກ</button>
+            </div>
+
+            <!-- Hidden ITC Backup Link (Disabled for now)
+            <div style="display:none;">
+                <a href="#" id="itcUrl"></a>
+            </div>
+            -->
+            
+            <a href="#" id="openBtn" class="btn-open" target="_blank">🚀 ເປີດໜ້າແອັບຂອງທ່ານ</a>
+            <button class="btn-install" id="installBtn">📲 ຕິດຕັ້ງແອັບໃສ່ອຸປະກອນ (Install App)</button>
+        </div>
+    </div>
+
+    <script>
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxk0CifZpnM4LNNdDzkfnVvF6--fCIRoXe0Us848WyqrioXPneNWJdr4cWUBQh-39IP/exec";
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const slugInput = document.getElementById('slugInput');
+        const urlPreview = document.getElementById('urlPreview');
+        const appForm = document.getElementById('appForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultPanel = document.getElementById('resultPanel');
+        const dropTitle = document.getElementById('dropTitle');
+
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressStatus = document.getElementById('progressStatus');
+        const installBtn = document.getElementById('installBtn');
+
+        let deferredPrompt;
+
+        // Catch PWA install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // File Drag & Drop Setup
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if(files.length > 0) {
+                fileInput.files = files;
+                dropTitle.innerText = `ເລືອກແລ້ວ: ${files[0].name}`;
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if(e.target.files.length > 0) {
+                dropTitle.innerText = `ເລືອກແລ້ວ: ${e.target.files[0].name}`;
+            }
+        });
+
+        // Slug Format Preview
+        slugInput.addEventListener('input', (e) => {
+            const cleanSlug = e.target.value.toLowerCase().trim()
+                .replace(/[\u0E80-\u0EFF]/g, '')
+                .replace(/[^a-z0-9-]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            urlPreview.innerText = `URL ແອັບ: moso.surge.sh/${cleanSlug || 'your-name'}`;
+        });
+
+        const fileToBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+
+        const fileToText = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        function updateProgress(percent, text) {
+            progressBar.style.width = percent + '%';
+            progressPercent.innerText = percent + '%';
+            if(text) progressStatus.innerText = text;
+        }
+
+        function triggerBravoConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function copyLink() {
+            const surgeUrl = document.getElementById('surgeUrl').href;
+            navigator.clipboard.writeText(surgeUrl).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.innerText = '✓ ຄັດລອກແລ້ວ';
+                setTimeout(() => copyBtn.innerText = 'ຄັດລອກ', 2000);
+            });
+        }
+
+        // Form Submit Event
+        appForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const rawSlug = slugInput.value;
+            const cleanSlug = rawSlug.toLowerCase().trim()
+                .replace(/[\u0E80-\u0EFF]/g, '')
+                .replace(/[^a-z0-9-]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+
+            if(!cleanSlug) {
+                alert("ກະລຸນາປ້ອນຊື່ Slug ເປັນພາສາອັງກິດ");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            resultPanel.style.display = 'none';
+
+            try {
+                updateProgress(15, "ກຳລັງກຽມໄຟລ໌...");
+
+                let payload = {
+                    slug: cleanSlug,
+                    email: document.getElementById('emailInput').value,
+                    fileData: null,
+                    fileName: null,
+                    fileMimeType: null,
+                    rawHtml: ""
+                };
+
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    payload.fileData = await fileToBase64(file);
+                    payload.fileName = file.name;
+                    payload.fileMimeType = file.type || 'text/html';
+                    payload.rawHtml = await fileToText(file);
+                }
+
+                updateProgress(45, "ກຳລັງສົ່ງຂໍ້ມູນໄປຫາ Server...");
+
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload)
+                });
+
+                updateProgress(85, "ກຳລັງຕັ້ງຄ່າ Domain...");
+
+                const result = await response.json();
+
+                if (result.result === "success") {
+                    updateProgress(100, "ສຳເລັດແລ້ວ!");
+
+                    const surgeLink = `https://moso.surge.sh/${cleanSlug}`;
+
+                    document.getElementById('surgeUrl').innerText = surgeLink;
+                    document.getElementById('surgeUrl').href = surgeLink;
+                    document.getElementById('openBtn').href = surgeLink;
+
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                        resultPanel.style.display = 'block';
+                        triggerBravoConfetti();
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    }, 400);
+
+                } else {
+                    alert("Upload error: " + result.message);
+                    progressContainer.style.display = 'none';
+                }
+
+            } catch (err) {
+                alert("Submission failed: " + err.message);
+                progressContainer.style.display = 'none';
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+        }
+    </script>
+</body>
+</html>
