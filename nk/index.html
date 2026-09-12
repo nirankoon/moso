@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workshop Agenda - ITCenter NUOL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #003366;
+      --secondary: #0055a5;
+      --accent: #d97706;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans Lao', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 30px 15px;
+    }
+
+    .main-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 6px solid var(--primary);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+
+    .header-card h1 {
+      color: var(--primary);
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header-card h2 {
+      color: var(--secondary);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    .meta-item {
+      color: var(--text-sub);
+    }
+
+    .meta-item strong {
+      color: var(--text);
+    }
+
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      color: var(--primary);
+      border-bottom: 2px solid var(--bg);
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .agenda-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .agenda-table th, .agenda-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.92rem;
+    }
+
+    .agenda-table th {
+      background-color: #f1f5f9;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .time-col {
+      width: 130px;
+      white-space: nowrap;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .lang-en {
+      color: var(--text-sub);
+      font-size: 0.88rem;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .badge {
+      background-color: #e0f2fe;
+      color: #0369a1;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    
+    <!-- Header Info -->
+    <div class="header-card">
+      <h1>ຕາຕະລາງອົບຮົມ: ການສ້າງ Dashboard ແລະ ເວັບແອັບ PWA</h1>
+      <h2>Workshop Agenda: AI-Powered Dashboard & PWA Creation</h2>
+      
+      <div class="meta-grid">
+        <div class="meta-item">
+          <strong>ສະຖານທີ່ / Location:</strong><br>
+          T-Building, ITCenter, National University of Laos (NUOL)
+        </div>
+        <div class="meta-item">
+          <strong>ຜູ້ອົບຮົມ / Instructor:</strong><br>
+          Nirankoon SINGPRASEUTH
+        </div>
+        <div class="meta-item">
+          <strong>ວັນທີ / Date:</strong><br>
+          Day 1 & Day 2 (11 September 2026)
+        </div>
+      </div>
+    </div>
+
+    <!-- Day 1 Agenda -->
+    <div class="section-card">
+      <div class="section-title">
+        <span>ມື້ທີ 1: ການອອກແບບ, ຕັ້ງຄ່າ PWA ແລະ ເຜີຍແຜ່ລະບົບ</span>
+        <span class="badge">Day 1</span>
+      </div>
+      
+      <table class="agenda-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">ເວລາ (Time)</th>
+            <th>ກິດຈະກຳ / Topic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="time-col">
+              Session 1<br>
+              <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-sub);">60 Mins</span>
+            </td>
+            <td>
+              <strong>ການສ້າງ Dashboard ແລະ ການຈັດເກັດຂໍ້ມູນ Local Data</strong>
+              <span class="lang-en">AI Prompting, Dashboard Creation & Local Data Export</span>
+              <ul style="margin-top: 8px; padding-left: 18px; font-size: 0.88rem;">
+                <li>ແນະນຳລະບົບ Web App ແລະ ການເຮັດວຽກແບບ Offline (Intro to No-Code Web Apps)</li>
+                <li>ການໃຊ້ AI Prompt ສ້າງ HTML/CSS Dashboard (Generating Custom Dashboards via AI)</li>
+                <li>ເພີ່ມຟັງຊັນບັນທຶກ ແລະ ສົ່ງອອກຂໍ້ມູນ Local Data (JSON/CSV Export feature)</li>
+                <li>ດາວໂຫຼດໄຟລ໌ HTML ລົງເຄື່ອງ PC (Saving `index.html` locally)</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="time-col">
+              Session 2<br>
+              <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-sub);">60 Mins</span>
+            </td>
+            <td>
+              <strong>ການສົ່ງຟອມ, ຕິດຕັ້ງ PWA ແລະ ລະບົບ ອັດໂຕນົມມັດ</strong>
+              <span class="lang-en">Form Submission, PWA Installation & Automation Pipeline</span>
+              <ul style="margin-top: 8px; padding-left: 18px; font-size: 0.88rem;">
+                <li>ອັບໂຫຼດໄຟລ໌ HTML ແລະ ຂໍ້ມູນຢືນຢັນຕົວຕົນຜ່ານ Google Form</li>
+                <li>ລໍຖ້າລະບົບ Deploy ອັດໂຕນົມມັດ 1 ນາທີ ໄປຫາ <code style="background: #e2e8f0; padding: 2px 4px; border-radius: 3px;">moso.surge.sh/xxxx</code></li>
+                <li>ຕິດຕັ້ງ Progressive Web App (PWA) ລົງໃນ Mobile Phone ແລະ Computer PC</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Day 2 Agenda -->
+    <div class="section-card">
+      <div class="section-title">
+        <span>ມື້ທີ 2: ນໍາສະເໜີຜົນງານ ແລະ ຮັບໃບຢັ້ງຢືນ (11 ກັນຍາ 2026)</span>
+        <span class="badge">Day 2 (Morning)</span>
+      </div>
+
+      <table class="agenda-table">
+        <thead>
+          <tr>
+            <th class="time-col">ເວລາ (Time)</th>
+            <th>ກິດຈະກຳ / Topic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="time-col">09:00 - 09:15</td>
+            <td>
+              <strong>ກຽມຄວາມພ້ອມ ແລະ ເປີດແອັບ PWA</strong>
+              <span class="lang-en">Welcome, System Check & Launching PWAs</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="time-col">09:15 - 10:15</td>
+            <td>
+              <strong>ການນຳສະເໜີຜົນງານ ແລະ ທົດສອບລະບົບ Local Data</strong>
+              <span class="lang-en">Participant Showcase, Live Demo & Data Export Testing</span>
+              <ul style="margin-top: 6px; padding-left: 18px; font-size: 0.88rem;">
+                <li>ສະແດງ Link ຜົນງານ live url: <code style="background: #e2e8f0; padding: 2px 4px; border-radius: 3px;">moso.surge.sh/your-app-name</code></li>
+                <li>ສາທິດການໃຊ້ງານ PWA ທີ່ຕິດຕັ້ງໃນ Mobile / PC</li>
+                <li>ທົດສອບການບັນທຶກ ແລະ Export ຂໍ້ມູນ Local Data ເປັນ ໄຟລ໌</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="time-col">10:15 - 10:30</td>
+            <td>
+              <strong>ແລກປ່ຽນຄວາມຄິດເຫັນ ແລະ ຂໍ້ສະເໜີແນະ</strong>
+              <span class="lang-en">Peer Review & AI Prompting Discussion</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="time-col">10:30 - 11:00</td>
+            <td>
+              <strong>ມອບໃບຢັ້ງຢືນ ແລະ ຖ່າຍຮູບຮ່ວມກັນ</strong>
+              <span class="lang-en">Certificate Awarding Ceremony & Closing Group Photo</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</body>
+</html>
