@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຕິດຕາມຜົນການຮຽນ-ການສອນ</title>
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .role-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        /* Overview Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary-light);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* Layout Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Forms and Containers */
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-warning { background: #d97706; color: white; }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th { background: #f1f5f9; font-weight: 600; }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: white;
+        }
+        .badge-present { background: var(--success); }
+        .badge-absent { background: var(--danger); }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+
+        /* Lock Notification Badge */
+        .user-mode-notice {
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TEACH1">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body>
+
+    <header>
+        <h1>📚 ລະບົບຕິດຕາມຜົນການຮຽນ-ການສອນ</h1>
+        <div class="role-badge">
+            <span>ສິດການໃຊ້ງານ: <b id="current-role">User ທົ່ວໄປ</b></span>
+            <button class="btn btn-warning" id="auth-btn" onclick="toggleAuth()">🔐 ເຂົ້າสู่ລະບົບ Admin</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Top Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>ຈຳນວນຊົ່ວໂມງສອນທັງໝົດ</h3>
+                <div class="number" id="stat-hours">0 ຊມ</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--success);">
+                <h3>ອັດຕາການເຂົ້າສອນຂອງຄູ</h3>
+                <div class="number" id="stat-attendance">0%</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #f59e0b;">
+                <h3>ຈຳນວນວິຊາທີ່ກຳລັງສອນ</h3>
+                <div class="number" id="stat-courses">0</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Column: Form -->
+            <div>
+                <div class="card">
+                    <h2 id="form-title">📝 ບັນທຶກການສອນ (User / Admin)</h2>
+                    <form id="teach-form" onsubmit="saveData(event)">
+                        <input type="hidden" id="edit-id">
+                        
+                        <div class="form-group">
+                            <label>ວິຊາຮຽນ</label>
+                            <input type="text" id="course" placeholder="ເຊັ່ນ: ພາສາອັງກິດ 1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ຫ້ອງຮຽນ / ຊັ້ນຮຽນ</label>
+                            <input type="text" id="classroom" placeholder="ເຊັ່ນ: ມ.4/1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ວັນທີສອນ</label>
+                            <input type="date" id="teach-date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ຈຳນວນຊົ່ວໂມງ</label>
+                            <input type="number" id="hours" min="1" max="8" value="2" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ສະຖານະການເຂົ້າສອນ</label>
+                            <select id="status">
+                                <option value="Present">ມາສອນ (Present)</option>
+                                <option value="Absent">ລາພັກ / ຂາດ (Absent)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ຫົວຂໍ້ / ເນື້ອໃນທີ່ສອນ</label>
+                            <textarea id="topic" rows="2" placeholder="ລາຍລະອຽດບົດຮຽນ..."></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">➕ ບັນທຶກຂໍ້ມູນ</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">ຍົກເລີກ</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Dashboard Chart & Table -->
+            <div>
+                <!-- Chart Card -->
+                <div class="card">
+                    <h2>📊 ພາບລວມສະຖິຕິການເຂົ້າສອນ</h2>
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Table Card -->
+                <div class="card">
+                    <h2>📋 ປະວັດການບັນທຶກ</h2>
+                    <div id="notice-box" class="user-mode-notice">
+                        🔒 <b>ໂໝດ User ທົ່ວໄປ:</b> ທ່ານສາມາດປ້ອນຂໍ້ມູນໃໝ່ໄດ້ເທົ່ານັ້ນ. ຖ້າຕ້ອງການ <b>ແກ້ໄຂ</b> ຫຼື <b>ລຶບ</b> ຂໍ້ມູນ ຕ້ອງເຂົ້າສູ່ລະບົບ Admin.
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ວັນທີ</th>
+                                    <th>ວິຊາ</th>
+                                    <th>ຫ້ອງ</th>
+                                    <th>ຊມ</th>
+                                    <th>ສະຖານະ</th>
+                                    <th id="action-header" style="display: none;">ຈັດການ (Admin)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Dynamic Data Inserted Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'teacher_tracker_data';
+        const ADMIN_PASSWORD = '123'; // 🔒 ລະຫັດຜ່ານ Admin (ສາມາດປ່ຽນໄດ້ຢູ່ບ່ອນນີ້)
+        
+        let isAdmin = false; // ສະຖານະສິດການເຂົ້າເຖິງ
+        let records = [];
+        let chart = null;
+
+        const initialData = [
+            { id: '1', course: 'ຄະນິດສາດ', classroom: 'ມ.5/2', date: '2026-03-10', hours: 2, status: 'Present', topic: 'ພຶດຊະຄະນິດ' },
+            { id: '2', course: 'ຟິຊິກສາດ', classroom: 'ມ.6/1', date: '2026-03-11', hours: 3, status: 'Present', topic: 'ກົດເກນນິວຕອນ' },
+            { id: '3', course: 'ຄະນິດສາດ', classroom: 'ມ.5/2', date: '2026-03-12', hours: 2, status: 'Absent', topic: 'ລາພັກປ່ວຍ' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            initChart();
+            render();
+        });
+
+        // ລະບົບປ່ຽນສິດ Admin / User
+        function toggleAuth() {
+            if (isAdmin) {
+                isAdmin = false;
+                alert('ອອກຈາກລະບົບ Admin ແລ້ວ');
+            } else {
+                const pass = prompt('ກະລຸນາປ້ອນລະຫັດຜ່ານ Admin:');
+                if (pass === ADMIN_PASSWORD) {
+                    isAdmin = true;
+                    alert('ເຂົ້າສູ່ລະບົບ Admin ສຳເລັດ!');
+                } else if (pass !== null) {
+                    alert('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!');
+                }
+            }
+            render();
+        }
+
+        function loadData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            records = stored ? JSON.parse(stored) : initialData;
+        }
+
+        function saveDataToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            render();
+        }
+
+        function render() {
+            updateRoleUI();
+            renderTable();
+            renderStats();
+            updateChart();
+        }
+
+        function updateRoleUI() {
+            const roleText = document.getElementById('current-role');
+            const authBtn = document.getElementById('auth-btn');
+            const noticeBox = document.getElementById('notice-box');
+            const actionHeader = document.getElementById('action-header');
+
+            if (isAdmin) {
+                roleText.innerText = 'Admin (ຜູ້ດູແລລະບົບ)';
+                roleText.style.color = '#4ade80';
+                authBtn.innerText = '🚪 ອອກຈາກ Admin';
+                authBtn.className = 'btn btn-secondary';
+                noticeBox.style.display = 'none';
+                actionHeader.style.display = 'table-cell';
+            } else {
+                roleText.innerText = 'User ທົ່ວໄປ';
+                roleText.style.color = '#ffffff';
+                authBtn.innerText = '🔐 ເຂົ້າສູ່ລະບົບ Admin';
+                authBtn.className = 'btn btn-warning';
+                noticeBox.style.display = 'block';
+                actionHeader.style.display = 'none';
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            records.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(rec => {
+                const tr = document.createElement('tr');
+                
+                let actionTd = '';
+                if (isAdmin) {
+                    actionTd = `
+                        <td>
+                            <button class="btn btn-primary" style="padding: 2px 6px; font-size: 0.75rem;" onclick="editRecord('${rec.id}')">ແກ້ໄຂ</button>
+                            <button class="btn btn-danger" style="padding: 2px 6px; font-size: 0.75rem;" onclick="deleteRecord('${rec.id}')">ລຶບ</button>
+                        </td>
+                    `;
+                }
+
+                tr.innerHTML = `
+                    <td>${rec.date}</td>
+                    <td><b>${rec.course}</b></td>
+                    <td>${rec.classroom}</td>
+                    <td>${rec.hours}</td>
+                    <td>
+                        <span class="badge ${rec.status === 'Present' ? 'badge-present' : 'badge-absent'}">
+                            ${rec.status === 'Present' ? 'ມາສອນ' : 'ຂາດ/ລາ'}
+                        </span>
+                    </td>
+                    ${actionTd}
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderStats() {
+            const totalHours = records.reduce((sum, r) => sum + (r.status === 'Present' ? Number(r.hours) : 0), 0);
+            const presentCount = records.filter(r => r.status === 'Present').length;
+            const rate = records.length > 0 ? Math.round((presentCount / records.length) * 100) : 0;
+            const uniqueCourses = new Set(records.map(r => r.course)).size;
+
+            document.getElementById('stat-hours').innerText = `${totalHours} ຊມ`;
+            document.getElementById('stat-attendance').innerText = `${rate}%`;
+            document.getElementById('stat-courses').innerText = uniqueCourses;
+        }
+
+        function saveData(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const course = document.getElementById('course').value;
+            const classroom = document.getElementById('classroom').value;
+            const date = document.getElementById('teach-date').value;
+            const hours = document.getElementById('hours').value;
+            const status = document.getElementById('status').value;
+            const topic = document.getElementById('topic').value;
+
+            if (id) {
+                // ເຊັກສິດ: ຖ້າຈະແກ້ໄຂຂໍ້ມູນ ຕ້ອງເປັນ Admin ເທົ່ານັ້ນ
+                if (!isAdmin) {
+                    alert('⛔ ທ່ານບໍ່ມີສິດແກ້ໄຂຂໍ້ມູນ! ເຂົ້າສູ່ລະບົບ Admin ກ່ອນ.');
+                    return;
+                }
+                const index = records.findIndex(r => r.id === id);
+                if (index !== -1) {
+                    records[index] = { id, course, classroom, date, hours, status, topic };
+                }
+            } else {
+                // User ທົ່ວໄປ ແລະ Admin ສາມາດເພີ່ມຂໍ້ມູນໃໝ່ໄດ້ຄືກັນ
+                records.push({
+                    id: Date.now().toString(),
+                    course, classroom, date, hours, status, topic
+                });
+            }
+
+            saveDataToStorage();
+            resetForm();
+        }
+
+        function editRecord(id) {
+            if (!isAdmin) {
+                alert('⛔ ສິດປະເສດ: เฉพาะ Admin ເທົ່ານັ້ນທີ່ສາມາດແກ້ໄຂໄດ້');
+                return;
+            }
+
+            const rec = records.find(r => r.id === id);
+            if (!rec) return;
+
+            document.getElementById('edit-id').value = rec.id;
+            document.getElementById('course').value = rec.course;
+            document.getElementById('classroom').value = rec.classroom;
+            document.getElementById('teach-date').value = rec.date;
+            document.getElementById('hours').value = rec.hours;
+            document.getElementById('status').value = rec.status;
+            document.getElementById('topic').value = rec.topic;
+
+            document.getElementById('form-title').innerText = '✏️ ແກ້ໄຂຂໍ້ມູນການສອນ (Admin Mode)';
+        }
+
+        function deleteRecord(id) {
+            if (!isAdmin) {
+                alert('⛔ ສິດປະເສດ: เฉพาะ Admin ເທົ່ານັ້ນທີ່ສາມາດລຶບໄດ້');
+                return;
+            }
+
+            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນນີ້?')) {
+                records = records.filter(r => r.id !== id);
+                saveDataToStorage();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('teach-form').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('form-title').innerText = '📝 ບັນທຶກການສອນ (User / Admin)';
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ມາສອນ (Present)', 'ຂາດ/ລາ (Absent)'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#16a34a', '#dc2626']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function updateChart() {
+            if (!chart) return;
+            const present = records.filter(r => r.status === 'Present').length;
+            const absent = records.filter(r => r.status === 'Absent').length;
+            chart.data.datasets[0].data = [present, absent];
+            chart.update();
+        }
+    </script>
+</body>
+</html>
