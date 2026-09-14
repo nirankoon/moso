@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບບັນທຶກການກວດສຸຂະພາບ - ຄູອາຈານ ທິດສະດີການເມືອງ 45 ວັນ</title>
+    <!-- ດຶງ Font ລາວ (Noto Sans Lao) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- ດຶງ Library html2canvas ສຳລັບແປງ HTML ເປັນຮູບພາບ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Noto Sans Lao', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            background-color: #1e3c72;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .card h2 {
+            font-size: 18px;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+        button {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background-color: #2a5298;
+            color: white;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background-color: #1e3c72;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+        .patient-name {
+            color: #1e3c72;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .patient-name:hover {
+            color: #2a5298;
+        }
+        .badge {
+            background-color: #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            display: inline-block;
+            margin-bottom: 2px;
+        }
+
+        /* Styles ສຳລັບ Modal (ໜ້າຕ່າງ Pop-up) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 650px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: #000;
+        }
+        .modal-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        /* ພື້ນທີ່ Card ທີ່ຈະ Export ເປັນຮູບ */
+        #printableCard {
+            background: #ffffff;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        .card-header-print {
+            text-align: center;
+            border-bottom: 2px solid #1e3c72;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="T45">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ລະບົບບັນທຶກການກວດສຸຂະພາບ</h1>
+        <p>ສຳລັບ ຄູອາຈານ ທີ່ເຂົ້າຮ່ວມຮຽນທິດສະດີການເມືອງ 45 ວັນ</p>
+    </header>
+
+    <div class="content-grid">
+        <!-- ຟອມປ້ອນຂໍ້ມູນ -->
+        <div class="card">
+            <h2>ບັນທຶກຂໍ້ມູນການກວດ</h2>
+            <form id="healthForm">
+                <div class="form-group">
+                    <label>ຊື່ ແລະ ນາມສະກຸນ *</label>
+                    <input type="text" id="fullname" required placeholder="ຕົວຢ່າງ: ທ່ານ ສົມໄຊ ໄຊຍະວົງ">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ອາຍຸ (ປີ) *</label>
+                        <input type="number" id="age" required placeholder="35">
+                    </div>
+                    <div class="form-group">
+                        <label>ພາກສ່ວນ / ສັງກັດ *</label>
+                        <input type="text" id="department" required placeholder="ພະແນກສຶກສາ...">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ວັນທີ *</label>
+                        <input type="date" id="checkDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ເວລາ *</label>
+                        <input type="time" id="checkTime" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ຄວາມດັນ (mmHg)</label>
+                        <input type="text" id="bp" placeholder="120/80">
+                    </div>
+                    <div class="form-group">
+                        <label>ອັດຕາເຕັ້ນຫົວໃຈ (bpm)</label>
+                        <input type="number" id="heartRate" placeholder="75">
+                    </div>
+                    <div class="form-group">
+                        <label>ອຸນຫະພູມ (°C)</label>
+                        <input type="number" step="0.1" id="temp" placeholder="36.5">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ການບົ່ງມະຕິ / ອາການ</label>
+                    <textarea id="diagnosis" rows="2" placeholder="ລະບຸອາການ ຫຼື ຜົນການບົ່ງມະຕິ..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>ລາຍການຢາທີ່ຈ່າຍ</label>
+                    <textarea id="medication" rows="2" placeholder="ຕົວຢ່າງ: Paracetamol 500mg, ວິຕາມິນ C..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>ໝໍ / ພະນັກງານແພດ ທີ່ຮັບຜິດຊອບ *</label>
+                    <input type="text" id="doctor" required placeholder="ດຣ. ບຸນມີ">
+                </div>
+
+                <button type="submit" class="btn-primary">ບັນທຶກຂໍ້ມູນ</button>
+            </form>
+        </div>
+
+        <!-- ຕາຕະລາງສະແດງປະຫວັດການກວດ -->
+        <div class="card">
+            <h2>ປະຫວັດການກວດສຸຂະພາບ (<span id="totalRecords">0</span> ລາຍການ)</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ວັນທີ/ເວລາ</th>
+                            <th>ຊື່-ນາມສະກຸນ (ຄລິກເບິ່ງ)</th>
+                            <th>ພາກສ່ວນ</th>
+                            <th>ສັນຍານຊີບ</th>
+                            <th>ບົ່ງມະຕິ</th>
+                            <th>ໝໍຜູ້ກວດ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable">
+                        <!-- ຂໍ້ມູນຈະຖືກເພີ່ມໃສ່ບ່ອນນີ້ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal ສະແດງ / ແກ້ໄຂ ຂໍ້ມູນ -->
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- ພື້ນທີ່ທີ່ຈະຖືກ Capture ເປັນຮູບພາບ -->
+        <div id="printableCard">
+            <div class="card-header-print">
+                <h3 style="color:#1e3c72; font-size:18px;">ໃບບັນທຶກຜົນການກວດສຸຂະພາບ</h3>
+                <p style="font-size:12px; color:#666;">ໂຄງການອົບຮົມທິດສະດີການເມືອງ 45 ວັນ ສຳລັບຄູອາຈານ</p>
+            </div>
+            
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>ຊື່ ແລະ ນາມສະກຸນ:</label>
+                    <input type="text" id="editFullname" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ອາຍຸ (ປີ):</label>
+                        <input type="number" id="editAge" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ພາກສ່ວນ / ສັງກັດ:</label>
+                        <input type="text" id="editDepartment" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ວັນທີ:</label>
+                        <input type="date" id="editDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ເວລາ:</label>
+                        <input type="time" id="editTime" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ຄວາມດັນ (mmHg):</label>
+                        <input type="text" id="editBp">
+                    </div>
+                    <div class="form-group">
+                        <label>ອັດຕາເຕັ້ນຫົວໃຈ (bpm):</label>
+                        <input type="number" id="editHeartRate">
+                    </div>
+                    <div class="form-group">
+                        <label>ອຸນຫະພູມ (°C):</label>
+                        <input type="number" step="0.1" id="editTemp">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ການບົ່ງມະຕິ / ອາການ:</label>
+                    <textarea id="editDiagnosis" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>ລາຍການຢາທີ່ຈ່າຍ:</label>
+                    <textarea id="editMedication" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>ໝໍ / ພະນັກງານແພດ ທີ່ຮັບຜິດຊອບ:</label>
+                    <input type="text" id="editDoctor" required>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-danger" onclick="deleteRecord()">ລຶບຂໍ້ມູນ</button>
+            <button type="button" class="btn-success" onclick="downloadImage()">📷 ບັນທຶກເປັນຮູບພາບ</button>
+            <button type="button" class="btn-primary" style="width:auto;" onclick="saveEdit()">ບັນທຶກການແກ້ໄຂ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ໂຫຼດຂໍ້ມູນຈາກ LocalStorage (ບັນທຶກອັດໂນມັດ)
+    let records = JSON.parse(localStorage.getItem('healthRecords')) || [];
+
+    // ຕັ້ງຄ່າວັນທີ/ເວລາ ປັດຈຸບັນ
+    const now = new Date();
+    document.getElementById('checkDate').value = now.toISOString().split('T')[0];
+    document.getElementById('checkTime').value = now.toTimeString().slice(0,5);
+
+    // ຟັງຊັນບັນທຶກຂໍ້ມູນລົງ LocalStorage ອັດໂນມັດ
+    function autoSave() {
+        localStorage.setItem('healthRecords', JSON.stringify(records));
+    }
+
+    // ຟອມເພີ່ມຂໍ້ມູນໃໝ່
+    document.getElementById('healthForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const record = {
+            id: Date.now(),
+            fullname: document.getElementById('fullname').value,
+            age: document.getElementById('age').value,
+            department: document.getElementById('department').value,
+            date: document.getElementById('checkDate').value,
+            time: document.getElementById('checkTime').value,
+            bp: document.getElementById('bp').value || '-',
+            heartRate: document.getElementById('heartRate').value || '-',
+            temp: document.getElementById('temp').value || '-',
+            diagnosis: document.getElementById('diagnosis').value || '-',
+            medication: document.getElementById('medication').value || '-',
+            doctor: document.getElementById('doctor').value
+        };
+
+        records.unshift(record);
+        autoSave();
+        renderTable();
+        this.reset();
+
+        document.getElementById('checkDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('checkTime').value = new Date().toTimeString().slice(0,5);
+    });
+
+    // ສະແດງຂໍ້ມູນໃສ່ຕາຕະລາງ
+    function renderTable() {
+        const tbody = document.getElementById('dataTable');
+        tbody.innerHTML = '';
+        document.getElementById('totalRecords').innerText = records.length;
+
+        if (records.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">ຍັງບໍ່ມີຂໍ້ມູນການກວດ</td></tr>`;
+            return;
+        }
+
+        records.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${r.date}</b><br><small style="color:#666">${r.time}</small></td>
+                <td><span class="patient-name" onclick="openModal(${r.id})">${r.fullname}</span><br><small style="color:#666">ອາຍຸ: ${r.age} ປີ</small></td>
+                <td>${r.department}</td>
+                <td>
+                    <span class="badge">BP: ${r.bp}</span><br>
+                    <span class="badge">HR: ${r.heartRate}</span><br>
+                    <span class="badge">T: ${r.temp}°C</span>
+                </td>
+                <td>${r.diagnosis}</td>
+                <td><small>${r.doctor}</small></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ເປີດ Pop-up Modal ແລະ ໂຫຼດຂໍ້ມູນໃສ່ຟອມແກ້ໄຂ
+    function openModal(id) {
+        const record = records.find(r => r.id === id);
+        if (!record) return;
+
+        document.getElementById('editId').value = record.id;
+        document.getElementById('editFullname').value = record.fullname;
+        document.getElementById('editAge').value = record.age;
+        document.getElementById('editDepartment').value = record.department;
+        document.getElementById('editDate').value = record.date;
+        document.getElementById('editTime').value = record.time;
+        document.getElementById('editBp').value = record.bp;
+        document.getElementById('editHeartRate').value = record.heartRate;
+        document.getElementById('editTemp').value = record.temp;
+        document.getElementById('editDiagnosis').value = record.diagnosis;
+        document.getElementById('editMedication').value = record.medication;
+        document.getElementById('editDoctor').value = record.doctor;
+
+        document.getElementById('detailModal').style.display = 'block';
+    }
+
+    // ປິດ Modal
+    function closeModal() {
+        document.getElementById('detailModal').style.display = 'none';
+    }
+
+    // ບັນທຶກການແກ້ໄຂຂໍ້ມູນ
+    function saveEdit() {
+        const id = parseInt(document.getElementById('editId').value);
+        const index = records.findIndex(r => r.id === id);
+
+        if (index !== -1) {
+            records[index] = {
+                id: id,
+                fullname: document.getElementById('editFullname').value,
+                age: document.getElementById('editAge').value,
+                department: document.getElementById('editDepartment').value,
+                date: document.getElementById('editDate').value,
+                time: document.getElementById('editTime').value,
+                bp: document.getElementById('editBp').value,
+                heartRate: document.getElementById('editHeartRate').value,
+                temp: document.getElementById('editTemp').value,
+                diagnosis: document.getElementById('editDiagnosis').value,
+                medication: document.getElementById('editMedication').value,
+                doctor: document.getElementById('editDoctor').value
+            };
+            autoSave();
+            renderTable();
+            closeModal();
+            alert('ບັນທຶກການແກ້ໄຂສຳເລັດ!');
+        }
+    }
+
+    // ລຶບຂໍ້ມູນ
+    function deleteRecord() {
+        const id = parseInt(document.getElementById('editId').value);
+        if (confirm('ທ່ານຕ້ອງການລຶບຂໍ້ມູນລາຍການນີ້ແທ້ຫຼືບໍ່?')) {
+            records = records.filter(r => r.id !== id);
+            autoSave();
+            renderTable();
+            closeModal();
+        }
+    }
+
+    // ຟັງຊັນບັນທຶກເປັນຮູບພາບ (PNG)
+    function downloadImage() {
+        const element = document.getElementById('printableCard');
+        const name = document.getElementById('editFullname').value || 'patient';
+        
+        html2canvas(element, {
+            scale: 2, // ເພີ່ມຄວາມຄົມຊັດຂອງຮູບ
+            backgroundColor: '#ffffff'
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `ຜົນການກວດ_${name}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    // ປິດ Modal ເມື່ອຄລິກພື້ນທີ່ຫວ່າງນອກ Pop-up
+    window.onclick = function(event) {
+        const modal = document.getElementById('detailModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // ໂຫຼດຂໍ້ມູນຄັ້ງທຳອິດ
+    renderTable();
+</script>
+
+</body>
+</html>
