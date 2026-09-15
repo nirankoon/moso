@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບບັນທຶກຂໍ້ມູນຄົນເຈັບ - ໝໍພອນ ຟິຊີໂອ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Noto Sans Lao', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #00796b, #004d40);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 { margin-bottom: 5px; font-size: 24px; }
+        .header p { font-size: 15px; opacity: 0.9; }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 18px;
+            color: #00796b;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .full-width { grid-column: span 2; }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #555;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #00796b;
+        }
+        
+        .btn {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:hover { background-color: #004d40; }
+        .btn-submit { width: 100%; margin-top: 10px; font-size: 16px; padding: 12px; }
+        .btn-image { background-color: #0288d1; }
+        .btn-image:hover { background-color: #01579b; }
+        .btn-add-visit { background-color: #2e7d32; }
+        .btn-add-visit:hover { background-color: #1b5e20; }
+
+        .search-box { margin-bottom: 15px; }
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .table-responsive { overflow-x: auto; max-height: 500px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        th { background-color: #00796b; color: white; position: sticky; top: 0; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .clickable-id {
+            color: #d32f2f;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .clickable-name {
+            color: #1976d2;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .month-card {
+            background: #e0f2f1;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+            border-left: 5px solid #00796b;
+        }
+        .month-card:hover { background: #b2dfdb; }
+
+        /* Modal / Popup Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .close-btn {
+            position: absolute;
+            right: 20px; top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .close-btn:hover { color: #000; }
+
+        .autosave-status {
+            font-size: 12px;
+            color: #388e3c;
+            font-weight: normal;
+            margin-left: 10px;
+        }
+
+        .history-item {
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .new-visit-box {
+            background: #f0f4c3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #c0ca33;
+        }
+        .new-visit-box h4 {
+            color: #33691e;
+            margin-bottom: 10px;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PT">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body>
+
+    <div class="header">
+        <h1>ຄລີນິກ ໝໍພອນ ຟິຊີໂອ (ກາຍະບຳບັດ)</h1>
+        <p>ລະບົບບັນທຶກຂໍ້ມູນການປິ່ນປົວ, ຝຶກແອບກາຍະບຳບັດ ແລະ ສະຫຼຸບສະຖິຕິ | ໂທ: 020 55992615</p>
+    </div>
+
+    <div class="container">
+        <!-- ຟອມປ້ອນຂໍ້ມູນ -->
+        <div class="card">
+            <h2>ບັນທຶກຂໍ້ມູນຄົນເຈັບ (ເຂົ້າມາປິ່ນປົວ)</h2>
+            <form id="patientForm" class="form-grid">
+                <div class="form-group full-width">
+                    <label>ລະຫັດຄົນເຈັບ (Patient ID)</label>
+                    <input type="text" id="patientId" placeholder="ເຊັ່ນ: PT-1001" required>
+                </div>
+                <div class="form-group">
+                    <label>ວັນທີເດືອນປີ</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label>ເວລາ</label>
+                    <input type="time" id="time" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>ຊື່ ແລະ ນາມສະກຸນ</label>
+                    <input type="text" id="fullname" placeholder="ປ້ອນຊື່ ແລະ ນາມສະກຸນ" required>
+                </div>
+                <div class="form-group">
+                    <label>ອາຍຸ (ປີ)</label>
+                    <input type="number" id="age" placeholder="ອາຍຸ" required>
+                </div>
+                <div class="form-group">
+                    <label>ເພດ</label>
+                    <select id="gender" required>
+                        <option value="ຊາຍ">ຊາຍ</option>
+                        <option value="ຍິງ">ຍິງ</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>ອາຊີບ</label>
+                    <input type="text" id="job" placeholder="ອາຊີບ">
+                </div>
+                <div class="form-group">
+                    <label>ບ້ານ</label>
+                    <input type="text" id="village">
+                </div>
+                <div class="form-group">
+                    <label>ຕາແສງ / ເມືອງ</label>
+                    <input type="text" id="district">
+                </div>
+                <div class="form-group full-width">
+                    <label>ແຂວງ</label>
+                    <input type="text" id="province">
+                </div>
+                <div class="form-group">
+                    <label>ຄວາມດັນ (BP)</label>
+                    <input type="text" id="bp" placeholder="120/80">
+                </div>
+                <div class="form-group">
+                    <label>ອັດຕາເຕັ້ນຫົວໃຈ (HR)</label>
+                    <input type="text" id="hr" placeholder="bpm">
+                </div>
+                <div class="form-group full-width">
+                    <label>ອຸນຫະພູມ (°C)</label>
+                    <input type="text" id="temp" placeholder="°C">
+                </div>
+                <div class="form-group full-width">
+                    <label>ອາການ</label>
+                    <textarea id="symptoms" rows="2"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>ບົ່ງມະຕິ</label>
+                    <textarea id="diagnosis" rows="2"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>ແຜນປິ່ນປົວ & ຝຶກແອບ</label>
+                    <textarea id="treatment" rows="2"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>ລາຍການຢາທີ່ຈ່າຍ</label>
+                    <textarea id="medicine" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-submit">ບັນທຶກຂໍ້ມູນ</button>
+            </form>
+        </div>
+
+        <div>
+            <!-- ສະຫຼຸບປະຈຳເດືອນ -->
+            <div class="card">
+                <h2>ສະຫຼຸບຈຳນວນຄົນເຈັບປະຈຳເດືອນ</h2>
+                <div id="monthlySummaryList"></div>
+            </div>
+
+            <!-- ຕາຕະລາງສະແດງຂໍ້ມູນ -->
+            <div class="card">
+                <h2>ຕາຕະລາງປະວັດການປິ່ນປົວ</h2>
+                <div class="search-box">
+                    <input type="text" id="search" onkeyup="searchPatient()" placeholder="ຄົ້ນຫາຕາມຊື່, ລະຫັດ ຫຼື ເບີໂທ...">
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ລະຫັດ ID</th>
+                                <th>ວັນທີ/ເວລາ</th>
+                                <th>ຊື່-ນາມສະກຸນ</th>
+                                <th>ບົ່ງມະຕິ</th>
+                                <th>ຈັດການ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: ສະແດງ ແລະ ແກ້ໄຂຂໍ້ມູນຄົນເຈັບ (Auto-Save + Save Image) -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h2>
+                ລາຍລະອຽດ & ແກ້ໄຂຂໍ້ມູນ
+                <span id="autoSaveStatus" class="autosave-status"></span>
+            </h2>
+            <div id="captureArea" style="padding: 15px; background: white; border-radius: 8px;">
+                <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #00796b; padding-bottom: 5px;">
+                    <h3 style="color:#00796b;">ໝໍພອນ ຟິຊີໂອ (ກາຍະບຳບັດ) - ໃບບັນທຶກປິ່ນປົວ</h3>
+                    <p style="font-size:12px;">ໂທ: 020 55992615</p>
+                </div>
+                <form id="editForm" class="form-grid">
+                    <input type="hidden" id="editIndex">
+                    <div class="form-group">
+                        <label>ລະຫັດ ID</label>
+                        <input type="text" id="editPatientId" readonly style="background:#eee;">
+                    </div>
+                    <div class="form-group">
+                        <label>ວັນທີ/ເວລາ</label>
+                        <div style="display:flex; gap:5px;">
+                            <input type="date" id="editDate" oninput="autoSave()">
+                            <input type="time" id="editTime" oninput="autoSave()">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ຊື່ ແລະ ນາມສະກຸນ</label>
+                        <input type="text" id="editFullname" oninput="autoSave()">
+                    </div>
+                    <div class="form-group">
+                        <label>ອາຍຸ</label>
+                        <input type="number" id="editAge" oninput="autoSave()">
+                    </div>
+                    <div class="form-group">
+                        <label>ເພດ</label>
+                        <select id="editGender" onchange="autoSave()">
+                            <option value="ຊາຍ">ຊາຍ</option>
+                            <option value="ຍິງ">ຍິງ</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ອາຊີບ</label>
+                        <input type="text" id="editJob" oninput="autoSave()">
+                    </div>
+                    <div class="form-group">
+                        <label>ບ້ານ</label>
+                        <input type="text" id="editVillage" oninput="autoSave()">
+                    </div>
+                    <div class="form-group">
+                        <label>ຕາແສງ/ເມືອງ</label>
+                        <input type="text" id="editDistrict" oninput="autoSave()">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ແຂວງ</label>
+                        <input type="text" id="editProvince" oninput="autoSave()">
+                    </div>
+                    <div class="form-group">
+                        <label>BP / HR / Temp</label>
+                        <div style="display:flex; gap:2px;">
+                            <input type="text" id="editBp" placeholder="BP" oninput="autoSave()">
+                            <input type="text" id="editHr" placeholder="HR" oninput="autoSave()">
+                            <input type="text" id="editTemp" placeholder="°C" oninput="autoSave()">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ອາການ</label>
+                        <textarea id="editSymptoms" rows="2" oninput="autoSave()"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ບົ່ງມະຕິ</label>
+                        <textarea id="editDiagnosis" rows="2" oninput="autoSave()"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ແຜນປິ່ນປົວ</label>
+                        <textarea id="editTreatment" rows="2" oninput="autoSave()"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ລາຍການຢາ</label>
+                        <textarea id="editMedicine" rows="2" oninput="autoSave()"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div style="margin-top: 15px; text-align: right;">
+                <button class="btn btn-image" onclick="saveAsImage()">📷 ບັນທຶກເປັນຮູບພາບ (Save Image)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ປະຫວັດ + ເພີ່ມການປິ່ນປົວຄັ້ງໃໝ່ (ຕາມ ID) -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('historyModal')">&times;</span>
+            <h2 id="historyTitle">ປະຫວັດການປິ່ນປົວ</h2>
+            <div id="historyCount" style="margin-bottom:15px; font-weight:bold; color:#00796b;"></div>
+            
+            <!-- ຟອມເພີ່ມການປິ່ນປົວຄັ້ງໃໝ່ -->
+            <div class="new-visit-box">
+                <h4>➕ ເພີ່ມການປິ່ນປົວຄັ້ງໃໝ່ (ສຳລັບຄົນເຈັບຄົນນີ້)</h4>
+                <form id="newVisitForm" class="form-grid">
+                    <input type="hidden" id="nvPatientId">
+                    <input type="hidden" id="nvFullname">
+                    <input type="hidden" id="nvAge">
+                    <input type="hidden" id="nvGender">
+                    <input type="hidden" id="nvJob">
+                    <input type="hidden" id="nvVillage">
+                    <input type="hidden" id="nvDistrict">
+                    <input type="hidden" id="nvProvince">
+
+                    <div class="form-group">
+                        <label>ວັນທີ</label>
+                        <input type="date" id="nvDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ເວລາ</label>
+                        <input type="time" id="nvTime" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>BP / HR / Temp</label>
+                        <div style="display:flex; gap:5px;">
+                            <input type="text" id="nvBp" placeholder="BP (120/80)">
+                            <input type="text" id="nvHr" placeholder="HR (bpm)">
+                            <input type="text" id="nvTemp" placeholder="Temp (°C)">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ອາການ (ຄັ້ງໃໝ່)</label>
+                        <textarea id="nvSymptoms" rows="2" placeholder="ອາການປະຈຸບັນ..."></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ບົ່ງມະຕິ</label>
+                        <textarea id="nvDiagnosis" rows="2"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ແຜນປິ່ນປົວ & ຝຶກແອບ</label>
+                        <textarea id="nvTreatment" rows="2"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ລາຍການຢາ</label>
+                        <textarea id="nvMedicine" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-add-visit full-width">➕ ບັນທຶກການປິ່ນປົວຄັ້ງໃໝ່</button>
+                </form>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #00796b;">📜 ປະຫວັດການມາປິ່ນປົວທີ່ຜ່ານມາ</h3>
+            <div id="historyContent" style="max-height:300px; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ສະຫຼຸບປະຈຳເດືອນ -->
+    <div id="monthModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('monthModal')">&times;</span>
+            <h2 id="monthTitle">ລາຍລະອຽດຄົນເຈັບປະຈຳເດືອນ</h2>
+            <div id="monthContent" style="margin-top:15px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let patients = JSON.parse(localStorage.getItem('patients_morpohn_v2')) || [];
+
+        // ຕັ້ງຄ່າວັນທີ/ເວລາປັດຈຸບັນ
+        const now = new Date();
+        document.getElementById('date').value = now.toISOString().substring(0, 10);
+        document.getElementById('time').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        
+        function generateID() {
+            return 'PT-' + Math.floor(1000 + Math.random() * 9000);
+        }
+        document.getElementById('patientId').value = generateID();
+
+        function renderAll() {
+            renderTable();
+            renderMonthlySummary();
+        }
+
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            patients.forEach((p, index) => {
+                let row = `<tr>
+                    <td><span class="clickable-id" onclick="showHistory('${p.patientId}')">${p.patientId}</span></td>
+                    <td>${p.date}<br><small>${p.time}</small></td>
+                    <td><span class="clickable-name" onclick="openEditModal(${index})">${p.fullname}</span><br><small>${p.gender}, ${p.age}ປີ</small></td>
+                    <td>${p.diagnosis || '-'}</td>
+                    <td>
+                        <button class="btn" style="background:#e53935; padding: 4px 8px; font-size:12px;" onclick="deletePatient(${index})">ລົບ</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // ບັນທຶກຂໍ້ມູນຟອມໃຫຍ່
+        document.getElementById('patientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPatient = {
+                patientId: document.getElementById('patientId').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                fullname: document.getElementById('fullname').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                job: document.getElementById('job').value,
+                village: document.getElementById('village').value,
+                district: document.getElementById('district').value,
+                province: document.getElementById('province').value,
+                bp: document.getElementById('bp').value,
+                hr: document.getElementById('hr').value,
+                temp: document.getElementById('temp').value,
+                symptoms: document.getElementById('symptoms').value,
+                diagnosis: document.getElementById('diagnosis').value,
+                treatment: document.getElementById('treatment').value,
+                medicine: document.getElementById('medicine').value
+            };
+
+            patients.unshift(newPatient);
+            saveData();
+            renderAll();
+            
+            document.getElementById('patientForm').reset();
+            document.getElementById('date').value = new Date().toISOString().substring(0, 10);
+            document.getElementById('time').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('patientId').value = generateID();
+            alert('ບັນທຶກຂໍ້ມູນສຳເລັດ!');
+        });
+
+        function saveData() {
+            localStorage.setItem('patients_morpohn_v2', JSON.stringify(patients));
+        }
+
+        function deletePatient(index) {
+            if(confirm('ທ່ານຕ້ອງການລົບຂໍ້ມູນນີ້ແທ້ບໍ?')) {
+                patients.splice(index, 1);
+                saveData();
+                renderAll();
+            }
+        }
+
+        // --- Auto-Save & Edit Modal ---
+        function openEditModal(index) {
+            const p = patients[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editPatientId').value = p.patientId;
+            document.getElementById('editDate').value = p.date;
+            document.getElementById('editTime').value = p.time;
+            document.getElementById('editFullname').value = p.fullname;
+            document.getElementById('editAge').value = p.age;
+            document.getElementById('editGender').value = p.gender;
+            document.getElementById('editJob').value = p.job;
+            document.getElementById('editVillage').value = p.village;
+            document.getElementById('editDistrict').value = p.district;
+            document.getElementById('editProvince').value = p.province;
+            document.getElementById('editBp').value = p.bp;
+            document.getElementById('editHr').value = p.hr;
+            document.getElementById('editTemp').value = p.temp;
+            document.getElementById('editSymptoms').value = p.symptoms;
+            document.getElementById('editDiagnosis').value = p.diagnosis;
+            document.getElementById('editTreatment').value = p.treatment;
+            document.getElementById('editMedicine').value = p.medicine;
+
+            document.getElementById('autoSaveStatus').innerText = '';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function autoSave() {
+            const index = document.getElementById('editIndex').value;
+            if(index === "") return;
+
+            patients[index] = {
+                patientId: document.getElementById('editPatientId').value,
+                date: document.getElementById('editDate').value,
+                time: document.getElementById('editTime').value,
+                fullname: document.getElementById('editFullname').value,
+                age: document.getElementById('editAge').value,
+                gender: document.getElementById('editGender').value,
+                job: document.getElementById('editJob').value,
+                village: document.getElementById('editVillage').value,
+                district: document.getElementById('editDistrict').value,
+                province: document.getElementById('editProvince').value,
+                bp: document.getElementById('editBp').value,
+                hr: document.getElementById('editHr').value,
+                temp: document.getElementById('editTemp').value,
+                symptoms: document.getElementById('editSymptoms').value,
+                diagnosis: document.getElementById('editDiagnosis').value,
+                treatment: document.getElementById('editTreatment').value,
+                medicine: document.getElementById('editMedicine').value
+            };
+
+            saveData();
+            renderAll();
+            
+            const status = document.getElementById('autoSaveStatus');
+            status.innerText = '✓ ບັນທຶກອັດໂຕໂນມັດແລ້ວ';
+            setTimeout(() => { status.innerText = ''; }, 2000);
+        }
+
+        function saveAsImage() {
+            const captureArea = document.getElementById('captureArea');
+            html2canvas(captureArea).then(canvas => {
+                let link = document.createElement('a');
+                const pName = document.getElementById('editFullname').value || 'patient';
+                link.download = `ປະວັດຄົນເຈັບ_${pName}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // --- ຟັງຊັນ ລະຫັດຄົນເຈັບ: ເບິ່ງປະຫວັດ + ເພີ່ມການປິ່ນປົວຄັ້ງໃໝ່ ---
+        function showHistory(patientId) {
+            const historyList = patients.filter(p => p.patientId === patientId);
+            if(historyList.length === 0) return;
+
+            const latestP = historyList[0]; // ດຶງຂໍ້ມູນຫຼ້າສຸດຂອງຄົນເຈັບ
+            
+            document.getElementById('historyTitle').innerText = `ປະຫວັດຄົນເຈັບ ID: ${patientId} (${latestP.fullname})`;
+            document.getElementById('historyCount').innerText = `📊 ເຄີຍມາປິ່ນປົວທັງໝົດ: ${historyList.length} ຄັ້ງ`;
+
+            // ເຊັດຄ່າໃຫ້ຟອມ "ເພີ່ມການປິ່ນປົວຄັ້ງໃໝ່"
+            document.getElementById('nvPatientId').value = latestP.patientId;
+            document.getElementById('nvFullname').value = latestP.fullname;
+            document.getElementById('nvAge').value = latestP.age;
+            document.getElementById('nvGender').value = latestP.gender;
+            document.getElementById('nvJob').value = latestP.job || '';
+            document.getElementById('nvVillage').value = latestP.village || '';
+            document.getElementById('nvDistrict').value = latestP.district || '';
+            document.getElementById('nvProvince').value = latestP.province || '';
+
+            document.getElementById('nvDate').value = new Date().toISOString().substring(0, 10);
+            document.getElementById('nvTime').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            // ສະແດງປະຫວັດ
+            const content = document.getElementById('historyContent');
+            content.innerHTML = '';
+            historyList.forEach((item, i) => {
+                content.innerHTML += `
+                    <div class="history-item">
+                        <div style="display:flex; justify-content:space-between; color:#00796b; font-weight:bold;">
+                            <span>ຄັ້ງທີ ${historyList.length - i}</span>
+                            <span>ວັນທີ: ${item.date} (${item.time})</span>
+                        </div>
+                        <hr style="margin:5px 0;">
+                        <p><b>ສັນຍານຊີບ:</b> BP: ${item.bp||'-'} | HR: ${item.hr||'-'} | Temp: ${item.temp||'-'}°C</p>
+                        <p><b>ອາການ:</b> ${item.symptoms || '-'}</p>
+                        <p><b>ບົ່ງມະຕິ:</b> ${item.diagnosis || '-'}</p>
+                        <p><b>ແຜນການປິ່ນປົວ:</b> ${item.treatment || '-'}</p>
+                        <p><b>ຢາທີ່ຈ່າຍ:</b> ${item.medicine || '-'}</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('historyModal').style.display = 'block';
+        }
+
+        // ບັນທຶກການປິ່ນປົວຄັ້ງໃໝ່
+        document.getElementById('newVisitForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newVisit = {
+                patientId: document.getElementById('nvPatientId').value,
+                fullname: document.getElementById('nvFullname').value,
+                age: document.getElementById('nvAge').value,
+                gender: document.getElementById('nvGender').value,
+                job: document.getElementById('nvJob').value,
+                village: document.getElementById('nvVillage').value,
+                district: document.getElementById('nvDistrict').value,
+                province: document.getElementById('nvProvince').value,
+                date: document.getElementById('nvDate').value,
+                time: document.getElementById('nvTime').value,
+                bp: document.getElementById('nvBp').value,
+                hr: document.getElementById('nvHr').value,
+                temp: document.getElementById('nvTemp').value,
+                symptoms: document.getElementById('nvSymptoms').value,
+                diagnosis: document.getElementById('nvDiagnosis').value,
+                treatment: document.getElementById('nvTreatment').value,
+                medicine: document.getElementById('nvMedicine').value
+            };
+
+            patients.unshift(newVisit); // ເພີ່ມເຂົ້າທາງໜ້າ
+            saveData();
+            renderAll();
+            
+            // ອັບເດດ Modal ປະຫວັດໃຫ້ສະແດງຄັ້ງໃໝ່ທັນທີ
+            showHistory(newVisit.patientId);
+            
+            // Reset ຟອມໃໝ່
+            document.getElementById('nvBp').value = '';
+            document.getElementById('nvHr').value = '';
+            document.getElementById('nvTemp').value = '';
+            document.getElementById('nvSymptoms').value = '';
+            document.getElementById('nvDiagnosis').value = '';
+            document.getElementById('nvTreatment').value = '';
+            document.getElementById('nvMedicine').value = '';
+
+            alert('ເພີ່ມຂໍ້ມູນການປິ່ນປົວຄັ້ງໃໝ່ສຳເລັດ!');
+        });
+
+        // --- ສະຫຼຸບປະຈຳເດືອນ ---
+        function renderMonthlySummary() {
+            const summaryList = document.getElementById('monthlySummaryList');
+            summaryList.innerHTML = '';
+
+            const monthlyData = {};
+            patients.forEach(p => {
+                if(p.date) {
+                    const monthKey = p.date.substring(0, 7);
+                    if(!monthlyData[monthKey]) monthlyData[monthKey] = [];
+                    monthlyData[monthKey].push(p);
+                }
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort().reverse();
+            if(sortedMonths.length === 0) {
+                summaryList.innerHTML = '<p style="color:#777;">ຍັງບໍ່ມີຂໍ້ມູນຄົນເຈັບ</p>';
+                return;
+            }
+
+            sortedMonths.forEach(month => {
+                const count = monthlyData[month].length;
+                summaryList.innerHTML += `
+                    <div class="month-card" onclick="showMonthDetails('${month}')">
+                        <span><b>ເດືອນ: ${month}</b></span>
+                        <span style="background:#00796b; color:white; padding:3px 10px; border-radius:15px; font-size:12px;">
+                            ${count} ຄັ້ງ
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        function showMonthDetails(monthKey) {
+            const monthPatients = patients.filter(p => p.date && p.date.startsWith(monthKey));
+            document.getElementById('monthTitle').innerText = `ລາຍລະອຽດການປິ່ນປົວ ປະຈຳເດືອນ ${monthKey}`;
+            
+            let html = `<p style="margin-bottom:10px;"><b>ຈຳນວນການປິ່ນປົວທັງໝົດໃນເດືອນນີ້:</b> ${monthPatients.length} ຄັ້ງ</p>`;
+            html += `<table>
+                <thead>
+                    <tr>
+                        <th>ວັນທີ</th>
+                        <th>ລະຫັດ</th>
+                        <th>ຊື່-ນາມສະກຸນ</th>
+                        <th>ບົ່ງມະຕິ</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            
+            monthPatients.forEach(p => {
+                html += `<tr>
+                    <td>${p.date}</td>
+                    <td>${p.patientId}</td>
+                    <td>${p.fullname}</td>
+                    <td>${p.diagnosis || '-'}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            document.getElementById('monthContent').innerHTML = html;
+            document.getElementById('monthModal').style.display = 'block';
+        }
+
+        // ຄົ້ນຫາ
+        function searchPatient() {
+            let filter = document.getElementById('search').value.toLowerCase();
+            let rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                let text = rows[i].textContent || rows[i].innerText;
+                rows[i].style.display = text.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = "none";
+            }
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>
