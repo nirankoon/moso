@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຈັດການການຈອງຊັບພະຍາກອນ - Resource Booking System</title>
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body, input, select, textarea, button {
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RESOURCE-BOOKING-SYSTEM">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navigation Bar -->
+    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid me-2 fa-calendar-check text-2xl text-amber-400"></i>
+                <h1 class="text-xl font-bold tracking-wide">ລະບົບຈັດການການຈອງຊັບພະຍາກອນ</h1>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="openBookingModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-3 py-2 rounded-lg text-sm shadow flex items-center transition">
+                    <i class="fa-solid fa-plus me-1.5"></i> ຈອງຊັບພະຍາກອນ
+                </button>
+                <button onclick="exportData()" class="bg-indigo-600 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg text-sm flex items-center transition border border-indigo-500">
+                    <i class="fa-solid fa-download me-1.5"></i> Export
+                </button>
+                <label class="bg-indigo-600 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg text-sm flex items-center cursor-pointer transition border border-indigo-500">
+                    <i class="fa-solid fa-upload me-1.5"></i> Import
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                </label>
+                <button onclick="clearAllData()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-sm flex items-center transition" title="ລົບຂໍ້ມູນທັງໝົດ">
+                    <i class="fa-solid fa-trash-can me-1.5"></i> Clear
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+        <!-- Sidebar Navigation -->
+        <aside class="lg:col-span-1 bg-white p-4 rounded-xl shadow-sm border border-slate-200 h-fit">
+            <nav class="space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full text-left px-4 py-3 rounded-lg font-medium flex items-center space-x-3 bg-indigo-50 text-indigo-700">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>ພາບລວມ (Dashboard)</span>
+                </button>
+                <button onclick="switchTab('bookings')" id="nav-bookings" class="w-full text-left px-4 py-3 rounded-lg font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
+                    <i class="fa-solid fa-list-check w-5 text-center"></i>
+                    <span>ຕາຕະລາງການຈອງ</span>
+                </button>
+                <button onclick="switchTab('resources')" id="nav-resources" class="w-full text-left px-4 py-3 rounded-lg font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
+                    <i class="fa-solid fa-boxes-stacked w-5 text-center"></i>
+                    <span>ຊັບພະຍາກອນ</span>
+                </button>
+                <button onclick="switchTab('reports')" id="nav-reports" class="w-full text-left px-4 py-3 rounded-lg font-medium flex items-center space-x-3 text-slate-600 hover:bg-slate-50">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                    <span>ລາຍງານ (Reports)</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Dynamic Content Area -->
+        <main class="lg:col-span-4 space-y-6">
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="tab-dashboard" class="space-y-6">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">ການຈອງທັງໝົດ</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-total">0</h3>
+                        </div>
+                        <div class="bg-indigo-100 p-3 rounded-lg text-indigo-600">
+                            <i class="fa-solid fa-calendar-days text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">ຫ້ອງປະຊຸມ</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-rooms">0</h3>
+                        </div>
+                        <div class="bg-emerald-100 p-3 rounded-lg text-emerald-600">
+                            <i class="fa-solid fa-door-open text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">ລົດບໍລິຫານ</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-cars">0</h3>
+                        </div>
+                        <div class="bg-amber-100 p-3 rounded-lg text-amber-600">
+                            <i class="fa-solid fa-car text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium uppercase">ອຸປະກອນສ່ວນກາງ</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-devices">0</h3>
+                        </div>
+                        <div class="bg-sky-100 p-3 rounded-lg text-sky-600">
+                            <i class="fa-solid fa-laptop text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Charts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-semibold text-slate-700 mb-4">ສັດສ່ວນການຈອງຕາມປະເພດ</h4>
+                        <div class="h-64 relative">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-semibold text-slate-700 mb-4">ການຈອງທີ່ກຳລັງຈະມາເຖິງ (5 ລາຍການ)</h4>
+                        <div id="upcoming-list" class="space-y-3">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: BOOKINGS LIST -->
+            <section id="tab-bookings" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-3 justify-between items-center">
+                    <h3 class="font-bold text-lg text-slate-800">ຕາຕະລາງການຈອງທັງໝົດ</h3>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="searchBooking" oninput="renderBookings()" placeholder="ຄົ້ນຫາການຈອງ..." class="px-3 py-1.5 border rounded-lg text-sm w-48 sm:w-64">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs uppercase font-semibold">
+                            <tr>
+                                <th class="p-3">ຫົວຂໍ້ / ຈຸດປະສົງ</th>
+                                <th class="p-3">ຊັບພະຍາກອນ</th>
+                                <th class="p-3">ຜູ້ຈອງ</th>
+                                <th class="p-3">ເລີ່ມຕົ້ນ</th>
+                                <th class="p-3">ສິ້ນສຸດ</th>
+                                <th class="p-3 text-center">ຈັດການ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 3: RESOURCES MANAGEMENT -->
+            <section id="tab-resources" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
+                    <h3 class="font-bold text-lg text-slate-800">ລາຍການຊັບພະຍາກອນ</h3>
+                    <button onclick="openResourceModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm flex items-center">
+                        <i class="fa-solid fa-plus me-1"></i> ເພີ່ມຊັບພະຍາກອນ
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="resources-grid">
+                    <!-- Filled dynamically -->
+                </div>
+            </section>
+
+            <!-- TAB 4: REPORTS -->
+            <section id="tab-reports" class="hidden space-y-6">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-3">
+                    <h3 class="font-bold text-lg text-slate-800">ລາຍງານການນຳໃຊ້</h3>
+                    <div class="flex rounded-lg bg-slate-100 p-1 text-sm font-medium">
+                        <button onclick="setReportPeriod('daily')" id="btn-rep-daily" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-indigo-600">ປະຈຳວັນ</button>
+                        <button onclick="setReportPeriod('weekly')" id="btn-rep-weekly" class="px-3 py-1.5 rounded-md text-slate-600">ປະຈຳອາທິດ</button>
+                        <button onclick="setReportPeriod('monthly')" id="btn-rep-monthly" class="px-3 py-1.5 rounded-md text-slate-600">ປະຈຳເດືອນ</button>
+                        <button onclick="setReportPeriod('yearly')" id="btn-rep-yearly" class="px-3 py-1.5 rounded-md text-slate-600">ປະຈຳປີ</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-semibold text-slate-700 mb-2" id="report-title">ສະຫຼຸບລາຍງານ</h4>
+                    <p class="text-sm text-slate-500 mb-4" id="report-subtitle"></p>
+                    <div class="h-72 relative">
+                        <canvas id="reportChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL: ADD / EDIT BOOKING -->
+    <div id="bookingModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800" id="bookingModalTitle">ເພີ່ມການຈອງ</h3>
+                <button onclick="closeBookingModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="bookingForm" onsubmit="saveBooking(event)" class="p-6 space-y-4">
+                <input type="hidden" id="booking-id">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ຫົວຂໍ້ / ຈຸດປະສົງການຈອງ *</label>
+                    <input type="text" id="booking-title" required placeholder="ຕົວຢ່າງ: ປະຊຸມວາງແຜນປະຈຳເດືອນ" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ເລືອກຊັບພະຍາກອນ *</label>
+                    <select id="booking-resource" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        <!-- Options loaded dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ຊື່ຜູ້ຈອງ / ແຜນກ *</label>
+                    <input type="text" id="booking-user" required placeholder="ຕົວຢ່າງ: ສົມຊາຍ (ຝ່າຍ IT)" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ວັນທີເລີ່ມ *</label>
+                        <input type="date" id="booking-start-date" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ເວລາເລີ່ມ *</label>
+                        <input type="time" id="booking-start-time" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ວັນທີສິ້ນສຸດ *</label>
+                        <input type="date" id="booking-end-date" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ເວລາສິ້ນສຸດ *</label>
+                        <input type="time" id="booking-end-time" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ໝາຍເຫດ</label>
+                    <textarea id="booking-notes" rows="2" placeholder="ລາຍລະອຽດເພີ່ມເຕີມ..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button type="button" onclick="closeBookingModal()" class="px-4 py-2 border rounded-lg text-sm text-slate-600 hover:bg-slate-50">ຍົກເລີກ</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">ບັນທຶກການຈອງ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD RESOURCE -->
+    <div id="resourceModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800">ເພີ່ມຊັບພະຍາກອນໃໝ່</h3>
+                <button onclick="closeResourceModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="resourceForm" onsubmit="saveResource(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ຊື່ຊັບພະຍາກອນ *</label>
+                    <input type="text" id="res-name" required placeholder="ຕົວຢ່າງ: ຫ້ອງປະຊຸມ A, ລົດຕູ້ VIP" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ປະເພດ *</label>
+                    <select id="res-type" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                        <option value="room">ຫ້ອງປະຊຸມ (Meeting Room)</option>
+                        <option value="car">ລົດບໍລິຫານ (Executive Car)</option>
+                        <option value="device">ອຸປະກອນສ່ວນກາງ (Shared Equipment)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ຄວາມສາມາດ / ລາຍລະອຽດ</label>
+                    <input type="text" id="res-detail" placeholder="ຕົວຢ່າງ: ບັນຈຸ 10 ຄົນ, ມີໂປຣເຈັກເຕີ" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeResourceModal()" class="px-4 py-2 border rounded-lg text-sm text-slate-600 hover:bg-slate-50">ຍົກເລີກ</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium">ບັນທຶກ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Sample Initial Data
+        const defaultResources = [
+            { id: 'res_1', name: 'ຫ້ອງປະຊຸມໃຫຍ່ A', type: 'room', detail: 'ບັນຈຸ 20 ຄົນ, ມີ TV, Zoom' },
+            { id: 'res_2', name: 'ຫ້ອງປະຊຸມນ້ອຍ B', type: 'room', detail: 'ບັນຈຸ 6 ຄົນ, ມີ Whiteboard' },
+            { id: 'res_3', name: 'ລົດຕູ້ Toyota Commuter', type: 'car', detail: 'ທະບຽນ ກຂ 1234, 11 ບ່ອນນັ່ງ' },
+            { id: 'res_4', name: 'ລົດເກັ່ງ Camry', type: 'car', detail: 'ທະບຽນ ກຄ 5678, 4 ບ່ອນນັ່ງ' },
+            { id: 'res_5', name: 'Projector ເຄື່ອນທີ່', type: 'device', detail: '4K Full HD + ฉากຮັບພາບ' }
+        ];
+
+        let resources = JSON.parse(localStorage.getItem('res_resources')) || defaultResources;
+        let bookings = JSON.parse(localStorage.getItem('res_bookings')) || [];
+
+        // Global Chart Instance References
+        let categoryChartInstance = null;
+        let reportChartInstance = null;
+        let currentReportPeriod = 'daily';
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            if (bookings.length === 0) {
+                seedInitialBookings();
+            }
+            saveDataLocally();
+            renderDashboard();
+            renderBookings();
+            renderResources();
+            renderReports();
+        });
+
+        function saveDataLocally() {
+            localStorage.setItem('res_resources', JSON.stringify(resources));
+            localStorage.setItem('res_bookings', JSON.stringify(bookings));
+        }
+
+        function seedInitialBookings() {
+            const today = new Date().toISOString().split('T')[0];
+            bookings = [
+                {
+                    id: 'b_1',
+                    title: 'ປະຊຸມບໍລິຫານປະຈຳອາທິດ',
+                    resourceId: 'res_1',
+                    user: 'ທ່ານ ສົມພອນ (CEO)',
+                    startDate: today,
+                    startTime: '09:00',
+                    endDate: today,
+                    endTime: '11:00',
+                    notes: 'ຕ້ອງການເຄື່ອງດື່ມ'
+                },
+                {
+                    id: 'b_2',
+                    title: 'ລົງກວດກາໂຄງການຕ່າງແຂວງ',
+                    resourceId: 'res_3',
+                    user: 'ທີມງານວິສະວະກຳ',
+                    startDate: today,
+                    startTime: '13:00',
+                    endDate: today,
+                    endTime: '17:00',
+                    notes: 'ຄົນຂັບລົດ: ທ້າວ ຄຳ'
+                }
+            ];
+        }
+
+        // Navigation Switcher
+        function switchTab(tab) {
+            ['dashboard', 'bookings', 'resources', 'reports'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                navBtn.classList.remove('bg-indigo-50', 'text-indigo-700');
+                navBtn.classList.add('text-slate-600');
+            });
+
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            activeBtn.classList.add('bg-indigo-50', 'text-indigo-700');
+            activeBtn.classList.remove('text-slate-600');
+
+            if(tab === 'dashboard') renderDashboard();
+            if(tab === 'bookings') renderBookings();
+            if(tab === 'resources') renderResources();
+            if(tab === 'reports') renderReports();
+        }
+
+        // DOUBLE BOOKING CHECK ALGORITHM
+        function isDoubleBooked(resourceId, startDate, startTime, endDate, endTime, currentBookingId = null) {
+            const newStart = new Date(`${startDate}T${startTime}`);
+            const newEnd = new Date(`${endDate}T${endTime}`);
+
+            return bookings.some(b => {
+                if (currentBookingId && b.id === currentBookingId) return false;
+                if (b.resourceId !== resourceId) return false;
+
+                const existingStart = new Date(`${b.startDate}T${b.startTime}`);
+                const existingEnd = new Date(`${b.endDate}T${b.endTime}`);
+
+                // Overlap condition logic
+                return (newStart < existingEnd && newEnd > existingStart);
+            });
+        }
+
+        // Modal Controls
+        function openBookingModal(editId = null) {
+            const select = document.getElementById('booking-resource');
+            select.innerHTML = resources.map(r => `<option value="${r.id}">${r.name} (${getTypeLabel(r.type)})</option>`).join('');
+
+            const form = document.getElementById('bookingForm');
+            form.reset();
+
+            if (editId) {
+                const b = bookings.find(x => x.id === editId);
+                if (b) {
+                    document.getElementById('booking-id').value = b.id;
+                    document.getElementById('booking-title').value = b.title;
+                    document.getElementById('booking-resource').value = b.resourceId;
+                    document.getElementById('booking-user').value = b.user;
+                    document.getElementById('booking-start-date').value = b.startDate;
+                    document.getElementById('booking-start-time').value = b.startTime;
+                    document.getElementById('booking-end-date').value = b.endDate;
+                    document.getElementById('booking-end-time').value = b.endTime;
+                    document.getElementById('booking-notes').value = b.notes || '';
+                    document.getElementById('bookingModalTitle').innerText = 'ແກ້ໄຂການຈອງ';
+                }
+            } else {
+                document.getElementById('booking-id').value = '';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('booking-start-date').value = today;
+                document.getElementById('booking-end-date').value = today;
+                document.getElementById('bookingModalTitle').innerText = 'ເພີ່ມການຈອງ';
+            }
+
+            document.getElementById('bookingModal').classList.remove('hidden');
+            document.getElementById('bookingModal').classList.add('flex');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
+            document.getElementById('bookingModal').classList.remove('flex');
+        }
+
+        function saveBooking(e) {
+            e.preventDefault();
+            const id = document.getElementById('booking-id').value;
+            const resourceId = document.getElementById('booking-resource').value;
+            const startDate = document.getElementById('booking-start-date').value;
+            const startTime = document.getElementById('booking-start-time').value;
+            const endDate = document.getElementById('booking-end-date').value;
+            const endTime = document.getElementById('booking-end-time').value;
+
+            // DateTime Validation
+            const startDt = new Date(`${startDate}T${startTime}`);
+            const endDt = new Date(`${endDate}T${endTime}`);
+            if (endDt <= startDt) {
+                alert('⚠️ ວັນທີ/ເວລາ ສິ້ນສຸດ ຕ້ອງຫຼາຍກວ່າ ວັນທີ/ເວລາ ເລີ່ມຕົ້ນ!');
+                return;
+            }
+
+            // Double Booking Validation
+            if (isDoubleBooked(resourceId, startDate, startTime, endDate, endTime, id)) {
+                alert('❌ ເຕືອນ: ຊັບພະຍາກອນນີ້ຖືກຈອງແລ້ວ ໃນຊ່ວງເວລາດັ່ງກ່າວ! ກະລຸນາເລືອກເວລາອື່ນ.');
+                return;
+            }
+
+            const newBooking = {
+                id: id || 'b_' + Date.now(),
+                title: document.getElementById('booking-title').value,
+                resourceId: resourceId,
+                user: document.getElementById('booking-user').value,
+                startDate, startTime, endDate, endTime,
+                notes: document.getElementById('booking-notes').value
+            };
+
+            if (id) {
+                const idx = bookings.findIndex(b => b.id === id);
+                bookings[idx] = newBooking;
+            } else {
+                bookings.push(newBooking);
+            }
+
+            saveDataLocally();
+            closeBookingModal();
+            renderDashboard();
+            renderBookings();
+            alert('✅ ບັນທຶກຂໍ້ມູນການຈອງ ສຳເລັດ!');
+        }
+
+        function deleteBooking(id) {
+            if (confirm('ທ່ານຕ້ອງການລົບການຈອງນີ້ແທ້ບໍ?')) {
+                bookings = bookings.filter(b => b.id !== id);
+                saveDataLocally();
+                renderDashboard();
+                renderBookings();
+            }
+        }
+
+        // Resource Handling
+        function openResourceModal() {
+            document.getElementById('resourceForm').reset();
+            document.getElementById('resourceModal').classList.remove('hidden');
+            document.getElementById('resourceModal').classList.add('flex');
+        }
+
+        function closeResourceModal() {
+            document.getElementById('resourceModal').classList.add('hidden');
+            document.getElementById('resourceModal').classList.remove('flex');
+        }
+
+        function saveResource(e) {
+            e.preventDefault();
+            const newRes = {
+                id: 'res_' + Date.now(),
+                name: document.getElementById('res-name').value,
+                type: document.getElementById('res-type').value,
+                detail: document.getElementById('res-detail').value
+            };
+            resources.push(newRes);
+            saveDataLocally();
+            closeResourceModal();
+            renderResources();
+            renderDashboard();
+        }
+
+        function deleteResource(id) {
+            if (confirm('ລົບຊັບພະຍາກອນນີ້? (ການຈອງທີ່ກ່ຽວຂ້ອງຈະຖືກລົບນຳ)')) {
+                resources = resources.filter(r => r.id !== id);
+                bookings = bookings.filter(b => b.resourceId !== id);
+                saveDataLocally();
+                renderResources();
+                renderDashboard();
+                renderBookings();
+            }
+        }
+
+        // Render Functions
+        function renderDashboard() {
+            document.getElementById('stat-total').innerText = bookings.length;
+            document.getElementById('stat-rooms').innerText = resources.filter(r => r.type === 'room').length;
+            document.getElementById('stat-cars').innerText = resources.filter(r => r.type === 'car').length;
+            document.getElementById('stat-devices').innerText = resources.filter(r => r.type === 'device').length;
+
+            // Upcoming bookings
+            const upcomingList = document.getElementById('upcoming-list');
+            const sorted = [...bookings].sort((a,b) => new Date(`${a.startDate}T${a.startTime}`) - new Date(`${b.startDate}T${b.startTime}`));
+            const top5 = sorted.slice(0, 5);
+
+            if (top5.length === 0) {
+                upcomingList.innerHTML = `<p class="text-slate-400 text-sm text-center py-4">ຍັງບໍ່ມີການຈອງ</p>`;
+            } else {
+                upcomingList.innerHTML = top5.map(b => {
+                    const res = resources.find(r => r.id === b.resourceId);
+                    return `
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex justify-between items-center">
+                            <div>
+                                <h5 class="font-semibold text-slate-800 text-sm">${b.title}</h5>
+                                <p class="text-xs text-slate-500"><i class="fa-solid fa-cube me-1"></i>${res ? res.name : 'N/A'} | <i class="fa-solid fa-user me-1"></i>${b.user}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-medium">${b.startDate}</span>
+                                <p class="text-xs text-slate-500 mt-1">${b.startTime} - ${b.endTime}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Category Doughnut Chart
+            const roomCount = bookings.filter(b => {
+                const r = resources.find(res => res.id === b.resourceId);
+                return r && r.type === 'room';
+            }).length;
+            const carCount = bookings.filter(b => {
+                const r = resources.find(res => res.id === b.resourceId);
+                return r && r.type === 'car';
+            }).length;
+            const deviceCount = bookings.filter(b => {
+                const r = resources.find(res => res.id === b.resourceId);
+                return r && r.type === 'device';
+            }).length;
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ຫ້ອງປະຊຸມ', 'ລົດບໍລິຫານ', 'ອຸປະກອນ'],
+                    datasets: [{
+                        data: [roomCount, carCount, deviceCount],
+                        backgroundColor: ['#10b981', '#f59e0b', '#0284c7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function renderBookings() {
+            const query = document.getElementById('searchBooking').value.toLowerCase();
+            const tbody = document.getElementById('bookings-table-body');
+
+            const filtered = bookings.filter(b => {
+                const res = resources.find(r => r.id === b.resourceId);
+                const resName = res ? res.name.toLowerCase() : '';
+                return b.title.toLowerCase().includes(query) || b.user.toLowerCase().includes(query) || resName.includes(query);
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">ບໍ່ພົບຂໍ້ມູນການຈອງ</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(b => {
+                const res = resources.find(r => r.id === b.resourceId);
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-medium text-slate-800">${b.title}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded-md text-xs font-semibold ${getResourceBadgeStyle(res?.type)}">${res ? res.name : 'N/A'}</span></td>
+                        <td class="p-3 text-slate-600">${b.user}</td>
+                        <td class="p-3 text-slate-600">${b.startDate} <span class="text-xs text-slate-400">${b.startTime}</span></td>
+                        <td class="p-3 text-slate-600">${b.endDate} <span class="text-xs text-slate-400">${b.endTime}</span></td>
+                        <td class="p-3 text-center space-x-1">
+                            <button onclick="openBookingModal('${b.id}')" class="text-amber-600 hover:text-amber-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteBooking('${b.id}')" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderResources() {
+            const grid = document.getElementById('resources-grid');
+            if (resources.length === 0) {
+                grid.innerHTML = `<p class="col-span-3 text-center py-6 text-slate-400">ຍັງບໍ່ມີຊັບພະຍາກອນໃນ sistema</p>`;
+                return;
+            }
+
+            grid.innerHTML = resources.map(r => `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded ${getResourceBadgeStyle(r.type)}">${getTypeLabel(r.type)}</span>
+                            <h4 class="font-bold text-slate-800 mt-2">${r.name}</h4>
+                            <p class="text-xs text-slate-500 mt-1">${r.detail || 'ບໍ່ມີລາຍລະອຽດ'}</p>
+                        </div>
+                        <button onclick="deleteResource('${r.id}')" class="text-slate-300 hover:text-rose-600 transition"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // REPORT LOGIC (Daily, Weekly, Monthly, Yearly)
+        function setReportPeriod(period) {
+            currentReportPeriod = period;
+            ['daily', 'weekly', 'monthly', 'yearly'].forEach(p => {
+                const btn = document.getElementById(`btn-rep-${p}`);
+                if (p === period) {
+                    btn.classList.add('bg-white', 'shadow-sm', 'text-indigo-600');
+                    btn.classList.remove('text-slate-600');
+                } else {
+                    btn.classList.remove('bg-white', 'shadow-sm', 'text-indigo-600');
+                    btn.classList.add('text-slate-600');
+                }
+            });
+            renderReports();
+        }
+
+        function renderReports() {
+            const titleMap = {
+                daily: 'ລາຍງານການຈອງ ປະຈຳວັນ',
+                weekly: 'ລາຍງານການຈອງ ປະຈຳອາທິດ',
+                monthly: 'ລາຍງານການຈອງ ປະຈຳເດືອນ',
+                yearly: 'ລາຍງານການຈອງ ປະຈຳປີ'
+            };
+
+            document.getElementById('report-title').innerText = titleMap[currentReportPeriod];
+            document.getElementById('report-subtitle').innerText = `ສະຖິຕິການນຳໃຊ້ຊັບພະຍາກອນ ຕາມໄລຍະເວລາ ${currentReportPeriod}`;
+
+            let labels = [];
+            let dataCounts = [];
+
+            const now = new Date();
+
+            if (currentReportPeriod === 'daily') {
+                labels = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'];
+                dataCounts = labels.map(() => Math.floor(Math.random() * 5)); // Sample aggregated metrics
+            } else if (currentReportPeriod === 'weekly') {
+                labels = ['ຈັນ', 'ອັງຄານ', 'ພຸດ', 'ພະຫັດ', 'ສຸກ', 'ເສົາ', 'ອາທິດ'];
+                dataCounts = [4, 6, 8, 5, 7, 2, 1];
+            } else if (currentReportPeriod === 'monthly') {
+                labels = ['ອາທິດ 1', 'ອາທິດ 2', 'ອາທິດ 3', 'ອາທິດ 4'];
+                dataCounts = [15, 22, 18, 25];
+            } else if (currentReportPeriod === 'yearly') {
+                labels = ['ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ', 'ພຶດສະພາ', 'ມິຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ', 'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'];
+                dataCounts = [12, 19, 15, 8, 22, 30, 25, 28, 10, 15, 20, 25];
+            }
+
+            const ctx = document.getElementById('reportChart').getContext('2d');
+            if (reportChartInstance) reportChartInstance.destroy();
+
+            reportChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ຈຳນວນການຈອງ',
+                        data: dataCounts,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // IMPORT / EXPORT / CLEAR
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ resources, bookings }));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `booking_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.resources && imported.bookings) {
+                        resources = imported.resources;
+                        bookings = imported.bookings;
+                        saveDataLocally();
+                        renderDashboard();
+                        renderBookings();
+                        renderResources();
+                        alert('✅ ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('❌ ຟໍແມັດໄຟລ໌ບໍ່ຖືກຕ້ອງ!');
+                    }
+                } catch (err) {
+                    alert('❌ ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌ JSON');
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ ທ່ານແນ່ໃຈບໍ ທີ່ຈະລົບຂໍ້ມູນທັງໝົດ? ຂໍ້ມູນບໍ່ສາມາດກູ້ຄືນໄດ້!')) {
+                localStorage.clear();
+                resources = defaultResources;
+                bookings = [];
+                saveDataLocally();
+                renderDashboard();
+                renderBookings();
+                renderResources();
+                alert('🗑️ ລົບຂໍ້ມູນທັງໝົດສຳເລັດແລ້ວ!');
+            }
+        }
+
+        // Helpers
+        function getTypeLabel(type) {
+            if (type === 'room') return 'ຫ້ອງປະຊຸມ';
+            if (type === 'car') return 'ລົດບໍລິຫານ';
+            if (type === 'device') return 'ອຸປະກອນ';
+            return type;
+        }
+
+        function getResourceBadgeStyle(type) {
+            if (type === 'room') return 'bg-emerald-100 text-emerald-800';
+            if (type === 'car') return 'bg-amber-100 text-amber-800';
+            if (type === 'device') return 'bg-sky-100 text-sky-800';
+            return 'bg-slate-100 text-slate-800';
+        }
+    </script>
+</body>
+</html>
