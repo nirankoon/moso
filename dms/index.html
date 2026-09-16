@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຈັດການເອກະສານຂາເຂົ້າ-ຂາອອກ (DMS)</title>
+    
+    <!-- Noto Sans Lao Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Signature Canvas Style */
+        #signature-pad {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            width: 100%;
+            height: 200px;
+            background-color: #fff;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DMS">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="flex h-screen overflow-hidden text-gray-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-blue-900 text-white flex flex-col hidden md:flex">
+        <div class="h-16 flex items-center justify-center border-b border-blue-800">
+            <h1 class="text-xl font-bold"><i class="fas fa-folder-open mr-2"></i> ລະບົບ DMS</h1>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <button onclick="switchTab('dashboard')" class="w-full flex items-center px-4 py-3 text-left hover:bg-blue-800 rounded-lg transition" id="nav-dashboard">
+                <i class="fas fa-chart-line w-6"></i> <span>ໜ້າຫຼັກ</span>
+            </button>
+            <button onclick="switchTab('documents')" class="w-full flex items-center px-4 py-3 text-left hover:bg-blue-800 rounded-lg transition" id="nav-documents">
+                <i class="fas fa-file-alt w-6"></i> <span>ຈັດການເອກະສານ</span>
+            </button>
+            <button onclick="switchTab('reports')" class="w-full flex items-center px-4 py-3 text-left hover:bg-blue-800 rounded-lg transition" id="nav-reports">
+                <i class="fas fa-chart-bar w-6"></i> <span>ລາຍງານ (Reports)</span>
+            </button>
+        </nav>
+        <div class="p-4 border-t border-blue-800 text-xs text-center text-blue-300">
+            &copy; 2026 DMS Local System
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- Header -->
+        <header class="h-16 bg-white shadow flex items-center justify-between px-6 z-10">
+            <div class="flex items-center md:hidden">
+                <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 flex justify-center md:justify-start px-4">
+                <div class="relative w-full max-w-md">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" id="quick-search" placeholder="ຄົ້ນຫາເອກະສານດ່ວນ (ຊື່, ເລກທີ)..." 
+                           class="w-full py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <span class="text-sm font-semibold text-gray-600 hidden md:block" id="current-date"></span>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-auto p-4 md:p-6 bg-gray-50">
+            
+            <!-- Tab: Dashboard -->
+            <div id="tab-dashboard" class="tab-content active">
+                <h2 class="text-2xl font-bold mb-6">ພາບລວມລະບົບ (Dashboard)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">ເອກະສານທັງໝົດ</p>
+                                <h3 class="text-3xl font-bold text-gray-700" id="stat-total">0</h3>
+                            </div>
+                            <i class="fas fa-file text-3xl text-blue-200"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">ເອກະສານຂາເຂົ້າ</p>
+                                <h3 class="text-3xl font-bold text-gray-700" id="stat-in">0</h3>
+                            </div>
+                            <i class="fas fa-inbox text-3xl text-green-200"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">ເອກະສານຂາອອກ</p>
+                                <h3 class="text-3xl font-bold text-gray-700" id="stat-out">0</h3>
+                            </div>
+                            <i class="fas fa-paper-plane text-3xl text-yellow-200"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">ລໍຖ້າເຊັນ (Pending)</p>
+                                <h3 class="text-3xl font-bold text-gray-700" id="stat-pending">0</h3>
+                            </div>
+                            <i class="fas fa-pen-nib text-3xl text-red-200"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-bold mb-4">ເອກະສານລ່າສຸດ</h3>
+                <div class="bg-white shadow rounded-lg overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ເລກທີເອກະສານ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ຫົວຂໍ້</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ປະເພດ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ວັນທີ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ສະຖານະ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="recent-docs-table">
+                            <!-- Data will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Documents -->
+            <div id="tab-documents" class="tab-content">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold">ຈັດການເອກະສານ</h2>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition">
+                            <i class="fas fa-plus mr-1"></i> ເພີ່ມເອກະສານໃໝ່
+                        </button>
+                        <label class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow transition cursor-pointer">
+                            <i class="fas fa-file-import mr-1"></i> ນຳເຂົ້າ (Import)
+                            <input type="file" accept=".json" class="hidden" onchange="importData(event)">
+                        </label>
+                        <button onclick="exportData()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded shadow transition">
+                            <i class="fas fa-file-export mr-1"></i> ສົ່ງອອກ (Export)
+                        </button>
+                        <button onclick="clearAllData()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow transition">
+                            <i class="fas fa-trash-alt mr-1"></i> ລຶບທັງໝົດ
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow rounded-lg overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ເລກທີ</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ຫົວຂໍ້ເອກະສານ</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ປະເພດ</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ວັນທີ</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ສະຖານະ</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ລາຍເຊັນ</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">ຈັດການ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="all-docs-table">
+                            <!-- Data will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Reports -->
+            <div id="tab-reports" class="tab-content">
+                <h2 class="text-2xl font-bold mb-6">ລາຍງານ (Reports)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Daily -->
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h3 class="text-lg font-bold border-b pb-2 mb-3">ລາຍງານປະຈຳວັນ</h3>
+                        <div class="flex justify-between mb-1"><span>ຂາເຂົ້າ:</span> <span class="font-bold text-green-600" id="rep-daily-in">0</span></div>
+                        <div class="flex justify-between mb-1"><span>ຂາອອກ:</span> <span class="font-bold text-yellow-600" id="rep-daily-out">0</span></div>
+                        <div class="flex justify-between mt-2 pt-2 border-t font-bold"><span>ລວມ:</span> <span id="rep-daily-total">0</span></div>
+                    </div>
+                    <!-- Weekly -->
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h3 class="text-lg font-bold border-b pb-2 mb-3">ລາຍງານປະຈຳອາທິດ</h3>
+                        <div class="flex justify-between mb-1"><span>ຂາເຂົ້າ:</span> <span class="font-bold text-green-600" id="rep-weekly-in">0</span></div>
+                        <div class="flex justify-between mb-1"><span>ຂາອອກ:</span> <span class="font-bold text-yellow-600" id="rep-weekly-out">0</span></div>
+                        <div class="flex justify-between mt-2 pt-2 border-t font-bold"><span>ລວມ:</span> <span id="rep-weekly-total">0</span></div>
+                    </div>
+                    <!-- Monthly -->
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h3 class="text-lg font-bold border-b pb-2 mb-3">ລາຍງານປະຈຳເດືອນ</h3>
+                        <div class="flex justify-between mb-1"><span>ຂາເຂົ້າ:</span> <span class="font-bold text-green-600" id="rep-monthly-in">0</span></div>
+                        <div class="flex justify-between mb-1"><span>ຂາອອກ:</span> <span class="font-bold text-yellow-600" id="rep-monthly-out">0</span></div>
+                        <div class="flex justify-between mt-2 pt-2 border-t font-bold"><span>ລວມ:</span> <span id="rep-monthly-total">0</span></div>
+                    </div>
+                    <!-- Yearly -->
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h3 class="text-lg font-bold border-b pb-2 mb-3">ລາຍງານປະຈຳປີ</h3>
+                        <div class="flex justify-between mb-1"><span>ຂາເຂົ້າ:</span> <span class="font-bold text-green-600" id="rep-yearly-in">0</span></div>
+                        <div class="flex justify-between mb-1"><span>ຂາອອກ:</span> <span class="font-bold text-yellow-600" id="rep-yearly-out">0</span></div>
+                        <div class="flex justify-between mt-2 pt-2 border-t font-bold"><span>ລວມ:</span> <span id="rep-yearly-total">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Form: Add / Edit Document -->
+    <div id="doc-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-xl font-bold" id="modal-title">ເພີ່ມເອກະສານໃໝ່</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <form id="doc-form" class="p-6 space-y-4">
+                <input type="hidden" id="doc-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ເລກທີເອກະສານ *</label>
+                        <input type="text" id="doc-ref" required class="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ປະເພດ *</label>
+                        <select id="doc-type" class="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500">
+                            <option value="in">ເອກະສານຂາເຂົ້າ</option>
+                            <option value="out">ເອກະສານຂາອອກ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ຫົວຂໍ້ເອກະສານ *</label>
+                    <input type="text" id="doc-title" required class="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ວັນທີ *</label>
+                        <input type="date" id="doc-date" required class="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ສະຖານະ</label>
+                        <select id="doc-status" class="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500">
+                            <option value="pending">ລໍຖ້າດຳເນີນການ (Pending)</option>
+                            <option value="completed">ສຳເລັດ (Completed)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- E-Signature Section -->
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ລາຍເຊັນດິຈິທັອກ (E-Signature)</label>
+                    <p class="text-xs text-gray-500 mb-2">ເຊັນຊື່ຂອງທ່ານລົງໃນກ່ອງລຸ່ມນີ້:</p>
+                    <canvas id="signature-pad"></canvas>
+                    <div class="flex justify-end mt-2">
+                        <button type="button" onclick="clearSignature()" class="text-sm text-red-600 hover:text-red-800 border border-red-200 px-3 py-1 rounded">ລຶບລາຍເຊັນ</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t mt-4">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">ຍົກເລີກ</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">ບັນທຶກຂໍ້ມູນ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Data State
+        let documents = [];
+        
+        // Canvas Setup for E-Signature
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        
+        // Resize canvas to match display size
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+        }
+        window.addEventListener("resize", resizeCanvas);
+        
+        // Setup Canvas Drawing Events
+        function setupCanvas() {
+            resizeCanvas();
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+
+            const startPosition = (e) => {
+                isDrawing = true;
+                draw(e);
+            };
+
+            const endPosition = () => {
+                isDrawing = false;
+                ctx.beginPath();
+            };
+
+            const draw = (e) => {
+                if (!isDrawing) return;
+                
+                e.preventDefault(); // Prevent scrolling on touch
+                let x = e.clientX || (e.touches && e.touches[0].clientX);
+                let y = e.clientY || (e.touches && e.touches[0].clientY);
+                
+                const rect = canvas.getBoundingClientRect();
+                x = x - rect.left;
+                y = y - rect.top;
+
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            };
+
+            canvas.addEventListener('mousedown', startPosition);
+            canvas.addEventListener('mouseup', endPosition);
+            canvas.addEventListener('mousemove', draw);
+            
+            // Touch support for Mobile
+            canvas.addEventListener('touchstart', startPosition, {passive: false});
+            canvas.addEventListener('touchend', endPosition);
+            canvas.addEventListener('touchmove', draw, {passive: false});
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function getSignatureData() {
+            // Check if canvas is empty
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width;
+            blank.height = canvas.height;
+            if (canvas.toDataURL() === blank.toDataURL()) {
+                return null;
+            }
+            return canvas.toDataURL('image/png');
+        }
+
+        // --- Core Application Logic ---
+
+        function initApp() {
+            // Set current date string
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('lo-LA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // Load data from Local Storage
+            const savedData = localStorage.getItem('dms_data');
+            if (savedData) {
+                documents = JSON.parse(savedData);
+            }
+            
+            setupCanvas();
+            renderAll();
+            
+            // Quick Search functionality
+            document.getElementById('quick-search').addEventListener('input', function(e) {
+                const keyword = e.target.value.toLowerCase();
+                renderDocumentsTable(keyword);
+            });
+
+            // Form Submit Event
+            document.getElementById('doc-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveDocument();
+            });
+        }
+
+        function saveDataToLocal() {
+            localStorage.setItem('dms_data', JSON.stringify(documents));
+            renderAll();
+        }
+
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Remove active styles from nav
+            document.querySelectorAll('aside nav button').forEach(el => el.classList.remove('bg-blue-800'));
+            
+            // Show selected
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('nav-' + tabId).classList.add('bg-blue-800');
+            
+            if(tabId === 'dashboard') renderDashboard();
+            if(tabId === 'documents') renderDocumentsTable();
+            if(tabId === 'reports') renderReports();
+        }
+
+        // --- Render Functions ---
+
+        function renderAll() {
+            renderDashboard();
+            renderDocumentsTable();
+            renderReports();
+        }
+
+        function renderDashboard() {
+            const total = documents.length;
+            const inDocs = documents.filter(d => d.type === 'in').length;
+            const outDocs = documents.filter(d => d.type === 'out').length;
+            const pending = documents.filter(d => d.status === 'pending').length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-in').innerText = inDocs;
+            document.getElementById('stat-out').innerText = outDocs;
+            document.getElementById('stat-pending').innerText = pending;
+
+            // Render Recent 5
+            const recentDocs = [...documents].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            const tbody = document.getElementById('recent-docs-table');
+            tbody.innerHTML = recentDocs.map(doc => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${doc.ref}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.title}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${doc.type === 'in' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${doc.type === 'in' ? 'ຂາເຂົ້າ' : 'ຂາອອກ'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${doc.status === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
+                            ${doc.status === 'completed' ? 'ສຳເລັດ' : 'ລໍຖ້າດຳເນີນການ'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('') || `<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">ບໍ່ມີຂໍ້ມູນ</td></tr>`;
+        }
+
+        function renderDocumentsTable(filter = '') {
+            const tbody = document.getElementById('all-docs-table');
+            const filteredDocs = documents.filter(doc => 
+                doc.title.toLowerCase().includes(filter) || doc.ref.toLowerCase().includes(filter)
+            ).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tbody.innerHTML = filteredDocs.map(doc => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${doc.ref}</td>
+                    <td class="px-4 py-3 text-sm text-gray-700">${doc.title}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        ${doc.type === 'in' ? '<span class="text-green-600 font-medium">ຂາເຂົ້າ</span>' : '<span class="text-yellow-600 font-medium">ຂາອອກ</span>'}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${doc.date}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        ${doc.status === 'completed' ? '<span class="text-blue-600 font-medium">ສຳເລັດ</span>' : '<span class="text-red-500 font-medium">ລໍຖ້າ</span>'}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        ${doc.signature ? `<img src="${doc.signature}" class="h-8 bg-gray-100 border rounded" alt="Signature">` : '<span class="text-xs text-gray-400">ບໍ່ມີລາຍເຊັນ</span>'}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editDocument('${doc.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3" title="ແກ້ໄຂ"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteDocument('${doc.id}')" class="text-red-600 hover:text-red-900" title="ລຶບ"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('') || `<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">ຍັງບໍ່ມີຂໍ້ມູນເອກະສານ ຫຼື ບໍ່ພົບຜົນການຄົ້ນຫາ</td></tr>`;
+        }
+
+        function renderReports() {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            // Utility to check date match
+            const isToday = (d) => { const date = new Date(d); date.setHours(0,0,0,0); return date.getTime() === today.getTime(); };
+            const getWeek = (d) => { 
+                const date = new Date(d); 
+                const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+                const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+                return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+            };
+            const currentWeek = getWeek(today);
+            const isThisWeek = (d) => { const date = new Date(d); return getWeek(date) === currentWeek && date.getFullYear() === today.getFullYear(); };
+            const isThisMonth = (d) => { const date = new Date(d); return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear(); };
+            const isThisYear = (d) => { const date = new Date(d); return date.getFullYear() === today.getFullYear(); };
+
+            const stats = {
+                daily: { in: 0, out: 0 },
+                weekly: { in: 0, out: 0 },
+                monthly: { in: 0, out: 0 },
+                yearly: { in: 0, out: 0 }
+            };
+
+            documents.forEach(doc => {
+                const type = doc.type;
+                if (isToday(doc.date)) stats.daily[type]++;
+                if (isThisWeek(doc.date)) stats.weekly[type]++;
+                if (isThisMonth(doc.date)) stats.monthly[type]++;
+                if (isThisYear(doc.date)) stats.yearly[type]++;
+            });
+
+            // Update DOM
+            const updateStatDOM = (period, data) => {
+                document.getElementById(`rep-${period}-in`).innerText = data.in;
+                document.getElementById(`rep-${period}-out`).innerText = data.out;
+                document.getElementById(`rep-${period}-total`).innerText = data.in + data.out;
+            };
+
+            updateStatDOM('daily', stats.daily);
+            updateStatDOM('weekly', stats.weekly);
+            updateStatDOM('monthly', stats.monthly);
+            updateStatDOM('yearly', stats.yearly);
+        }
+
+        // --- CRUD Operations ---
+
+        function openModal() {
+            document.getElementById('doc-id').value = '';
+            document.getElementById('doc-form').reset();
+            clearSignature();
+            document.getElementById('doc-date').valueAsDate = new Date(); // Default today
+            document.getElementById('modal-title').innerText = 'ເພີ່ມເອກະສານໃໝ່';
+            document.getElementById('doc-modal').classList.remove('hidden');
+            resizeCanvas(); // Ensure canvas is ready
+        }
+
+        function closeModal() {
+            document.getElementById('doc-modal').classList.add('hidden');
+        }
+
+        function saveDocument() {
+            const id = document.getElementById('doc-id').value || Date.now().toString();
+            const ref = document.getElementById('doc-ref').value;
+            const type = document.getElementById('doc-type').value;
+            const title = document.getElementById('doc-title').value;
+            const date = document.getElementById('doc-date').value;
+            const status = document.getElementById('doc-status').value;
+            
+            // Get new signature or keep old if editing and no new sig provided (simplified for this demo: grabs current canvas)
+            const signature = getSignatureData(); 
+
+            const docData = { id, ref, type, title, date, status };
+            
+            const existingIndex = documents.findIndex(d => d.id === id);
+            if (existingIndex > -1) {
+                // Keep old signature if canvas is clear during edit
+                if(!signature && documents[existingIndex].signature) {
+                    docData.signature = documents[existingIndex].signature;
+                } else {
+                    docData.signature = signature;
+                }
+                documents[existingIndex] = docData;
+            } else {
+                docData.signature = signature;
+                documents.push(docData);
+            }
+
+            saveDataToLocal();
+            closeModal();
+        }
+
+        function editDocument(id) {
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('doc-id').value = doc.id;
+            document.getElementById('doc-ref').value = doc.ref;
+            document.getElementById('doc-type').value = doc.type;
+            document.getElementById('doc-title').value = doc.title;
+            document.getElementById('doc-date').value = doc.date;
+            document.getElementById('doc-status').value = doc.status;
+            
+            clearSignature();
+            document.getElementById('modal-title').innerText = 'ແກ້ໄຂເອກະສານ';
+            document.getElementById('doc-modal').classList.remove('hidden');
+            resizeCanvas();
+        }
+
+        function deleteDocument(id) {
+            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບເອກະສານນີ້?')) {
+                documents = documents.filter(d => d.id !== id);
+                saveDataToLocal();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('ອັນຕະລາຍ! ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຂໍ້ມູນເອກະສານທັງໝົດໃນລະບົບ? (ບໍ່ສາມາດກູ້ຄືນໄດ້)')) {
+                documents = [];
+                saveDataToLocal();
+            }
+        }
+
+        // --- Import / Export ---
+
+        function exportData() {
+            if (documents.length === 0) {
+                alert('ບໍ່ມີຂໍ້ມູນໃຫ້ສົ່ງອອກ');
+                return;
+            }
+            const dataStr = JSON.stringify(documents, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DMS_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        documents = importedData;
+                        saveDataToLocal();
+                        alert('ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບໄຟລ໌ບໍ່ຖືກຕ້ອງ');
+                    }
+                } catch (error) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌ JSON');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+
+        // Initialize App on Load
+        window.onload = initApp;
+
+    </script>
+</body>
+</html>
