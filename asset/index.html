@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຄຸ້ມຄອງຊັບສິນ ແລະ ພັດສະດຸອຸປະກອນ</title>
+    <!-- ຟອນ Noto Sans Lao -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS ສຳລັບການຈັດໜ້າຕາ (UI) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ASSET">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="text-gray-800">
+
+    <!-- ແຖບນຳທາງ (Navbar) -->
+    <nav class="bg-blue-600 text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold">🏢 ລະບົບຄຸ້ມຄອງຊັບສິນ & ພັດສະດຸ</h1>
+            <div class="flex space-x-4 gap-2">
+                <button onclick="switchTab('dashboard')" class="hover:bg-blue-700 px-3 py-1 rounded">ໜ້າຫຼັກ</button>
+                <button onclick="switchTab('manage')" class="hover:bg-blue-700 px-3 py-1 rounded">ຈັດການຂໍ້ມູນ</button>
+                <button onclick="switchTab('reports')" class="hover:bg-blue-700 px-3 py-1 rounded">ລາຍງານ</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-6">
+
+        <!-- ================= ໜ້າຫຼັກ (Dashboard) ================= -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                    <h3 class="text-gray-500 text-sm">ຊັບສິນທັງໝົດ</h3>
+                    <p class="text-2xl font-bold" id="totalAssets">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                    <h3 class="text-gray-500 text-sm">ມູນຄ່າລວມ (ກີບ)</h3>
+                    <p class="text-2xl font-bold" id="totalValue">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                    <h3 class="text-gray-500 text-sm">ເບີກຈ່າຍແລ້ວ</h3>
+                    <p class="text-2xl font-bold" id="totalIssued">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                    <h3 class="text-gray-500 text-sm">ກຳລັງສ້ອມແປງ/ຊຸດໂຊມ</h3>
+                    <p class="text-2xl font-bold" id="totalMaintenance">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold">📋 ລາຍການຊັບສິນ ແລະ ພັດສະດຸລ່າສຸດ</h2>
+                    <div class="flex gap-2">
+                        <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+                        <button onclick="document.getElementById('importFile').click()" class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700">ນຳເຂົ້າ (Import)</button>
+                        <button onclick="exportData()" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">ສົ່ງອອກ (Export)</button>
+                        <button onclick="clearAllData()" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">ລຶບທັງໝົດ</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="p-2">ຊື່ລາຍການ</th>
+                                <th class="p-2">ປະເພດ</th>
+                                <th class="p-2">ຈຳນວນ</th>
+                                <th class="p-2">ມູນຄ່າ (ກີບ)</th>
+                                <th class="p-2">ວັນທີເພີ່ມ</th>
+                                <th class="p-2">ສະຖານະ</th>
+                                <th class="p-2">ຄ່າເຊື່ອມໂຊມ/ປີ</th>
+                                <th class="p-2">ຈັດການ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ຈັດການຂໍ້ມູນ (Manage Data) ================= -->
+        <div id="manage" class="tab-content">
+            <div class="bg-white p-6 rounded-lg shadow max-w-2xl mx-auto">
+                <h2 class="text-xl font-bold mb-4" id="formTitle">ເພີ່ມລາຍການໃໝ່</h2>
+                <form id="assetForm" onsubmit="saveItem(event)">
+                    <input type="hidden" id="itemId">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ຊື່ຊັບສິນ/ພັດສະດຸ <span class="text-red-500">*</span></label>
+                            <input type="text" id="itemName" required class="w-full border p-2 rounded focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ປະເພດ</label>
+                            <select id="itemType" class="w-full border p-2 rounded">
+                                <option value="ຊັບສິນຄົງທີ່ (Asset)">ຊັບສິນຄົງທີ່ (Asset)</option>
+                                <option value="ເຄື່ອງໃຊ້ສຳນັກງານ (Supply)">ເຄື່ອງໃຊ້ສຳນັກງານ (Supply)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ຈຳນວນ</label>
+                            <input type="number" id="itemQty" required min="1" value="1" class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ລາຄາລວມ (ກີບ)</label>
+                            <input type="number" id="itemPrice" required min="0" value="0" class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ວັນທີໄດ້ຮັບ/ບັນທຶກ</label>
+                            <input type="date" id="itemDate" required class="w-full border p-2 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ສະຖານະ</label>
+                            <select id="itemStatus" class="w-full border p-2 rounded">
+                                <option value="ປົກກະຕິ (In Stock)">ປົກກະຕິ (In Stock)</option>
+                                <option value="ເບີກຈ່າຍແລ້ວ (Issued)">ເບີກຈ່າຍແລ້ວ (Issued)</option>
+                                <option value="ສ້ອມແປງ (Maintenance)">ສ້ອມແປງ (Maintenance)</option>
+                                <option value="ຊຸດໂຊມ (Broken)">ຊຸດໂຊມ (Broken)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">ອາຍຸການນຳໃຊ້ (ປີ) - ສຳລັບຄິດໄລ່ເຊື່ອມໂຊມ</label>
+                            <input type="number" id="itemLife" min="1" value="5" class="w-full border p-2 rounded">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">ບັນທຶກປະວັດການບຳລຸງຮັກສາ (Maintenance History)</label>
+                        <textarea id="itemNotes" rows="3" class="w-full border p-2 rounded"></textarea>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">ບັນທຶກຂໍ້ມູນ</button>
+                        <button type="button" onclick="resetForm()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">ລ້າງຟອມ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= ລາຍງານ (Reports) ================= -->
+        <div id="reports" class="tab-content">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">📊 ລາຍງານສະຫຼຸບ</h2>
+                <div class="flex gap-4 mb-6">
+                    <select id="reportFilter" onchange="generateReport()" class="border p-2 rounded w-48">
+                        <option value="all">ທັງໝົດ (All Time)</option>
+                        <option value="daily">ລາຍວັນ (Daily)</option>
+                        <option value="weekly">ລາຍອາທິດ (Weekly)</option>
+                        <option value="monthly">ລາຍເດືອນ (Monthly)</option>
+                        <option value="yearly">ລາຍປີ (Yearly)</option>
+                    </select>
+                </div>
+                
+                <div id="reportContent" class="p-4 bg-gray-50 rounded border">
+                    <!-- Report will be generated here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // ຖານຂໍ້ມູນໃນ LocalStorage
+        let inventoryData = JSON.parse(localStorage.getItem('inventoryData')) || [];
+
+        // ເຊັດວັນທີປະຈຸບັນໃຫ້ Input
+        document.getElementById('itemDate').valueAsDate = new Date();
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(tabId === 'dashboard') renderTable();
+            if(tabId === 'reports') generateReport();
+        }
+
+        // ຊ່ວຍແປງຕົວເລກເປັນເງິນກີບ
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('lo-LA').format(num) + ' ₭';
+        }
+
+        // ຄິດໄລ່ຄ່າເຊື່ອມໂຊມ (ແບບເສັ້ນຊື່ - Straight Line Depreciation)
+        function calculateDepreciation(price, years, dateStr) {
+            if(!price || !years || price <= 0 || years <= 0) return 0;
+            const itemDate = new Date(dateStr);
+            const today = new Date();
+            const diffTime = Math.abs(today - itemDate);
+            const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365);
+            
+            let depreciationPerYear = price / years;
+            return depreciationPerYear; // ສົ່ງຄືນຄ່າເຊື່ອມໂຊມຕໍ່ປີ
+        }
+
+        function saveItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('itemId').value;
+            
+            const item = {
+                id: id ? id : Date.now().toString(),
+                name: document.getElementById('itemName').value,
+                type: document.getElementById('itemType').value,
+                qty: parseInt(document.getElementById('itemQty').value),
+                price: parseFloat(document.getElementById('itemPrice').value),
+                date: document.getElementById('itemDate').value,
+                status: document.getElementById('itemStatus').value,
+                lifeYears: parseInt(document.getElementById('itemLife').value),
+                notes: document.getElementById('itemNotes').value
+            };
+
+            if (id) {
+                const index = inventoryData.findIndex(x => x.id === id);
+                inventoryData[index] = item;
+                alert('ແກ້ໄຂຂໍ້ມູນສຳເລັດ!');
+            } else {
+                inventoryData.push(item);
+                alert('ເພີ່ມຂໍ້ມູນສຳເລັດ!');
+            }
+
+            localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+            resetForm();
+            switchTab('dashboard');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            let totalValue = 0;
+            let totalIssued = 0;
+            let totalMaintenance = 0;
+
+            inventoryData.forEach(item => {
+                totalValue += item.price;
+                if(item.status.includes('Issued')) totalIssued++;
+                if(item.status.includes('Maintenance') || item.status.includes('Broken')) totalMaintenance++;
+
+                const depPerYear = calculateDepreciation(item.price, item.lifeYears, item.date);
+
+                let tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="p-2">${item.name}</td>
+                    <td class="p-2 text-sm text-gray-600">${item.type}</td>
+                    <td class="p-2">${item.qty}</td>
+                    <td class="p-2">${formatCurrency(item.price)}</td>
+                    <td class="p-2">${item.date}</td>
+                    <td class="p-2"><span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">${item.status}</span></td>
+                    <td class="p-2 text-red-500">${formatCurrency(depPerYear)}/ປີ</td>
+                    <td class="p-2 flex gap-2">
+                        <button onclick="editItem('${item.id}')" class="text-blue-500 hover:underline">ແກ້ໄຂ</button>
+                        <button onclick="deleteItem('${item.id}')" class="text-red-500 hover:underline">ລຶບ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Dashboard Cards
+            document.getElementById('totalAssets').innerText = inventoryData.length;
+            document.getElementById('totalValue').innerText = formatCurrency(totalValue);
+            document.getElementById('totalIssued').innerText = totalIssued;
+            document.getElementById('totalMaintenance').innerText = totalMaintenance;
+        }
+
+        function editItem(id) {
+            const item = inventoryData.find(x => x.id === id);
+            if(item) {
+                document.getElementById('itemId').value = item.id;
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('itemType').value = item.type;
+                document.getElementById('itemQty').value = item.qty;
+                document.getElementById('itemPrice').value = item.price;
+                document.getElementById('itemDate').value = item.date;
+                document.getElementById('itemStatus').value = item.status;
+                document.getElementById('itemLife').value = item.lifeYears;
+                document.getElementById('itemNotes').value = item.notes;
+                
+                document.getElementById('formTitle').innerText = 'ແກ້ໄຂລາຍການ';
+                switchTab('manage');
+            }
+        }
+
+        function deleteItem(id) {
+            if(confirm('ທ່ານແນ່ໃຈຫຼືບໍ່ທີ່ຈະລຶບລາຍການນີ້?')) {
+                inventoryData = inventoryData.filter(x => x.id !== id);
+                localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+                renderTable();
+            }
+        }
+
+        function clearAllData() {
+            if(confirm('ເຕືອນ! ທ່ານແນ່ໃຈຫຼືບໍ່ທີ່ຈະລຶບຂໍ້ມູນທັງໝົດ? ການກະທຳນີ້ບໍ່ສາມາດນຳກັບຄືນມາໄດ້.')) {
+                inventoryData = [];
+                localStorage.removeItem('inventoryData');
+                renderTable();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('assetForm').reset();
+            document.getElementById('itemId').value = '';
+            document.getElementById('itemDate').valueAsDate = new Date();
+            document.getElementById('formTitle').innerText = 'ເພີ່ມລາຍການໃໝ່';
+        }
+
+        // ============ Import / Export JSON ============
+        function exportData() {
+            const dataStr = JSON.stringify(inventoryData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `inventory_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(Array.isArray(imported)) {
+                        inventoryData = imported;
+                        localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+                        renderTable();
+                        alert('ນຳເຂົ້າຂໍ້ມູນສຳເລັດ!');
+                    } else {
+                        alert('ຮູບແບບໄຟລ໌ບໍ່ຖືກຕ້ອງ');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+
+        // ============ ລາຍງານ (Reports Logic) ============
+        function generateReport() {
+            const filter = document.getElementById('reportFilter').value;
+            const now = new Date();
+            
+            let filteredData = inventoryData.filter(item => {
+                if(filter === 'all') return true;
+                const itemDate = new Date(item.date);
+                
+                if(filter === 'daily') {
+                    return itemDate.toDateString() === now.toDateString();
+                } else if(filter === 'weekly') {
+                    const diffTime = Math.abs(now - itemDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    return diffDays <= 7;
+                } else if(filter === 'monthly') {
+                    return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                } else if(filter === 'yearly') {
+                    return itemDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+
+            const totalItems = filteredData.length;
+            const totalVal = filteredData.reduce((acc, curr) => acc + curr.price, 0);
+
+            const content = document.getElementById('reportContent');
+            content.innerHTML = `
+                <h3 class="text-lg font-semibold mb-2">ຜົນການລາຍງານ: ${filter.toUpperCase()}</h3>
+                <p>ຈຳນວນລາຍການທັງໝົດທີ່ພົບ: <strong>${totalItems} ລາຍການ</strong></p>
+                <p>ມູນຄ່າລວມ: <strong>${formatCurrency(totalVal)}</strong></p>
+                
+                <table class="w-full text-left mt-4 border bg-white">
+                    <tr class="bg-gray-100">
+                        <th class="p-2 border">ວັນທີ</th>
+                        <th class="p-2 border">ຊື່ລາຍການ</th>
+                        <th class="p-2 border">ຈຳນວນ</th>
+                        <th class="p-2 border">ມູນຄ່າ</th>
+                        <th class="p-2 border">ສະຖານະ</th>
+                    </tr>
+                    ${filteredData.map(item => `
+                        <tr>
+                            <td class="p-2 border text-sm">${item.date}</td>
+                            <td class="p-2 border">${item.name}</td>
+                            <td class="p-2 border">${item.qty}</td>
+                            <td class="p-2 border text-green-600">${formatCurrency(item.price)}</td>
+                            <td class="p-2 border">${item.status}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            `;
+        }
+
+        // ໂຫຼດຂໍ້ມູນຕອນເລີ່ມຕົ້ນ
+        renderTable();
+    </script>
+</body>
+</html>
