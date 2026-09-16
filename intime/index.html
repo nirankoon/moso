@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TIME — Mobile Life Currency</title>
+    <!-- Google Fonts: Inter & Noto Sans Lao -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+Lao:wght@400;500;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #030305;
+            --panel-bg: #09090e;
+            --neon-green: #00ff66;
+            --neon-green-glow: rgba(0, 255, 102, 0.4);
+            --neon-green-dim: rgba(0, 255, 102, 0.12);
+            --neon-red: #ff3344;
+            --text-main: #f0f0f5;
+            --text-muted: #8a8a9e;
+            --border-color: rgba(0, 255, 102, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', 'Noto Sans Lao', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Full Screen Mobile View (Native App / PWA Style) */
+        .mobile-container {
+            width: 100%;
+            height: 100vh;
+            max-width: 480px;
+            background-color: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top Status Bar */
+        .status-bar {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            background: rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+
+        /* App Header */
+        .app-header {
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(10, 10, 15, 0.8);
+        }
+
+        .app-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--neon-green);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--neon-green-glow);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .icon-btn:hover {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        /* Main Scrollable Content */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .app-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Movie Arm Clock Widget */
+        .arm-clock-box {
+            background: #000;
+            border: 2px solid var(--neon-green);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.15), inset 0 0 15px rgba(0, 255, 102, 0.08);
+        }
+
+        .arm-clock-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .arm-clock-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            text-shadow: 0 0 15px var(--neon-green), 0 0 30px var(--neon-green);
+            letter-spacing: 2px;
+        }
+
+        .arm-clock-display.warning {
+            color: var(--neon-red);
+            text-shadow: 0 0 15px var(--neon-red), 0 0 30px var(--neon-red);
+        }
+
+        .rate-badge {
+            margin-top: 8px;
+            display: inline-block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px 12px;
+            border-radius: 12px;
+        }
+
+        /* Section Headings */
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .section-label {
+            font-family: 'Orbitron', sans-serif, 'Noto Sans Lao';
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .text-action-btn {
+            background: none;
+            border: none;
+            color: var(--neon-green);
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif, 'Noto Sans Lao';
+        }
+        .text-action-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Quick Tap Grid */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .quick-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-card:active {
+            transform: scale(0.97);
+        }
+
+        .quick-card:hover {
+            border-color: var(--neon-green);
+            background: var(--neon-green-dim);
+        }
+
+        .quick-card-icon {
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+        }
+
+        .quick-card-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .quick-card-cost {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--neon-red);
+        }
+
+        .empty-quick {
+            grid-column: span 2;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 20px;
+            font-style: italic;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+        }
+
+        /* Activity Ledger Log */
+        .ledger-box {
+            background: rgba(12, 12, 18, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 12px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .ledger-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.85rem;
+        }
+
+        .ledger-item:last-child {
+            border-bottom: none;
+        }
+
+        .ledger-info .l-name {
+            font-weight: 500;
+        }
+
+        .ledger-info .l-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .ledger-time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .del-row {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .del-row:hover { color: var(--neon-red); }
+
+        .empty-ledger {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 15px;
+            font-style: italic;
+        }
+
+        /* Bottom Navigation Bar */
+        .nav-bar {
+            background: rgba(10, 10, 15, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif, 'Noto Sans Lao';
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            color: var(--neon-green);
+        }
+
+        /* Modal Overlays */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 3, 5, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-sheet {
+            background: #111118;
+            border-top: 1px solid var(--border-color);
+            border-radius: 24px 24px 0 0;
+            padding: 25px 20px 35px 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.1, 1, 0.1, 1);
+        }
+
+        .modal-overlay.open .modal-sheet {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif, 'Noto Sans Lao';
+            font-size: 1rem;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+        }
+
+        .close-modal {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text-main);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            background: #08080c;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green-glow);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: var(--neon-green-dim);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 14px;
+            font-family: 'Orbitron', sans-serif, 'Noto Sans Lao';
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--neon-green);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-green-glow);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 51, 68, 0.1);
+            border-color: var(--neon-red);
+            color: var(--neon-red);
+            margin-top: 15px;
+        }
+
+        .manage-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        .manage-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="INTIME">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body>
+
+    <div class="mobile-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span id="currentTimeStr">21:21</span>
+            <span>5G &bull; LOCAL APP</span>
+        </div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="app-title">IN TIME</div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="openPaydayModal()" title="ເຕີມເງິນເດືອນ / Top-Up">💰</button>
+                <button class="icon-btn" onclick="openDataModal()" title="Export / Import Data">💾</button>
+                <button class="icon-btn" onclick="openSettings()" title="Settings & Rate">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="app-content">
+            <!-- Movie Arm Clock Box -->
+            <div class="arm-clock-box">
+                <div class="arm-clock-title">ເວລາຊີວິດທີ່ເຫຼືອ (Remaining Time)</div>
+                <div class="arm-clock-display" id="clockDisplay">00:00:00:00</div>
+                <div class="rate-badge" id="rateBadge">0 Kip / Hour</div>
+            </div>
+
+            <!-- Quick Tap Section -->
+            <div>
+                <div class="section-header-row">
+                    <div class="section-label">ລາຍການດ່ວນ (Quick Tap)</div>
+                    <button class="text-action-btn" onclick="openManagerModal()">ຈັດການລາຍການ</button>
+                </div>
+                <div class="quick-grid" id="quickGrid">
+                    <!-- Injected dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Ledger Section -->
+            <div>
+                <div class="section-header-row">
+                    <div class="section-label">ປະຫວັດການໃຊ້ຈ່າຍເວລາ (Ledger)</div>
+                    <button class="text-action-btn" onclick="clearLedger()" style="color: var(--neon-red);">ລຶບທັງໝົດ</button>
+                </div>
+                <div class="ledger-box" id="ledgerBox">
+                    <div class="empty-ledger">ຍັງບໍ່ມີປະຫວັດ. ເພີ່ມລາຍການແລ້ວກົດໃຊ້ງານເລີຍ.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="nav-bar">
+            <button class="nav-item active" onclick="switchTab('tap')">
+                <span>⚡</span> ໜ້າຫຼັກ
+            </button>
+            <button class="nav-item" onclick="openCustomItemModal()">
+                <span>＋</span> ເພີ່ມລາຍການ
+            </button>
+            <button class="nav-item" onclick="openPaydayModal()">
+                <span>💰</span> ຮັບເງິນເດືອນ
+            </button>
+            <button class="nav-item" onclick="openDataModal()">
+                <span>📥</span> ສຳຮອງຂໍ້ມູນ
+            </button>
+        </nav>
+
+        <!-- Settings Modal (Rate & Currency Config) -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <div class="modal-title">ຕັ້ງຄ່າອັດຕາແລກປ່ຽນ (Rate Config)</div>
+                    <button class="close-modal" onclick="closeSettings()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label for="salaryInput">ເງິນເດືອນ ຫຼື ງົບປະມານຫຼັກ (Kip)</label>
+                    <input type="number" id="salaryInput" value="3500000">
+                </div>
+                <div class="form-group">
+                    <label for="hoursInput">ຈຳນວນຊົ່ວໂມງເຮັດວຽກຕໍ່ເດືອນ (Work Hours)</label>
+                    <input type="number" id="hoursInput" value="160">
+                </div>
+                <div class="form-group">
+                    <label for="customRateInput">ກຳນົດອັດຕາ Kip ຕໍ່ 1 ຊົ່ວໂມງເອງ (ທາງເລືອກ)</label>
+                    <input type="number" id="customRateInput" placeholder="ປ່ອຍຫວ່າງຖ້າໃຫ້ຄິດໄລ້ອັດຕະໂນມັດ">
+                </div>
+                <button class="action-btn" onclick="saveSettings()">ບັນທຶກການຕັ້ງຄ່າ</button>
+            </div>
+        </div>
+
+        <!-- Add Custom Item Modal -->
+        <div class="modal-overlay" id="customItemModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <div class="modal-title">ເພີ່ມລາຍການໃໝ່ (Add Item)</div>
+                    <button class="close-modal" onclick="closeCustomItemModal()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label for="newEmoji">ໄອຄອນ / ເອມຈິ (Icon)</label>
+                    <input type="text" id="newEmoji" value="🍜" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label for="newName">ຊື່ລາຍການ (Item Name)</label>
+                    <input type="text" id="newName" placeholder="ຕົວຢ່າງ: ເຂົ້າຈີ່, ຄ່ານ້ຳມັນ">
+                </div>
+                <div class="form-group">
+                    <label for="newPrice">ລາຄາ (Kip)</label>
+                    <input type="number" id="newPrice" placeholder="ຕົວຢ່າງ: 25000">
+                </div>
+                <button class="action-btn" onclick="addNewQuickItem()">ເພີ່ມເຂົ້າລາຍການດ່ວນ</button>
+            </div>
+        </div>
+
+        <!-- Manage Quick Items Modal -->
+        <div class="modal-overlay" id="managerModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <div class="modal-title">ຈັດການລາຍການດ່ວນ (Manage Items)</div>
+                    <button class="close-modal" onclick="closeManagerModal()">&times;</button>
+                </div>
+                <div id="manageListContainer" style="max-height: 50vh; overflow-y: auto; margin-bottom: 15px;">
+                    <!-- Dynamically populated -->
+                </div>
+                <button class="action-btn" onclick="closeManagerModal()">ສຳເລັດ</button>
+            </div>
+        </div>
+
+        <!-- Payday Modal -->
+        <div class="modal-overlay" id="paydayModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <div class="modal-title">ຮັບເງິນເດືອນ / ເຕີມເວລາ (Payday)</div>
+                    <button class="close-modal" onclick="closePaydayModal()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>ເລືອກຈຳນວນເງິນທີ່ໄດ້ຮັບ</label>
+                    <select id="paydaySelect">
+                        <option value="3500000">ເງິນເດືອນເຕັມ (3,500,000 Kip)</option>
+                        <option value="1750000">ເຄິ່ງເງິນເດືອນ (1,750,000 Kip)</option>
+                        <option value="500000">ລາຍໄດ້ເສີມ (500,000 Kip)</option>
+                        <option value="100000">ເງິນໂບນັດ (100,000 Kip)</option>
+                    </select>
+                </div>
+                <button class="action-btn" onclick="executePaydayTopUp()">ເພີ່ມເວລາເຂົ້າໂມງແຂນ ⚡</button>
+            </div>
+        </div>
+
+        <!-- Data Import / Export Modal -->
+        <div class="modal-overlay" id="dataModal">
+            <div class="modal-sheet">
+                <div class="modal-header">
+                    <div class="modal-title">ສຳຮອງ ແລະ ນຳເຂົ້າຂໍ້ມູນ (Backup)</div>
+                    <button class="close-modal" onclick="closeDataModal()">&times;</button>
+                </div>
+                <div class="form-group">
+                    <label>ສຳເນົາຂໍ້ມູນ JSON ເພື່ອນຳອອກ (Export)</label>
+                    <textarea id="dataExportArea" rows="4" readonly style="font-size: 0.8rem; font-family: monospace;"></textarea>
+                </div>
+                <button class="action-btn" onclick="exportDataString()">ສ້າງລະຫັດສຳຮອງ</button>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>ວາງລະຫັດ JSON ເພື່ອນຳເຂົ້າ (Import)</label>
+                    <textarea id="dataImportArea" rows="4" placeholder="ວາງຂໍ້ມູນທີ່ນີ້..." style="font-size: 0.8rem; font-family: monospace;"></textarea>
+                </div>
+                <button class="action-btn" onclick="importDataString()">ນຳຸເຂົ້າຂໍ້ມູນ</button>
+                <button class="action-btn secondary" onclick="resetFactoryData()">ລຶບຂໍ້ມູນທັງໝົດ (Reset)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Core state data
+        let monthlySalary = 3500000;
+        let workHoursPerMonth = 160;
+        let customHourlyRate = null; // If user sets custom Kip rate manually
+        let totalBalanceKip = 3500000; 
+
+        // Empty starting dummy data as requested (user can add their own)
+        let quickItems = [];
+        let expenses = [];
+
+        function loadData() {
+            try {
+                const savedSalary = localStorage.getItem('it_salary');
+                const savedHours = localStorage.getItem('it_hours');
+                const savedRate = localStorage.getItem('it_customRate');
+                const savedBalance = localStorage.getItem('it_balance');
+                const savedItems = localStorage.getItem('it_quickItems');
+                const savedExpenses = localStorage.getItem('it_expenses');
+
+                if (savedSalary !== null) monthlySalary = parseFloat(savedSalary);
+                if (savedHours !== null) workHoursPerMonth = parseFloat(savedHours);
+                if (savedRate !== null && savedRate !== "null") customHourlyRate = parseFloat(savedRate);
+                if (savedBalance !== null) totalBalanceKip = parseFloat(savedBalance);
+                if (savedItems !== null) quickItems = JSON.parse(savedItems);
+                if (savedExpenses !== null) expenses = JSON.parse(savedExpenses);
+            } catch (e) {
+                console.error("Error loading local storage", e);
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('it_salary', monthlySalary);
+                localStorage.setItem('it_hours', workHoursPerMonth);
+                localStorage.setItem('it_customRate', customHourlyRate);
+                localStorage.setItem('it_balance', totalBalanceKip);
+                localStorage.setItem('it_quickItems', JSON.stringify(quickItems));
+                localStorage.setItem('it_expenses', JSON.stringify(expenses));
+            } catch (e) {
+                console.error("Error saving local storage", e);
+            }
+        }
+
+        function getHourlyRate() {
+            if (customHourlyRate !== null && !isNaN(customHourlyRate) && customHourlyRate > 0) {
+                return customHourlyRate;
+            }
+            return workHoursPerMonth > 0 ? monthlySalary / workHoursPerMonth : 21875;
+        }
+
+        function updateClockTime() {
+            const now = new Date();
+            document.getElementById('currentTimeStr').innerText = 
+                String(now.getHours()).padStart(2, '0') + ":" + 
+                String(now.getMinutes()).padStart(2, '0');
+        }
+        setInterval(updateClockTime, 1000);
+        updateClockTime();
+
+        function renderQuickItems() {
+            const hourlyRate = getHourlyRate();
+            let html = '';
+
+            if (quickItems.length === 0) {
+                html = `<div class="empty-quick">ຍັງບໍ່ມີລາຍການດ່ວນ. ກົດປຸ່ມ "ເພີ່ມລາຍການ" ດ້ານລຸ່ມເພື່ອສ້າງ.</div>`;
+            } else {
+                quickItems.forEach((item, index) => {
+                    const hoursCost = item.price / hourlyRate;
+                    const totalSec = hoursCost * 3600;
+                    const h = Math.floor(totalSec / 3600);
+                    const m = Math.floor((totalSec % 3600) / 60);
+                    
+                    let timeStr = h > 0 ? `${h}ຊມ ${m}ນ` : `${m}ນ`;
+
+                    html += `
+                        <div class="quick-card" onclick="tapExpense(${index})">
+                            <div class="quick-card-icon">${item.emoji}</div>
+                            <div class="quick-card-name" title="${item.name}">${item.name}</div>
+                            <div class="quick-card-cost">-${timeStr} (${item.price.toLocaleString()} Kip)</div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('quickGrid').innerHTML = html;
+        }
+
+        function tapExpense(index) {
+            const item = quickItems[index];
+            totalBalanceKip -= item.price;
+            expenses.unshift({
+                name: item.name,
+                price: item.price,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            saveData();
+            render();
+        }
+
+        function deleteExpense(index) {
+            const item = expenses[index];
+            totalBalanceKip += item.price;
+            expenses.splice(index, 1);
+            saveData();
+            render();
+        }
+
+        function clearLedger() {
+            if (expenses.length === 0) return;
+            if (confirm("ທ່ານຕ້ອງການລຶບປະຫວັດທັງໝົດ ແລະ ຄືນເວລາແມ່ນບໍ?")) {
+                let refundTotal = expenses.reduce((sum, item) => sum + (item.price > 0 ? item.price : 0), 0);
+                totalBalanceKip += refundTotal;
+                expenses = [];
+                saveData();
+                render();
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('salaryInput').value = monthlySalary;
+            document.getElementById('hoursInput').value = workHoursPerMonth;
+            document.getElementById('customRateInput').value = customHourlyRate !== null ? customHourlyRate : '';
+            document.getElementById('settingsModal').classList.add('open');
+        }
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('open');
+        }
+
+        function saveSettings() {
+            const s = parseFloat(document.getElementById('salaryInput').value);
+            const h = parseFloat(document.getElementById('hoursInput').value);
+            const cr = document.getElementById('customRateInput').value;
+
+            if (!isNaN(s) && s > 0) monthlySalary = s;
+            if (!isNaN(h) && h > 0) workHoursPerMonth = h;
+            customHourlyRate = (cr !== '' && !isNaN(parseFloat(cr))) ? parseFloat(cr) : null;
+
+            saveData();
+            closeSettings();
+            render();
+        }
+
+        function resetFactoryData() {
+            if (confirm("ລຶບຂໍ້ມູນທັງໝົດໃນເຄື່ອງແທ້ບໍ?")) {
+                localStorage.clear();
+                monthlySalary = 3500000;
+                workHoursPerMonth = 160;
+                customHourlyRate = null;
+                totalBalanceKip = 3500000;
+                quickItems = [];
+                expenses = [];
+                saveData();
+                closeSettings();
+                closeDataModal();
+                render();
+            }
+        }
+
+        function openCustomItemModal() {
+            document.getElementById('customItemModal').classList.add('open');
+        }
+        function closeCustomItemModal() {
+            document.getElementById('customItemModal').classList.remove('open');
+        }
+
+        function addNewQuickItem() {
+            const emoji = document.getElementById('newEmoji').value || '✨';
+            const name = document.getElementById('newName').value.trim();
+            const price = parseFloat(document.getElementById('newPrice').value);
+
+            if (!name || isNaN(price) || price <= 0) {
+                alert("ກະລຸນາໃສ່ຊື່ລາຍການ ແລະ ລາຄາໃຫ້ຖືກຕ້ອງ.");
+                return;
+            }
+
+            quickItems.push({ emoji, name, price });
+            document.getElementById('newName').value = '';
+            document.getElementById('newPrice').value = '';
+            saveData();
+            closeCustomItemModal();
+            render();
+        }
+
+        function openManagerModal() {
+            renderManageList();
+            document.getElementById('managerModal').classList.add('open');
+        }
+        function closeManagerModal() {
+            document.getElementById('managerModal').classList.remove('open');
+            render();
+        }
+
+        function renderManageList() {
+            let html = '';
+            quickItems.forEach((item, index) => {
+                html += `
+                    <div class="manage-item-row">
+                        <div class="manage-info">
+                            <span>${item.emoji}</span>
+                            <div>
+                                <div style="font-weight: 500;">${item.name}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">${item.price.toLocaleString()} Kip</div>
+                            </div>
+                        </div>
+                        <button class="del-row" onclick="deleteQuickItem(${index})" title="ລຶບ">🗑️ ລຶບ</button>
+                    </div>
+                `;
+            });
+            document.getElementById('manageListContainer').innerHTML = html || '<div class="empty-ledger">ຍັງບໍ່ມີລາຍການ.</div>';
+        }
+
+        function deleteQuickItem(index) {
+            quickItems.splice(index, 1);
+            saveData();
+            renderManageList();
+        }
+
+        function openPaydayModal() {
+            document.getElementById('paydayModal').classList.add('open');
+        }
+        function closePaydayModal() {
+            document.getElementById('paydayModal').classList.remove('open');
+        }
+
+        function executePaydayTopUp() {
+            const addAmount = parseFloat(document.getElementById('paydaySelect').value);
+            totalBalanceKip += addAmount;
+            
+            expenses.unshift({
+                name: `⚡ ເຕີມເງິນເດືອນ / ຮັບເງິນ`,
+                price: -addAmount, 
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            saveData();
+            closePaydayModal();
+            render();
+        }
+
+        function openDataModal() {
+            document.getElementById('dataExportArea').value = '';
+            document.getElementById('dataImportArea').value = '';
+            document.getElementById('dataModal').classList.add('open');
+        }
+        function closeDataModal() {
+            document.getElementById('dataModal').classList.remove('open');
+        }
+
+        function exportDataString() {
+            const exportObj = {
+                monthlySalary,
+                workHoursPerMonth,
+                customHourlyRate,
+                totalBalanceKip,
+                quickItems,
+                expenses
+            };
+            document.getElementById('dataExportArea').value = JSON.stringify(exportObj, null, 2);
+        }
+
+        function importDataString() {
+            try {
+                const raw = document.getElementById('dataImportArea').value.trim();
+                if (!raw) return alert("ກະລຸນາວາງລະຫັດ JSON ກ່ອນ.");
+                const parsed = JSON.parse(raw);
+
+                if (parsed.monthlySalary !== undefined) monthlySalary = parsed.monthlySalary;
+                if (parsed.workHoursPerMonth !== undefined) workHoursPerMonth = parsed.workHoursPerMonth;
+                if (parsed.customHourlyRate !== undefined) customHourlyRate = parsed.customHourlyRate;
+                if (parsed.totalBalanceKip !== undefined) totalBalanceKip = parsed.totalBalanceKip;
+                if (Array.isArray(parsed.quickItems)) quickItems = parsed.quickItems;
+                if (Array.isArray(parsed.expenses)) expenses = parsed.expenses;
+
+                saveData();
+                closeDataModal();
+                render();
+                alert("ນຳເຂົ້າຂໍ້ມູນສຳເລັດ!");
+            } catch (e) {
+                alert("ລະຫັດ JSON ບໍ່ຖືກຕ້ອງ ກະລຸນາກວດສອບຄືນ.");
+            }
+        }
+
+        function render() {
+            renderQuickItems();
+            const hourlyRate = getHourlyRate();
+            document.getElementById('rateBadge').innerText = `${Math.round(hourlyRate).toLocaleString()} Kip / ຊົ່ວໂມງ`;
+
+            let ledgerHtml = '';
+
+            if (expenses.length === 0) {
+                ledgerHtml = `<div class="empty-ledger">ຍັງບໍ່ມີປະຫວັດການໃຊ້ຈ່າຍ.</div>`;
+            } else {
+                expenses.forEach((item, index) => {
+                    const isTopUp = item.price < 0;
+                    const absPrice = Math.abs(item.price);
+                    const hoursCost = absPrice / hourlyRate;
+                    
+                    const totalSec = hoursCost * 3600;
+                    const days = Math.floor(totalSec / (3600 * 24));
+                    const hours = Math.floor((totalSec % (3600 * 24)) / 3600);
+                    const minutes = Math.floor((totalSec % 3600) / 60);
+
+                    let tStr = '';
+                    if (days > 0) tStr += `${days}ມື້ `;
+                    if (hours > 0 || days > 0) tStr += `${hours}ຊມ `;
+                    tStr += `${minutes}ນ`;
+
+                    const displayTimeString = isTopUp ? `+${tStr}` : `-${tStr}`;
+                    const timeColorStyle = isTopUp ? 'color: var(--neon-green);' : 'color: var(--neon-red);';
+
+                    ledgerHtml += `
+                        <div class="ledger-item">
+                            <div class="ledger-info">
+                                <div class="l-name">${item.name}</div>
+                                <div class="l-sub">${absPrice.toLocaleString()} Kip &bull; ${item.timestamp}</div>
+                            </div>
+                            <div class="ledger-time" style="${timeColorStyle}">
+                                ${displayTimeString}
+                                <button class="del-row" onclick="deleteExpense(${index})" title="ລຶບ">&times;</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('ledgerBox').innerHTML = ledgerHtml;
+
+            const clockDisplay = document.getElementById('clockDisplay');
+
+            if (totalBalanceKip <= 0) {
+                clockDisplay.innerText = "00:00:00:00";
+                clockDisplay.classList.add('warning');
+            } else {
+                clockDisplay.classList.remove('warning');
+                const remHoursTotal = totalBalanceKip / hourlyRate;
+                const remSec = remHoursTotal * 3600;
+                const rDays = Math.floor(remSec / (3600 * 24));
+                const rHours = Math.floor((remSec % (3600 * 24)) / 3600);
+                const rMins = Math.floor((remSec % 3600) / 60);
+                const rSecs = Math.floor(remSec % 60);
+
+                clockDisplay.innerText = 
+                    String(rDays).padStart(2, '0') + ":" +
+                    String(rHours).padStart(2, '0') + ":" +
+                    String(rMins).padStart(2, '0') + ":" +
+                    String(rSecs).padStart(2, '0');
+            }
+        }
+
+        // Initialize App
+        loadData();
+        render();
+    </script>
+</body>
+</html>
