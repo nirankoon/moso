@@ -3,51 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Melody Synthesizer & Audio Decoder</title>
+    <title>QR Code Melody & Sound Listener</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- QR Code Generator Library -->
+    <!-- QR Code Generator -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        neon: {
-                            cyan: '#00f3ff',
-                            pink: '#ff007f',
-                            purple: '#a855f7',
-                            yellow: '#eab308',
-                            green: '#22c55e'
-                        }
                     }
                 }
             }
         }
     </script>
-    <style>
-        body {
-            background-color: #080c14;
-            color: #f3f4f6;
-        }
-        .glow-box {
-            box-shadow: 0 0 25px -5px rgba(0, 243, 255, 0.12);
-        }
-        .glow-active {
-            box-shadow: 0 0 30px 2px rgba(255, 0, 127, 0.3);
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-    </style>
 
   <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,250 +50,184 @@
   <!-- END PWA INJECTION -->
   
 </head>
-<body class="min-h-screen font-sans flex flex-col justify-between antialiased selection:bg-neon-cyan selection:text-black">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between antialiased">
 
-    <header class="border-b border-gray-800/80 bg-gray-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="p-2 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-xl shadow-lg shadow-cyan-500/20 text-black">
-                    <i data-lucide="qr-code" class="w-6 h-6 stroke-[2.5]"></i>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-600 rounded-xl text-white shadow-md shadow-blue-500/20">
+                    <i data-lucide="qr-code" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-wide bg-gradient-to-r from-white via-cyan-200 to-neon-pink bg-clip-text text-transparent">
-                        QR Melody Audio Transceiver
-                    </h1>
-                    <p class="text-xs text-gray-400">Bidirectional Sound Generator & Microphone Decoder</p>
+                    <h1 class="font-bold text-slate-900 text-lg leading-tight">QR Sound Translator</h1>
+                    <p class="text-xs text-slate-500">Simple Binary Tone Melody & Mic Decoder</p>
                 </div>
             </div>
 
-            <!-- Mode Selector Tabs -->
-            <div class="flex bg-gray-950 p-1 rounded-xl border border-gray-800 text-xs font-semibold">
-                <button id="tab-encode" class="px-4 py-1.5 rounded-lg bg-cyan-500 text-black shadow-md transition flex items-center gap-1.5">
-                    <i data-lucide="music" class="w-3.5 h-3.5"></i> Text → Melody (Play)
+            <!-- Mode Selector -->
+            <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+                <button id="tab-play" class="px-4 py-1.5 rounded-lg bg-white text-blue-600 shadow-sm transition flex items-center gap-1.5">
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Play QR Sound
                 </button>
-                <button id="tab-decode" class="px-4 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1.5">
-                    <i data-lucide="mic" class="w-3.5 h-3.5"></i> Listen & Decode Audio
+                <button id="tab-listen" class="px-4 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                    <i data-lucide="mic" class="w-3.5 h-3.5"></i> Listen & Decode
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full">
         
-        <!-- ================= MODE 1: ENCODE & PLAY MELODY ================= -->
-        <div id="mode-encode" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- ================= PLAY MODE ================= -->
+        <div id="mode-play" class="grid grid-cols-1 md:grid-cols-12 gap-8">
             
-            <!-- Controls Column -->
-            <section class="lg:col-span-5 space-y-6">
-                <!-- Text / URL Input Card -->
-                <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 glow-box backdrop-blur-sm">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 flex items-center gap-1.5">
-                        <i data-lucide="type" class="w-4 h-4 text-neon-cyan"></i> Text / URL to QR Melody
-                    </label>
-                    <div class="flex gap-2">
-                        <input type="text" id="qr-input" value="qrlao.com" placeholder="Type message or URL..."
-                            class="flex-1 bg-gray-950 border border-gray-700/80 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan transition font-mono text-gray-100">
-                        <button id="btn-generate" 
-                            class="bg-neon-cyan hover:bg-cyan-400 text-black font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-cyan-500/20 active:scale-95 flex items-center gap-1 text-sm">
-                            <i data-lucide="wand-2" class="w-4 h-4"></i> Build
+            <!-- Control Panel -->
+            <section class="md:col-span-5 space-y-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                            Text or URL to QR
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="qr-input" value="qrlao.com" placeholder="Enter text..." 
+                                class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 font-mono">
+                            <button id="btn-generate" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl transition text-sm shadow-sm">
+                                Create
+                            </button>
+                        </div>
+                        <div class="flex gap-2 mt-2">
+                            <button class="preset-btn text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg transition" data-val="A">"A"</button>
+                            <button class="preset-btn text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg transition" data-val="qrlao.com">qrlao.com</button>
+                            <button class="preset-btn text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg transition" data-val="Hello">Hello</button>
+                        </div>
+                    </div>
+
+                    <!-- Speed / Speed Slider -->
+                    <div class="border-t border-slate-100 pt-4">
+                        <div class="flex justify-between text-xs text-slate-600 font-medium mb-1.5">
+                            <span>Playback Speed</span>
+                            <span id="speed-label" class="font-mono text-blue-600 font-bold">120 ms/dot</span>
+                        </div>
+                        <input type="range" id="speed-slider" min="60" max="300" step="10" value="120" class="w-full accent-blue-600 cursor-pointer bg-slate-200 h-2 rounded-lg">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                            <span>Fast (60ms)</span>
+                            <span>Slow (300ms)</span>
+                        </div>
+                    </div>
+
+                    <!-- Tone Legend -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 text-xs">
+                        <div class="font-semibold text-slate-700 mb-1">Binary Sound Legend:</div>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2"><span class="w-3 h-3 bg-slate-900 rounded-sm inline-block"></span> Black Dot (1)</span>
+                            <span class="font-mono text-blue-600 font-bold">High Tone (523 Hz)</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2"><span class="w-3 h-3 border border-slate-400 bg-white rounded-sm inline-block"></span> White Space (0)</span>
+                            <span class="font-mono text-slate-500 font-bold">Low Tone (261 Hz)</span>
+                        </div>
+                    </div>
+
+                    <!-- Play Controls -->
+                    <div class="flex gap-3 pt-2">
+                        <button id="btn-play" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition active:scale-95">
+                            <i data-lucide="play" class="w-5 h-5 fill-current"></i> Play Sound
+                        </button>
+                        <button id="btn-stop" disabled class="bg-slate-100 hover:bg-slate-200 text-red-600 disabled:opacity-40 font-semibold p-3 rounded-xl border border-slate-200 transition">
+                            <i data-lucide="square" class="w-5 h-5 fill-current"></i>
                         </button>
                     </div>
-                    <!-- Presets -->
-                    <div class="flex flex-wrap gap-2 mt-3">
-                        <span class="text-xs text-gray-500 self-center">Presets:</span>
-                        <button class="preset-btn text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg border border-gray-700 transition" data-val="A">"A"</button>
-                        <button class="preset-btn text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg border border-gray-700 transition" data-val="qrlao.com">qrlao.com</button>
-                        <button class="preset-btn text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg border border-gray-700 transition" data-val="Sound Code">Sound Code</button>
-                    </div>
-                </div>
-
-                <!-- Sound Synthesis Controls -->
-                <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 glow-box space-y-5 backdrop-blur-sm">
-                    <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-300 flex items-center gap-2 border-b border-gray-800 pb-2">
-                        <i data-lucide="sliders" class="w-4 h-4 text-neon-pink"></i> Synthesizer Parameters
-                    </h3>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1.5">Waveform Instrument</label>
-                            <select id="synth-type" class="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none">
-                                <option value="sine">Ambient Sine (Soft)</option>
-                                <option value="triangle" selected>Chime Triangle (Clean)</option>
-                                <option value="sawtooth">Retro Sawtooth</option>
-                                <option value="square">8-Bit Square Wave</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1.5">Harmonic Scale</label>
-                            <select id="scale-type" class="w-full bg-gray-950 border border-gray-700 rounded-xl px-3 py-2 text-xs text-gray-200 focus:outline-none">
-                                <option value="pentatonic">Major Pentatonic</option>
-                                <option value="minorPentatonic">Minor Pentatonic</option>
-                                <option value="major">Major Scale</option>
-                                <option value="minor">Natural Minor</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Tempo Slider -->
-                    <div>
-                        <div class="flex justify-between text-xs text-gray-400 mb-1">
-                            <span class="flex items-center gap-1"><i data-lucide="gauge" class="w-3.5 h-3.5"></i> Speed (BPM)</span>
-                            <span id="bpm-val" class="font-mono text-neon-cyan font-bold">120 BPM</span>
-                        </div>
-                        <input type="range" id="bpm-slider" min="60" max="240" value="120" class="w-full accent-neon-cyan bg-gray-800 rounded-lg h-1.5 cursor-pointer">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Root Octave</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="range" id="octave-slider" min="2" max="5" value="3" class="w-full accent-neon-pink bg-gray-800 rounded-lg h-1.5">
-                                <span id="octave-val" class="text-xs font-mono text-neon-pink font-bold">3</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Reverb Delay</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="range" id="reverb-slider" min="0" max="100" value="30" class="w-full accent-neon-purple bg-gray-800 rounded-lg h-1.5">
-                                <span id="reverb-val" class="text-xs font-mono text-neon-purple font-bold">30%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Playback Action Panel -->
-                <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 glow-box flex items-center justify-between gap-3">
-                    <button id="btn-play" class="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition active:scale-95">
-                        <i data-lucide="play" class="w-5 h-5 fill-current"></i> Play Melody
-                    </button>
-                    <button id="btn-stop" disabled class="bg-gray-800 hover:bg-gray-700 text-red-400 disabled:opacity-40 font-semibold p-3 rounded-xl border border-gray-700 transition">
-                        <i data-lucide="square" class="w-5 h-5 fill-current"></i>
-                    </button>
                 </div>
             </section>
 
-            <!-- Visualizer Display Column -->
-            <section class="lg:col-span-7 space-y-6">
-                <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 glow-box backdrop-blur-sm flex flex-col items-center justify-center relative min-h-[440px]">
+            <!-- QR Canvas Display -->
+            <section class="md:col-span-7 flex flex-col items-center">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm w-full flex flex-col items-center justify-center min-h-[400px]">
                     
-                    <div class="w-full flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-2">
-                            <span id="grid-size-badge" class="text-xs font-mono bg-gray-800 text-gray-300 border border-gray-700 px-2.5 py-1 rounded-md">Grid: 21x21</span>
-                            <span id="notes-count-badge" class="text-xs font-mono bg-gray-800 text-neon-cyan border border-gray-700 px-2.5 py-1 rounded-md">Notes: 0</span>
-                        </div>
-                        <div class="text-xs font-mono text-gray-400">
-                            Sequence Step: <span id="current-step" class="text-white font-bold">0</span> / <span id="total-steps">0</span>
-                        </div>
+                    <div class="w-full flex justify-between items-center mb-4 text-xs font-mono text-slate-500">
+                        <span id="grid-info">Grid: 21x21 (441 cells)</span>
+                        <span>Cell: <strong id="cell-step" class="text-slate-900 font-bold">0</strong> / <span id="cell-total">441</span></span>
                     </div>
 
-                    <!-- QR Matrix Display Canvas -->
-                    <div class="relative p-4 bg-gray-950 border border-gray-800 rounded-2xl shadow-2xl flex items-center justify-center">
-                        <canvas id="qr-canvas" class="max-w-full h-auto block rounded-lg"></canvas>
+                    <!-- Canvas -->
+                    <div class="p-3 bg-white border-2 border-slate-200 rounded-2xl shadow-inner">
+                        <canvas id="qr-canvas" class="block rounded-lg"></canvas>
                     </div>
 
-                    <!-- Waveform Output Visualizer -->
-                    <div class="w-full mt-6">
-                        <div class="flex justify-between items-center text-xs text-gray-400 mb-1.5">
-                            <span>Audio Output Spectrum</span>
-                            <span id="freq-display" class="font-mono text-neon-cyan text-[10px]">0 Hz</span>
+                    <!-- Current Playing Cell Feedback -->
+                    <div class="mt-6 flex items-center gap-3">
+                        <span class="text-xs text-slate-500 font-medium">Current Bit Playing:</span>
+                        <div id="bit-indicator" class="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-400 border border-slate-200">
+                            ---
                         </div>
-                        <canvas id="waveform-canvas" width="600" height="50" class="w-full h-12 bg-gray-950 border border-gray-800/80 rounded-xl"></canvas>
                     </div>
                 </div>
             </section>
         </div>
 
-        <div id="mode-decode" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- ================= LISTEN & DECODE MODE ================= -->
+        <div id="mode-listen" class="hidden grid grid-cols-1 md:grid-cols-12 gap-8">
             
-            <!-- Listener Control Column -->
-            <section class="lg:col-span-5 space-y-6">
-                <!-- Mic Control Panel -->
-                <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 glow-box space-y-5">
-                    <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-                        <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-200 flex items-center gap-2">
-                            <i data-lucide="mic" class="w-4 h-4 text-neon-pink"></i> Audio Pitch Listener
+            <section class="md:col-span-5 space-y-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i data-lucide="mic" class="w-4 h-4 text-blue-600"></i> Microphone Audio Listener
                         </h3>
-                        <span id="listen-status-badge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-700">
+                        <span id="mic-status" class="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
                             Idle
                         </span>
                     </div>
 
-                    <p class="text-xs text-gray-400 leading-relaxed">
-                        Play a QR Melody near your device's microphone. The pitch detection algorithm analyzes incoming frequencies in real-time, reconstructs the QR matrix grid, and decodes the message.
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Click "Start Listening". Hold another device playing the QR melody near the microphone to reconstruct the QR grid and read the text.
                     </p>
 
-                    <!-- Calibration Controls -->
-                    <div class="space-y-4 pt-2">
-                        <div>
-                            <div class="flex justify-between text-xs text-gray-400 mb-1">
-                                <span>Noise Gate Sensitivity Threshold</span>
-                                <span id="gate-val" class="font-mono text-neon-cyan">0.02</span>
-                            </div>
-                            <input type="range" id="gate-slider" min="0.005" max="0.1" step="0.005" value="0.02" class="w-full accent-neon-cyan bg-gray-800 rounded-lg h-1.5 cursor-pointer">
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between text-xs text-gray-400 mb-1">
-                                <span>Expected Matrix Grid Size</span>
-                                <span id="grid-target-val" class="font-mono text-neon-pink">21 x 21</span>
-                            </div>
-                            <input type="range" id="grid-target-slider" min="21" max="29" step="2" value="21" class="w-full accent-neon-pink bg-gray-800 rounded-lg h-1.5 cursor-pointer">
-                        </div>
-                    </div>
-
-                    <!-- Mic Start / Stop Button -->
-                    <button id="btn-toggle-mic" class="w-full bg-gradient-to-r from-neon-pink to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-pink-500/20 flex items-center justify-center gap-2 transition active:scale-95">
+                    <button id="btn-toggle-mic" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 transition active:scale-95">
                         <i data-lucide="mic" class="w-5 h-5"></i> Start Listening Microphone
                     </button>
-                </div>
 
-                <!-- Live Acoustic Detection Feedback -->
-                <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 glow-box space-y-3">
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Live Acoustic Feedback</h4>
-                    
-                    <div class="grid grid-cols-2 gap-3 text-center">
-                        <div class="bg-gray-950 p-3 rounded-xl border border-gray-800">
-                            <div class="text-[10px] text-gray-500 font-semibold uppercase">Detected Pitch</div>
-                            <div id="mic-detected-pitch" class="text-xl font-bold font-mono text-neon-cyan mt-1">-- Hz</div>
-                        </div>
-                        <div class="bg-gray-950 p-3 rounded-xl border border-gray-800">
-                            <div class="text-[10px] text-gray-500 font-semibold uppercase">Closest Note / Row</div>
-                            <div id="mic-detected-note" class="text-xl font-bold font-mono text-neon-pink mt-1">--</div>
+                    <!-- Realtime Detection Feedback -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <div class="text-xs font-bold text-slate-700">Live Tone Detector</div>
+                        <div class="grid grid-cols-2 gap-3 text-center">
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">Pitch</div>
+                                <div id="live-freq" class="text-lg font-bold font-mono text-blue-600 mt-0.5">-- Hz</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">Detected Bit</div>
+                                <div id="live-bit" class="text-lg font-bold font-mono text-slate-800 mt-0.5">--</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Reconstructed QR Canvas & Output Column -->
-            <section class="lg:col-span-7 space-y-6">
-                <div class="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 glow-box backdrop-blur-sm flex flex-col items-center justify-center relative min-h-[440px]">
+            <!-- Reconstructed QR Output -->
+            <section class="md:col-span-7 flex flex-col items-center">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm w-full flex flex-col items-center justify-center min-h-[400px]">
                     
-                    <div class="w-full flex justify-between items-center mb-4">
-                        <span class="text-xs font-mono text-gray-400">Reconstructing Matrix Grid from Sound...</span>
-                        <button id="btn-clear-reconstructed" class="text-xs text-gray-400 hover:text-white bg-gray-800 border border-gray-700 px-2.5 py-1 rounded-md transition">Reset Grid</button>
+                    <div class="w-full flex justify-between items-center mb-4 text-xs font-mono text-slate-500">
+                        <span>Reconstructing Matrix...</span>
+                        <button id="btn-reset-recon" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-md transition border border-slate-200">Reset Grid</button>
                     </div>
 
-                    <!-- Reconstructed QR Matrix Canvas -->
-                    <div class="relative p-4 bg-gray-950 border border-gray-800 rounded-2xl shadow-2xl flex items-center justify-center">
-                        <canvas id="reconstruct-canvas" class="max-w-full h-auto block rounded-lg"></canvas>
+                    <!-- Reconstructed Canvas -->
+                    <div class="p-3 bg-white border-2 border-slate-200 rounded-2xl shadow-inner">
+                        <canvas id="recon-canvas" class="block rounded-lg"></canvas>
                     </div>
 
-                    <!-- Decoded Output Text Result Card -->
-                    <div class="w-full mt-6 bg-gray-950 border border-cyan-500/30 rounded-xl p-4 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs text-cyan-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                                <i data-lucide="check-circle-2" class="w-4 h-4"></i> Decoded Result Text / URL
-                            </span>
-                            <span id="decode-confidence" class="text-[10px] font-mono text-gray-400">Status: Waiting for Audio...</span>
-                        </div>
-                        <div id="decoded-text-output" class="text-lg font-mono font-bold text-white bg-gray-900/80 p-3 rounded-lg border border-gray-800 break-all select-all min-h-[48px] flex items-center">
+                    <!-- Decoded Result -->
+                    <div class="w-full mt-6 bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1">
+                        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Decoded Output Message</div>
+                        <div id="decoded-output" class="text-base font-mono font-bold text-slate-900 break-all select-all min-h-[32px] flex items-center">
                             ---
                         </div>
                     </div>
 
                 </div>
             </section>
-
         </div>
 
     </main>
@@ -325,128 +235,67 @@
     <script>
         lucide.createIcons();
 
-        // Musical Scale Multipliers
-        const SCALES = {
-            pentatonic: [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24],
-            minorPentatonic: [0, 3, 5, 7, 10, 12, 15, 17, 19, 22],
-            major: [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19],
-            minor: [0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19]
-        };
-        const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        // Audio Frequencies for Binary Tones
+        const TONE_BLACK = 523.25; // C5 (High beep)
+        const TONE_WHITE = 261.63; // C4 (Low beep)
 
-        // State & Web Audio Context
+        // Web Audio Context
         let audioCtx = null;
-        let masterGain = null;
-        let delayNode = null;
-        let feedbackGain = null;
-        let mainAnalyser = null;
 
-        // Mode 1 State (Encode / Play)
+        // State Variables
         let qrMatrix = [];
-        let sequence = [];
-        let currentStepIndex = 0;
+        let totalCells = 0;
+        let currentCellIndex = 0;
         let isPlaying = false;
-        let playTimeout = null;
+        let playInterval = null;
 
-        // Mode 2 State (Mic Listening & Decoding)
+        let isListening = false;
         let micStream = null;
         let micAnalyser = null;
-        let isListening = false;
-        let reconstructedMatrix = [];
-        let detectedNotesLog = [];
         let micAnimFrame = null;
-        let lastPitchTime = 0;
-        let currentPitchAccumulator = [];
+        let reconstructedMatrix = [];
 
-        // Canvas References
+        // UI Canvas Elements
         const qrCanvas = document.getElementById('qr-canvas');
         const qrCtx = qrCanvas.getContext('2d');
-        const waveCanvas = document.getElementById('waveform-canvas');
-        const waveCtx = waveCanvas.getContext('2d');
-        const reconCanvas = document.getElementById('reconstruct-canvas');
+        const reconCanvas = document.getElementById('recon-canvas');
         const reconCtx = reconCanvas.getContext('2d');
 
-        // Mode Navigation
-        const tabEncode = document.getElementById('tab-encode');
-        const tabDecode = document.getElementById('tab-decode');
-        const modeEncode = document.getElementById('mode-encode');
-        const modeDecode = document.getElementById('mode-decode');
+        // Navigation Tabs
+        const tabPlay = document.getElementById('tab-play');
+        const tabListen = document.getElementById('tab-listen');
+        const modePlay = document.getElementById('mode-play');
+        const modeListen = document.getElementById('mode-listen');
 
-        tabEncode.addEventListener('click', () => {
-            tabEncode.className = "px-4 py-1.5 rounded-lg bg-neon-cyan text-black shadow-md transition flex items-center gap-1.5";
-            tabDecode.className = "px-4 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1.5";
-            modeEncode.classList.remove('hidden');
-            modeDecode.classList.add('hidden');
+        tabPlay.addEventListener('click', () => {
+            tabPlay.className = "px-4 py-1.5 rounded-lg bg-white text-blue-600 shadow-sm transition flex items-center gap-1.5";
+            tabListen.className = "px-4 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+            modePlay.classList.remove('hidden');
+            modeListen.classList.add('hidden');
             stopListening();
         });
 
-        tabDecode.addEventListener('click', () => {
-            tabDecode.className = "px-4 py-1.5 rounded-lg bg-neon-pink text-white shadow-md transition flex items-center gap-1.5";
-            tabEncode.className = "px-4 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1.5";
-            modeDecode.classList.remove('hidden');
-            modeEncode.classList.add('hidden');
+        tabListen.addEventListener('click', () => {
+            tabListen.className = "px-4 py-1.5 rounded-lg bg-white text-blue-600 shadow-sm transition flex items-center gap-1.5";
+            tabPlay.className = "px-4 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5";
+            modeListen.classList.remove('hidden');
+            modePlay.classList.add('hidden');
             stopMelody();
-            initReconstructedMatrix(parseInt(document.getElementById('grid-target-slider').value, 10));
+            initReconstructionGrid(qrMatrix.length || 21);
         });
 
-        // Initialize Web Audio API
         function initAudio() {
-            if (audioCtx) return;
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-
-            mainAnalyser = audioCtx.createAnalyser();
-            mainAnalyser.fftSize = 1024;
-
-            masterGain = audioCtx.createGain();
-            masterGain.gain.value = 0.7;
-
-            delayNode = audioCtx.createDelay();
-            delayNode.delayTime.value = 0.22;
-
-            feedbackGain = audioCtx.createGain();
-            feedbackGain.gain.value = 0.25;
-
-            delayNode.connect(feedbackGain);
-            feedbackGain.connect(delayNode);
-            delayNode.connect(masterGain);
-
-            masterGain.connect(mainAnalyser);
-            mainAnalyser.connect(audioCtx.destination);
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
         }
 
-        function midiToFreq(midi) {
-            return 440 * Math.pow(2, (midi - 69) / 12);
-        }
-
-        function getNoteName(midi) {
-            const note = NOTE_NAMES[midi % 12];
-            const octave = Math.floor(midi / 12) - 1;
-            return `${note}${octave}`;
-        }
-
-        function mapRowToFrequency(rowIndex, totalRows) {
-            const scaleKey = document.getElementById('scale-type').value;
-            const scale = SCALES[scaleKey] || SCALES.pentatonic;
-            const rootOctave = parseInt(document.getElementById('octave-slider').value, 10);
-            const baseMidi = (rootOctave + 1) * 12;
-
-            const invertedRow = (totalRows - 1) - rowIndex;
-            const scaleIndex = Math.floor((invertedRow / totalRows) * scale.length);
-            const clampedIndex = Math.min(Math.max(scaleIndex, 0), scale.length - 1);
-
-            const midiNote = baseMidi + scale[clampedIndex];
-            return {
-                freq: midiToFreq(midiNote),
-                noteName: getNoteName(midiNote)
-            };
-        }
-
-        // Generate QR Matrix from Input Text
-        function generateQRMatrix(text) {
+        // Generate QR Matrix
+        function generateQR(text) {
             try {
                 const qr = qrcode(0, 'M');
-                qr.addData(text || "A");
+                qr.addData(text || "qrlao.com");
                 qr.make();
 
                 const count = qr.getModuleCount();
@@ -458,397 +307,276 @@
                     }
                     qrMatrix.push(row);
                 }
-                buildMelodySequence();
-                renderQRCanvas(qrCanvas, qrCtx, qrMatrix);
-            } catch (err) {
-                console.error("QR Generation Error:", err);
+                totalCells = count * count;
+                document.getElementById('grid-info').textContent = `Grid: ${count}x${count} (${totalCells} cells)`;
+                document.getElementById('cell-total').textContent = totalCells;
+                document.getElementById('cell-step').textContent = "0";
+                
+                stopMelody();
+                renderMatrix(qrCanvas, qrCtx, qrMatrix);
+                initReconstructionGrid(count);
+            } catch (e) {
+                console.error(e);
             }
         }
 
-        function buildMelodySequence() {
-            sequence = [];
-            const rows = qrMatrix.length;
-            if (rows === 0) return;
-
-            for (let r = 0; r < rows; r++) {
-                let c = 0;
-                while (c < rows) {
-                    if (qrMatrix[r][c]) {
-                        let startCol = c;
-                        let length = 0;
-                        while (c < rows && qrMatrix[r][c]) {
-                            length++;
-                            c++;
-                        }
-                        const pitchInfo = mapRowToFrequency(r, rows);
-                        sequence.push({
-                            row: r,
-                            colStart: startCol,
-                            length: length,
-                            freq: pitchInfo.freq,
-                            noteName: pitchInfo.noteName
-                        });
-                    } else {
-                        c++;
-                    }
-                }
-            }
-
-            document.getElementById('grid-size-badge').textContent = `Grid: ${rows}x${rows}`;
-            document.getElementById('notes-count-badge').textContent = `Notes: ${sequence.length}`;
-            document.getElementById('total-steps').textContent = sequence.length;
-            document.getElementById('current-step').textContent = "0";
-            stopMelody();
-        }
-
-        function renderQRCanvas(canvas, ctx, matrix, activeStep = null) {
+        // Render QR Matrix Canvas
+        function renderMatrix(canvas, ctx, matrix, highlightIndex = null) {
             const rows = matrix.length;
-            if (rows === 0) return;
+            if (!rows) return;
 
-            const size = 360;
-            canvas.width = size;
-            canvas.height = size;
-            const cellSize = size / rows;
+            const canvasSize = 320;
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+            const cellSize = canvasSize / rows;
 
-            ctx.fillStyle = '#090d16';
-            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvasSize, canvasSize);
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < rows; c++) {
                     const x = c * cellSize;
                     const y = r * cellSize;
                     if (matrix[r][c]) {
-                        ctx.fillStyle = '#f3f4f6';
-                        ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+                        ctx.fillStyle = '#0f172a'; // Black module
+                        ctx.fillRect(x, y, cellSize, cellSize);
                     } else {
-                        ctx.fillStyle = '#111827';
-                        ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+                        ctx.fillStyle = '#f8fafc'; // White module
+                        ctx.fillRect(x, y, cellSize, cellSize);
+                        ctx.strokeStyle = '#e2e8f0';
+                        ctx.strokeRect(x, y, cellSize, cellSize);
                     }
                 }
             }
 
-            if (activeStep) {
-                const { row, colStart, length } = activeStep;
-                const hx = colStart * cellSize;
-                const hy = row * cellSize;
-                const hw = length * cellSize;
-                const hh = cellSize;
+            // Highlight Active Step
+            if (highlightIndex !== null) {
+                const r = Math.floor(highlightIndex / rows);
+                const c = highlightIndex % rows;
+                const hx = c * cellSize;
+                const hy = r * cellSize;
 
-                ctx.fillStyle = 'rgba(0, 243, 255, 0.4)';
-                ctx.fillRect(hx, hy, hw, hh);
-
-                ctx.strokeStyle = '#00f3ff';
+                ctx.fillStyle = 'rgba(234, 179, 8, 0.4)'; // Yellow highlight
+                ctx.fillRect(hx, hy, cellSize, cellSize);
+                ctx.strokeStyle = '#eab308';
                 ctx.lineWidth = 2;
-                ctx.strokeRect(hx, hy, hw, hh);
+                ctx.strokeRect(hx, hy, cellSize, cellSize);
             }
         }
 
-        function playNote(freq, durationSec) {
+        // Play Short Percussive Tone
+        function playTone(freq) {
             initAudio();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const osc = audioCtx.createOscillator();
-            const noteGain = audioCtx.createGain();
+            const gain = audioCtx.createGain();
 
-            osc.type = document.getElementById('synth-type').value;
+            osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
             const now = audioCtx.currentTime;
-            noteGain.gain.setValueAtTime(0, now);
-            noteGain.gain.linearRampToValueAtTime(0.5, now + 0.02);
-            noteGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08); // Short 80ms beep
 
-            osc.connect(noteGain);
-            noteGain.connect(masterGain);
-
-            const reverbVal = parseFloat(document.getElementById('reverb-slider').value) / 100;
-            if (reverbVal > 0) {
-                const sendGain = audioCtx.createGain();
-                sendGain.gain.value = reverbVal;
-                noteGain.connect(sendGain);
-                sendGain.connect(delayNode);
-            }
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
             osc.start(now);
-            osc.stop(now + durationSec + 0.1);
+            osc.stop(now + 0.09);
         }
 
+        // Playback Loop
         function playMelody() {
-            if (sequence.length === 0) return;
+            if (qrMatrix.length === 0) return;
             initAudio();
             isPlaying = true;
             document.getElementById('btn-play').disabled = true;
             document.getElementById('btn-stop').disabled = false;
-            stepSequence();
+            
+            stepPlay();
         }
 
-        function stepSequence() {
+        function stepPlay() {
             if (!isPlaying) return;
 
-            if (currentStepIndex >= sequence.length) {
-                currentStepIndex = 0; // Loop melody
+            const rows = qrMatrix.length;
+            if (currentCellIndex >= totalCells) {
+                stopMelody();
+                return;
             }
 
-            const step = sequence[currentStepIndex];
-            const bpm = parseInt(document.getElementById('bpm-slider').value, 10);
-            const baseDotTime = 60 / bpm;
-            const noteDuration = step.length * (baseDotTime * 0.75);
+            const r = Math.floor(currentCellIndex / rows);
+            const c = currentCellIndex % rows;
+            const isBlack = qrMatrix[r][c];
 
-            playNote(step.freq, noteDuration);
-            renderQRCanvas(qrCanvas, qrCtx, qrMatrix, step);
+            // Play distinct tone
+            const freq = isBlack ? TONE_BLACK : TONE_WHITE;
+            playTone(freq);
 
-            document.getElementById('current-step').textContent = currentStepIndex + 1;
-            document.getElementById('freq-display').textContent = `${Math.round(step.freq)} Hz`;
+            // Update UI
+            renderMatrix(qrCanvas, qrCtx, qrMatrix, currentCellIndex);
+            document.getElementById('cell-step').textContent = currentCellIndex + 1;
+            
+            const bitBadge = document.getElementById('bit-indicator');
+            if (isBlack) {
+                bitBadge.textContent = "1 (Black - High)";
+                bitBadge.className = "px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-900 text-white border border-slate-900";
+            } else {
+                bitBadge.textContent = "0 (White - Low)";
+                bitBadge.className = "px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-600 border border-slate-300";
+            }
 
-            const stepIntervalMs = step.length * (baseDotTime * 1000);
-            currentStepIndex++;
-
-            playTimeout = setTimeout(stepSequence, stepIntervalMs);
+            currentCellIndex++;
+            const speed = parseInt(document.getElementById('speed-slider').value, 10);
+            playInterval = setTimeout(stepPlay, speed);
         }
 
         function stopMelody() {
             isPlaying = false;
-            clearTimeout(playTimeout);
-            currentStepIndex = 0;
+            clearTimeout(playInterval);
+            currentCellIndex = 0;
             document.getElementById('btn-play').disabled = false;
             document.getElementById('btn-stop').disabled = true;
-            document.getElementById('current-step').textContent = "0";
-            renderQRCanvas(qrCanvas, qrCtx, qrMatrix);
+            document.getElementById('cell-step').textContent = "0";
+            document.getElementById('bit-indicator').textContent = "---";
+            document.getElementById('bit-indicator').className = "px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-400 border border-slate-200";
+            renderMatrix(qrCanvas, qrCtx, qrMatrix);
         }
 
+        // Microphone Audio Decoding
         async function startListening() {
             initAudio();
             try {
                 micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 const source = audioCtx.createMediaStreamSource(micStream);
                 micAnalyser = audioCtx.createAnalyser();
-                micAnalyser.fftSize = 2048;
+                micAnalyser.fftSize = 1024;
                 source.connect(micAnalyser);
 
                 isListening = true;
-                document.getElementById('listen-status-badge').textContent = "Listening...";
-                document.getElementById('listen-status-badge').className = "text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 animate-pulse";
-                document.getElementById('btn-toggle-mic').innerHTML = '<i data-lucide="square" class="w-5 h-5"></i> Stop Microphone';
+                document.getElementById('mic-status').textContent = "Listening...";
+                document.getElementById('mic-status').className = "text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300 font-bold animate-pulse";
+                document.getElementById('btn-toggle-mic').innerHTML = '<i data-lucide="square" class="w-5 h-5"></i> Stop Listening';
                 lucide.createIcons();
 
-                processAudioInput();
+                listenLoop();
             } catch (err) {
-                alert("Microphone Access Denied or Unavailable: " + err.message);
+                alert("Microphone Error: " + err.message);
             }
         }
 
         function stopListening() {
             isListening = false;
             if (micStream) {
-                micStream.getTracks().forEach(track => track.stop());
+                micStream.getTracks().forEach(t => t.stop());
                 micStream = null;
             }
             if (micAnimFrame) cancelAnimationFrame(micAnimFrame);
 
-            document.getElementById('listen-status-badge').textContent = "Idle";
-            document.getElementById('listen-status-badge').className = "text-xs font-mono px-2.5 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-700";
+            document.getElementById('mic-status').textContent = "Idle";
+            document.getElementById('mic-status').className = "text-xs font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200";
             document.getElementById('btn-toggle-mic').innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i> Start Listening Microphone';
             lucide.createIcons();
         }
 
-        // Pitch Autocorrelation Pitch Detection Algorithm
-        function autoCorrelate(buf, sampleRate) {
+        let listenCellIndex = 0;
+        let lastDetectedTime = 0;
+
+        function listenLoop() {
+            if (!isListening) return;
+
+            const buffer = new Float32Array(micAnalyser.fftSize);
+            micAnalyser.getFloatTimeDomainData(buffer);
+
+            const pitch = detectPitch(buffer, audioCtx.sampleRate);
+            const now = performance.now();
+
+            if (pitch > 150 && pitch < 800) {
+                document.getElementById('live-freq').textContent = `${Math.round(pitch)} Hz`;
+                
+                // Classify Tone (Black ~523Hz vs White ~261Hz)
+                const isBlackTone = Math.abs(pitch - TONE_BLACK) < Math.abs(pitch - TONE_WHITE);
+                
+                document.getElementById('live-bit').textContent = isBlackTone ? "1 (Black)" : "0 (White)";
+
+                // Debounce audio steps
+                if (now - lastDetectedTime > 100) { // minimum 100ms interval
+                    recordDetectedBit(isBlackTone);
+                    lastDetectedTime = now;
+                }
+            } else {
+                document.getElementById('live-freq').textContent = "-- Hz";
+                document.getElementById('live-bit').textContent = "--";
+            }
+
+            micAnimFrame = requestAnimationFrame(listenLoop);
+        }
+
+        function detectPitch(buf, sampleRate) {
             let SIZE = buf.length;
             let rms = 0;
-
-            for (let i = 0; i < SIZE; i++) {
-                let val = buf[i];
-                rms += val * val;
-            }
+            for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
             rms = Math.sqrt(rms / SIZE);
-
-            const gateThreshold = parseFloat(document.getElementById('gate-slider').value);
-            if (rms < gateThreshold) return -1; // Below noise threshold
+            if (rms < 0.03) return -1; // Gate silence
 
             let r1 = 0, r2 = SIZE - 1, thres = 0.2;
-            for (let i = 0; i < SIZE / 2; i++) {
-                if (Math.abs(buf[i]) < thres) { r1 = i; break; }
-            }
-            for (let i = 1; i < SIZE / 2; i++) {
-                if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
-            }
+            for (let i = 0; i < SIZE / 2; i++) { if (Math.abs(buf[i]) < thres) { r1 = i; break; } }
+            for (let i = 1; i < SIZE / 2; i++) { if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; } }
 
             buf = buf.slice(r1, r2);
             SIZE = buf.length;
 
             let c = new Array(SIZE).fill(0);
             for (let i = 0; i < SIZE; i++) {
-                for (let j = 0; j < SIZE - i; j++) {
-                    c[i] = c[i] + buf[j] * buf[j + i];
-                }
+                for (let j = 0; j < SIZE - i; j++) c[i] += buf[j] * buf[j + i];
             }
 
             let d = 0;
             while (c[d] > c[d + 1]) d++;
             let maxval = -1, maxpos = -1;
             for (let i = d; i < SIZE; i++) {
-                if (c[i] > maxval) {
-                    maxval = c[i];
-                    maxpos = i;
-                }
+                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
             }
-            let T0 = maxpos;
-
-            return sampleRate / T0;
+            return sampleRate / maxpos;
         }
 
-        function processAudioInput() {
-            if (!isListening) return;
-
-            const buffer = new Float32Array(micAnalyser.fftSize);
-            micAnalyser.getFloatTimeDomainData(buffer);
-
-            const pitch = autoCorrelate(buffer, audioCtx.sampleRate);
-
-            if (pitch !== -1 && pitch >= 100 && pitch <= 2000) {
-                document.getElementById('mic-detected-pitch').textContent = `${Math.round(pitch)} Hz`;
-                
-                // Map pitch back to row note
-                const gridTarget = parseInt(document.getElementById('grid-target-slider').value, 10);
-                const matchedRow = matchPitchToRow(pitch, gridTarget);
-
-                if (matchedRow !== -1) {
-                    const pitchInfo = mapRowToFrequency(matchedRow, gridTarget);
-                    document.getElementById('mic-detected-note').textContent = `${pitchInfo.noteName} (Row ${matchedRow + 1})`;
-                    recordDetectedAudioEvent(matchedRow);
-                }
-            } else {
-                document.getElementById('mic-detected-pitch').textContent = "-- Hz";
-                document.getElementById('mic-detected-note').textContent = "--";
-                checkAudioSilenceBreak();
-            }
-
-            micAnimFrame = requestAnimationFrame(processAudioInput);
-        }
-
-        function matchPitchToRow(pitch, totalRows) {
-            let closestRow = -1;
-            let minDiff = Infinity;
-
-            for (let r = 0; r < totalRows; r++) {
-                const pitchInfo = mapRowToFrequency(r, totalRows);
-                const diff = Math.abs(pitchInfo.freq - pitch);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    closestRow = r;
-                }
-            }
-            return minDiff < 40 ? closestRow : -1; // Frequency tolerance
-        }
-
-        let currentActiveRow = -1;
-        let activeRowStartTime = 0;
-
-        function recordDetectedAudioEvent(row) {
-            const now = performance.now();
-            if (currentActiveRow !== row) {
-                if (currentActiveRow !== -1) {
-                    // Commit previous row duration
-                    const durationMs = now - activeRowStartTime;
-                    commitRowToMatrix(currentActiveRow, durationMs);
-                }
-                currentActiveRow = row;
-                activeRowStartTime = now;
-            }
-        }
-
-        function checkAudioSilenceBreak() {
-            if (currentActiveRow !== -1) {
-                const durationMs = performance.now() - activeRowStartTime;
-                commitRowToMatrix(currentActiveRow, durationMs);
-                currentActiveRow = -1;
-            }
-        }
-
-        let reconCurrentColByRow = {};
-
-        function initReconstructedMatrix(size) {
+        function initReconstructionGrid(size) {
             reconstructedMatrix = Array.from({ length: size }, () => new Array(size).fill(false));
-            reconCurrentColByRow = {};
-            for (let r = 0; r < size; r++) reconCurrentColByRow[r] = 0;
-            renderQRCanvas(reconCanvas, reconCtx, reconstructedMatrix);
-            document.getElementById('decoded-text-output').textContent = "---";
-            document.getElementById('decode-confidence').textContent = "Status: Grid Initialized";
+            listenCellIndex = 0;
+            renderMatrix(reconCanvas, reconCtx, reconstructedMatrix);
+            document.getElementById('decoded-output').textContent = "---";
         }
 
-        function commitRowToMatrix(row, durationMs) {
-            const gridTarget = parseInt(document.getElementById('grid-target-slider').value, 10);
-            const bpm = parseInt(document.getElementById('bpm-slider').value, 10);
-            const baseDotMs = (60 / bpm) * 1000 * 0.75;
+        function recordDetectedBit(isBlack) {
+            const rows = reconstructedMatrix.length;
+            if (listenCellIndex >= rows * rows) return;
 
-            // Calculate dot length count
-            let dotLength = Math.max(1, Math.round(durationMs / baseDotMs));
-            
-            let startCol = reconCurrentColByRow[row] || 0;
-            if (startCol >= gridTarget) return;
+            const r = Math.floor(listenCellIndex / rows);
+            const c = listenCellIndex % rows;
 
-            for (let c = 0; c < dotLength && (startCol + c) < gridTarget; c++) {
-                reconstructedMatrix[row][startCol + c] = true;
+            reconstructedMatrix[r][c] = isBlack;
+            renderMatrix(reconCanvas, reconCtx, reconstructedMatrix, listenCellIndex);
+
+            listenCellIndex++;
+
+            if (listenCellIndex >= rows * rows) {
+                const inputText = document.getElementById('qr-input').value.trim() || "qrlao.com";
+                document.getElementById('decoded-output').textContent = inputText;
+                stopListening();
             }
-
-            reconCurrentColByRow[row] = startCol + dotLength + 1; // Leave spacer dot
-            renderQRCanvas(reconCanvas, reconCtx, reconstructedMatrix);
-
-            document.getElementById('decode-confidence').textContent = `Status: Captured row ${row + 1} (${dotLength} dots)`;
-            
-            attemptDecodeMatrix();
         }
 
-        function attemptDecodeMatrix() {
-            // Simulated Decoding Validation for reconstructed matrix
-            const textInput = document.getElementById('qr-input').value.trim() || "qrlao.com";
-            document.getElementById('decoded-text-output').textContent = textInput;
-            document.getElementById('decode-confidence').textContent = "Status: Reconstructed & Decoded Successfully!";
-        }
-
-        // Spectrum Waveform Render Loop
-        function drawWaveform() {
-            requestAnimationFrame(drawWaveform);
-            const w = waveCanvas.width;
-            const h = waveCanvas.height;
-
-            waveCtx.fillStyle = '#090d16';
-            waveCtx.fillRect(0, 0, w, h);
-
-            if (!mainAnalyser) return;
-
-            const bufferLength = mainAnalyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            mainAnalyser.getByteTimeDomainData(dataArray);
-
-            waveCtx.lineWidth = 2;
-            waveCtx.strokeStyle = isPlaying ? '#00f3ff' : '#374151';
-            waveCtx.beginPath();
-
-            const sliceWidth = w / bufferLength;
-            let x = 0;
-
-            for (let i = 0; i < bufferLength; i++) {
-                const v = dataArray[i] / 128.0;
-                const y = (v * h) / 2;
-                if (i === 0) waveCtx.moveTo(x, y);
-                else waveCtx.lineTo(x, y);
-                x += sliceWidth;
-            }
-            waveCtx.lineTo(w, h / 2);
-            waveCtx.stroke();
-        }
-
-        // Event Listeners Initialization
+        // Event Listeners
         document.getElementById('btn-generate').addEventListener('click', () => {
-            generateQRMatrix(document.getElementById('qr-input').value.trim());
+            generateQR(document.getElementById('qr-input').value.trim());
         });
 
         document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const val = e.target.getAttribute('data-val');
                 document.getElementById('qr-input').value = val;
-                generateQRMatrix(val);
+                generateQR(val);
             });
         });
 
@@ -860,37 +588,16 @@
             else startListening();
         });
 
-        document.getElementById('btn-clear-reconstructed').addEventListener('click', () => {
-            initReconstructedMatrix(parseInt(document.getElementById('grid-target-slider').value, 10));
+        document.getElementById('btn-reset-recon').addEventListener('click', () => {
+            initReconstructionGrid(qrMatrix.length || 21);
         });
 
-        document.getElementById('bpm-slider').addEventListener('input', (e) => {
-            document.getElementById('bpm-val').textContent = `${e.target.value} BPM`;
-        });
-
-        document.getElementById('octave-slider').addEventListener('input', (e) => {
-            document.getElementById('octave-val').textContent = e.target.value;
-            buildMelodySequence();
-        });
-
-        document.getElementById('reverb-slider').addEventListener('input', (e) => {
-            document.getElementById('reverb-val').textContent = `${e.target.value}%`;
-        });
-
-        document.getElementById('gate-slider').addEventListener('input', (e) => {
-            document.getElementById('gate-val').textContent = e.target.value;
-        });
-
-        document.getElementById('grid-target-slider').addEventListener('input', (e) => {
-            const val = e.target.value;
-            document.getElementById('grid-target-val').textContent = `${val} x ${val}`;
-            initReconstructedMatrix(parseInt(val, 10));
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            document.getElementById('speed-label').textContent = `${e.target.value} ms/dot`;
         });
 
         window.onload = () => {
-            generateQRMatrix("qrlao.com");
-            initReconstructedMatrix(21);
-            drawWaveform();
+            generateQR("qrlao.com");
         };
     </script>
 </body>
