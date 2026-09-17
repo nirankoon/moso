@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຈັດເກັບບໍລິຫານສື່ມັລຕິມີເດຍ (DAM System)</title>
+    
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for Reports -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #f8fafc;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DIGITAL">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="folder-git-2" class="w-8 h-8 text-indigo-400"></i>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">ລະບົບຈັດເກັບບໍລິຫານສື່ມັລຕິມີເດຍ</h1>
+                        <p class="text-xs text-indigo-300">Digital Asset Management (DAM)</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation Menu -->
+                <nav class="hidden md:flex space-x-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-3 py-2 rounded-md text-sm font-medium bg-indigo-800 text-white flex items-center space-x-2">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        <span>ພາບລວມ</span>
+                    </button>
+                    <button onclick="switchTab('assets')" id="nav-assets" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:bg-indigo-800 hover:text-white flex items-center space-x-2">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                        <span>ຄັງສື່ມັລຕິມີເດຍ</span>
+                    </button>
+                    <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:bg-indigo-800 hover:text-white flex items-center space-x-2">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                        <span>ລາຍງານ</span>
+                    </button>
+                    <button onclick="switchTab('data-mgmt')" id="nav-data-mgmt" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-indigo-200 hover:bg-indigo-800 hover:text-white flex items-center space-x-2">
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                        <span>ຈັດການຂໍ້ມູນ</span>
+                    </button>
+                </nav>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center space-x-1 transition shadow">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>ເພີ່ມສື່ໃໝ່</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu Bar -->
+        <div class="md:hidden border-t border-indigo-800 bg-indigo-950 flex justify-around p-2 text-xs text-indigo-200">
+            <button onclick="switchTab('dashboard')" class="flex flex-col items-center py-1">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mb-1"></i>
+                <span>ພາບລວມ</span>
+            </button>
+            <button onclick="switchTab('assets')" class="flex flex-col items-center py-1">
+                <i data-lucide="image" class="w-5 h-5 mb-1"></i>
+                <span>ຄັງສື່</span>
+            </button>
+            <button onclick="switchTab('reports')" class="flex flex-col items-center py-1">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 mb-1"></i>
+                <span>ລາຍງານ</span>
+            </button>
+            <button onclick="switchTab('data-mgmt')" class="flex flex-col items-center py-1">
+                <i data-lucide="database" class="w-5 h-5 mb-1"></i>
+                <span>ຈັດການ</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tab-dashboard" class="tab-content active space-y-6">
+            <!-- Summary Stat Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-blue-100 text-blue-600 rounded-lg">
+                        <i data-lucide="files" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">ສື່ທັງໝົດ</p>
+                        <h3 id="stat-total" class="text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg">
+                        <i data-lucide="image" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">ຮູບພາບກິດຈະກຳ</p>
+                        <h3 id="stat-images" class="text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-purple-100 text-purple-600 rounded-lg">
+                        <i data-lucide="video" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">ວິດີໂອ</p>
+                        <h3 id="stat-videos" class="text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-amber-100 text-amber-600 rounded-lg">
+                        <i data-lucide="award" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">ໂລໂກ້ & PR</p>
+                        <h3 id="stat-pr" class="text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Search Bar -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <i data-lucide="search" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" id="dash-search-input" oninput="handleDashSearch()" placeholder="ຄົ້ນຫາຕາມຊື່, ຄໍາຄົ້ນ (Keywords), ຫຼື ແທັກ (Tags)..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <button onclick="switchTab('assets')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
+                        ເບິ່ງສື່ທັງໝົດ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Assets Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                        <i data-lucide="clock" class="w-5 h-5 text-indigo-600"></i>
+                        <span>ສື່ທີ່ເພີ່ມລ່າສຸດ</span>
+                    </h2>
+                </div>
+                <div id="recent-assets-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: ASSET LIBRARY -->
+        <section id="tab-assets" class="tab-content space-y-6">
+            <!-- Filter & Search Controls -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="relative">
+                        <i data-lucide="search" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" id="filter-search" oninput="renderAssetLibrary()" placeholder="ຄົ້ນຫາຊື່, ແທັກ, ຄໍາຄົ້ນ..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                    </div>
+                    <div>
+                        <select id="filter-category" onchange="renderAssetLibrary()" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm bg-white">
+                            <option value="ALL">ໝວດໝູ່ທັງໝົດ</option>
+                            <option value="ຮູບພາບ">ຮູບພາບກິດຈະກຳ</option>
+                            <option value="ວິດີໂອ">ວິດີໂອ</option>
+                            <option value="ໂລໂກ້">ໂລໂກ້ (Logo)</option>
+                            <option value="ອຸປະກອນ PR">ອຸປະກອນ PR / ສື່ໂຄສະນາ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filter-sort" onchange="renderAssetLibrary()" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm bg-white">
+                            <option value="newest">ລ່າສຸດ -> ເກົ່າສຸດ</option>
+                            <option value="oldest">ເກົ່າສຸດ -> ລ່າສຸດ</option>
+                            <option value="title">ຕາມຊື່ (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assets Grid -->
+            <div id="library-assets-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Dynamic Content -->
+            </div>
+        </section>
+
+        <!-- TAB 3: REPORTS -->
+        <section id="tab-reports" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">ລາຍງານສະຖິຕິການຈັດເກັບສື່</h2>
+                    <p class="text-xs text-slate-500">ສະຫຼຸບຂໍ້ມູນການອັບໂຫຼດ ແລະ ປະເພດສື່ໃນລະບົບ</p>
+                </div>
+                <!-- Time Filters -->
+                <div class="flex bg-slate-100 p-1 rounded-lg text-xs font-medium">
+                    <button onclick="setReportTimeframe('daily')" id="btn-rep-daily" class="rep-tf-btn px-3 py-1.5 rounded-md bg-white text-slate-800 shadow-sm">ປະຈຳວັນ</button>
+                    <button onclick="setReportTimeframe('weekly')" id="btn-rep-weekly" class="rep-tf-btn px-3 py-1.5 rounded-md text-slate-600">ປະຈຳອາທິດ</button>
+                    <button onclick="setReportTimeframe('monthly')" id="btn-rep-monthly" class="rep-tf-btn px-3 py-1.5 rounded-md text-slate-600">ປະຈຳເດືອນ</button>
+                    <button onclick="setReportTimeframe('yearly')" id="btn-rep-yearly" class="rep-tf-btn px-3 py-1.5 rounded-md text-slate-600">ປະຈຳປີ</button>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart 1: Category Distribution -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-700 mb-4">ສະຖິຕິແຍກຕາມໝວດໝູ່ສື່</h3>
+                    <div class="h-64 flex justify-center items-center">
+                        <canvas id="chartCategory"></canvas>
+                    </div>
+                </div>
+                <!-- Chart 2: Time Breakdown -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 id="report-chart-title" class="text-sm font-bold text-slate-700 mb-4">ຈຳນວນສື່ທີ່ຖືກເພີ່ມເຂົ້າລະບົບ</h3>
+                    <div class="h-64 flex justify-center items-center">
+                        <canvas id="chartTimeline"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table Report -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-800">ຕາຕະລາງສະຫຼຸບລາຍງານ (<span id="report-period-text">ປະຈຳວັນ</span>)</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 uppercase border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">ຊື່ສື່</th>
+                                <th class="p-3">ໝວດໝູ່</th>
+                                <th class="p-3">ແທັກ (Tags)</th>
+                                <th class="p-3">ວັນທີເພີ່ມ</th>
+                                <th class="p-3">ຂະໜາດ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body" class="divide-y divide-slate-100">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: DATA MANAGEMENT (Import/Export/Clear) -->
+        <section id="tab-data-mgmt" class="tab-content space-y-6">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl mx-auto space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 mb-1">ຈັດການຂໍ້ມູນ (Data Management)</h2>
+                    <p class="text-xs text-slate-500">ຂໍ້ມູນທັງໝົດຖືກຈັດເກັບຢູ່ໃນ Web Browser local storage ຂອງເຄື່ອງນີ້ (PC / Mobile)</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <!-- Export Box -->
+                    <div class="border border-indigo-100 bg-indigo-50/50 p-4 rounded-xl flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex items-center space-x-2 text-indigo-700 font-semibold mb-1">
+                                <i data-lucide="download" class="w-5 h-5"></i>
+                                <span>ສົ່ງອອກຂໍ້ມູນ (Export Data)</span>
+                            </div>
+                            <p class="text-xs text-slate-600">ດາວໂຫຼດຂໍ້ມູນສື່ທັງໝົດອອກເປັນໄຟລ໌ JSON ສຳລັບການສຳຮອງ (Backup).</p>
+                        </div>
+                        <button onclick="exportData()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg text-xs font-medium transition flex justify-center items-center space-x-2">
+                            <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                            <span>ດາວໂຫຼດ JSON</span>
+                        </button>
+                    </div>
+
+                    <!-- Import Box -->
+                    <div class="border border-emerald-100 bg-emerald-50/50 p-4 rounded-xl flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex items-center space-x-2 text-emerald-700 font-semibold mb-1">
+                                <i data-lucide="upload" class="w-5 h-5"></i>
+                                <span>ນຳເຂົ້າຂໍ້ມູນ (Import Data)</span>
+                            </div>
+                            <p class="text-xs text-slate-600">ເລືອກໄຟລ໌ JSON ທີ່ເຄີຍສົ່ງອອກໄວ້ ເພື່ອນຳເຂົ້າຂໍ້ມູນຄືນມາ.</p>
+                        </div>
+                        <div>
+                            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)">
+                            <button onclick="document.getElementById('import-file').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg text-xs font-medium transition flex justify-center items-center space-x-2">
+                                <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                                <span>ເລືອກໄຟລ໌ JSON</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200">
+
+                <!-- Clear Data Zone -->
+                <div class="border border-rose-200 bg-rose-50/50 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-rose-700 flex items-center space-x-1">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            <span>ລ້າງຂໍ້ມູນທັງໝົດ (Clear All Data)</span>
+                        </h4>
+                        <p class="text-xs text-slate-600 mt-0.5">ລົບຂໍ້ມູນສື່ທັງໝົດອອກຈາກເຄື່ອງຂອງທ່ານ. ການກະທຳນີ້ບໍ່ສາມາດຍົກເລີກໄດ້!</p>
+                    </div>
+                    <button onclick="confirmClearAll()" class="w-full md:w-auto whitespace-nowrap bg-rose-600 hover:bg-rose-700 text-white py-2 px-4 rounded-lg text-xs font-medium transition flex justify-center items-center space-x-1">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>ລ້າງຂໍ້ມູນທັງໝົດ</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            ລະບົບຈັດເກັບບໍລິຫານສື່ມັລຕິມີເດຍ (DAM System) &copy; 2026 - ຈັດເກັບຂໍ້ມູນ Local Storage ໃນເຄື່ອງ PC & Mobile
+        </div>
+    </footer>
+
+    <!-- ADD / EDIT MODAL -->
+    <div id="asset-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all my-8">
+            <div class="bg-indigo-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-base flex items-center space-x-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    <span>ເພີ່ມສື່ໃໝ່</span>
+                </h3>
+                <button onclick="closeModal()" class="text-indigo-200 hover:text-white transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="asset-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="asset-id">
+
+                <!-- Title -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">ຫົວຂໍ້ສື່ <span class="text-red-500">*</span></label>
+                    <input type="text" id="form-title" required placeholder="ຕົວຢ່າງ: ຮູບພາບງານເປີດໂຕໂຄງການ 2026" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">ໝວດໝູ່ <span class="text-red-500">*</span></label>
+                    <select id="form-category" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                        <option value="ຮູບພາບ">ຮູບພາບກິດຈະກຳ</option>
+                        <option value="ວິດີໂອ">ວິດີໂອ</option>
+                        <option value="ໂລໂກ້">ໂລໂກ້ (Logo)</option>
+                        <option value="ອຸປະກອນ PR">ອຸປະກອນ PR / ສື່ໂຄສະນາ</option>
+                    </select>
+                </div>
+
+                <!-- Image URL or Upload -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">ຮູບພາບ / Preview URL (ຫຼື ອັບໂຫຼດ)</label>
+                    <div class="space-y-2">
+                        <input type="url" id="form-url" placeholder="https://example.com/image.jpg" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-slate-400">ຫຼື</span>
+                            <input type="file" id="form-file-input" accept="image/*" onchange="handleFileUpload(event)" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">ແທັກ / Tags (ຄັ່ນດ້ວຍເຄື່ອງໝາຍ ໝາຍຈຸດ ",")</label>
+                    <input type="text" id="form-tags" placeholder="ຕົວຢ່າງ: PR, ງານເປີດໂຕ, 2026" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- Keywords -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">ຄໍາຄົ້ນ / Keywords (ຄັ່ນດ້ວຍເຄື່ອງໝາຍ ໝາຍຈຸດ ",")</label>
+                    <input type="text" id="form-keywords" placeholder="ຕົວຢ່າງ: ໂຄງການ, ບໍລິສັດ, ຮູບພາບ" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">ລາຍລະອຽດເພີ່ມເຕີມ</label>
+                    <textarea id="form-description" rows="2" placeholder="ອະທິບາຍລາຍລະອຽດຂອງສື່ນີ້..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition">
+                        ຍົກເລີກ
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition shadow">
+                        ບັນທຶກ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VIEW ASSET DETAIL MODAL -->
+    <div id="view-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden my-8">
+            <div id="view-modal-content">
+                <!-- Dynamic View Details -->
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center">
+                <span id="view-created-at" class="text-xs text-slate-400"></span>
+                <button onclick="closeViewModal()" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-medium transition">
+                    ອັດໜ້າຕ່າງ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // STORAGE KEY
+        const STORAGE_KEY = 'DAM_ASSETS_DATA_V1';
+
+        <!-- SAMPLE DATA FOR FIRST INITIALIZATION -->
+        const initialSampleData = [
+            {
+                id: 'dam-101',
+                title: 'ຮູບພາບງານເປີດໂຕບໍລິສັດ ປີ 2026',
+                category: 'ຮູບພາບ',
+                url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=600&q=80',
+                tags: ['ງານເປີດໂຕ', 'ບໍລິສັດ', '2026'],
+                keywords: 'ເປີດໂຕ, ປະທານ, ພິທີ',
+                description: 'ຮູບພາບການຕັດແຖບຜ້າສີໃນງານເປີດໂຕບໍລິສັດ ປະຈຳປີ 2026',
+                fileType: 'JPG',
+                fileSize: '2.5 MB',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'dam-102',
+                title: 'ວິດີໂອແນະນຳອົງກອນ (Corporate Intro Video)',
+                category: 'ວິດີໂອ',
+                url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=600&q=80',
+                tags: ['ວິດີໂອ', 'PR', 'ອົງກອນ'],
+                keywords: 'ແນະນຳ, ວິດີໂອ, ໂປຣໂມດ',
+                description: 'ວິດີໂອຄວາມຍາວ 3 ນາທີ ແນະນຳປະຫວັດ ແລະ ວິໄສທັດຂອງອົງກອນ',
+                fileType: 'MP4',
+                fileSize: '45.0 MB',
+                createdAt: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                id: 'dam-103',
+                title: 'ໂລໂກ້ບໍລິສັດ HQ (PNG HD)',
+                category: 'ໂລໂກ້',
+                url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+                tags: ['ໂລໂກ້', 'Brand', 'HQ'],
+                keywords: 'logo, vector, png, ໂລໂກ້',
+                description: 'ໂລໂກ້ຫຼັກຂອງບໍລິສັດ ພື້ນຫຼັງໂປ່ງໃສ ສຳລັບງານພິມ ແລະ ເວັບໄຊ',
+                fileType: 'PNG',
+                fileSize: '1.2 MB',
+                createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
+            },
+            {
+                id: 'dam-104',
+                title: 'ໂປຣໂຊຣ໌ປະຊາສຳພັນ 2026',
+                category: 'ອຸປະກອນ PR',
+                url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=600&q=80',
+                tags: ['PR', 'Brochure', 'ການຕະຫຼາດ'],
+                keywords: 'ໃບປິວ, ໂປຣໂມຊັ່ນ, PR',
+                description: 'ແຜ່ນພັບປະຊາສຳພັນສິນຄ້າ ແລະ ບໍລິການໃໝ່',
+                fileType: 'PDF',
+                fileSize: '8.4 MB',
+                createdAt: new Date(Date.now() - 86400000 * 7).toISOString()
+            }
+        ];
+
+        // Global State
+        let assets = [];
+        let currentReportTimeframe = 'daily';
+        let chartCategoryInstance = null;
+        let chartTimelineInstance = null;
+
+        // Init App
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            lucide.createIcons();
+            updateStats();
+            renderRecentAssets();
+            renderAssetLibrary();
+            initCharts();
+        });
+
+        // LocalStorage Helpers
+        function loadData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    assets = JSON.parse(stored);
+                } catch (e) {
+                    assets = initialSampleData;
+                    saveData();
+                }
+            } else {
+                assets = initialSampleData;
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(assets));
+            updateStats();
+            renderRecentAssets();
+            renderAssetLibrary();
+            renderReports();
+        }
+
+        // Tab Navigation
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-800', 'text-white');
+                btn.classList.add('text-indigo-200');
+            });
+
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            if (activeTab) activeTab.classList.add('active');
+
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-indigo-800', 'text-white');
+                activeBtn.classList.remove('text-indigo-200');
+            }
+
+            if (tabName === 'reports') {
+                renderReports();
+            }
+        }
+
+        // Stats Update
+        function updateStats() {
+            document.getElementById('stat-total').innerText = assets.length;
+            document.getElementById('stat-images').innerText = assets.filter(a => a.category === 'ຮູບພາບ').length;
+            document.getElementById('stat-videos').innerText = assets.filter(a => a.category === 'ວິດີໂອ').length;
+            document.getElementById('stat-pr').innerText = assets.filter(a => a.category === 'ໂລໂກ້' || a.category === 'ອຸປະກອນ PR').length;
+        }
+
+        // Card Render Helper
+        function createAssetCardHtml(item) {
+            const categoryColors = {
+                'ຮູບພາບ': 'bg-emerald-100 text-emerald-800',
+                'ວິດີໂອ': 'bg-purple-100 text-purple-800',
+                'ໂລໂກ້': 'bg-amber-100 text-amber-800',
+                'ອຸປະກອນ PR': 'bg-blue-100 text-blue-800'
+            };
+
+            const tagsHtml = item.tags.map(tag => 
+                `<span class="inline-block bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded-full">#${tag.trim()}</span>`
+            ).join(' ');
+
+            const defaultImg = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80';
+
+            return `
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        <div class="relative h-40 bg-slate-100 overflow-hidden group">
+                            <img src="${item.url || defaultImg}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='${defaultImg}'">
+                            <span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-1 rounded-md shadow ${categoryColors[item.category] || 'bg-slate-100'}">
+                                ${item.category}
+                            </span>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h4 class="font-bold text-sm text-slate-800 line-clamp-1" title="${item.title}">${item.title}</h4>
+                            <p class="text-xs text-slate-500 line-clamp-2">${item.description || 'ບໍ່ມີລາຍລະອຽດ'}</p>
+                            <div class="flex flex-wrap gap-1 pt-1">
+                                ${tagsHtml}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-slate-400 font-mono text-[10px]">${new Date(item.createdAt).toLocaleDateString('lo-LA')}</span>
+                        <div class="flex space-x-1">
+                            <button onclick="openViewModal('${item.id}')" title="ເບິ່ງລາຍລະອຽດ" class="p-1.5 hover:bg-slate-200 text-slate-600 rounded transition">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="openModal('${item.id}')" title="ແກ້ໄຂ" class="p-1.5 hover:bg-indigo-100 text-indigo-600 rounded transition">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteAsset('${item.id}')" title="ລົບ" class="p-1.5 hover:bg-rose-100 text-rose-600 rounded transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Recent Assets (Dashboard)
+        function renderRecentAssets() {
+            const grid = document.getElementById('recent-assets-grid');
+            const recent = [...assets].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4);
+            
+            if (recent.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 text-xs col-span-full py-8 text-center">ບໍ່ມີຂໍ້ມູນສື່ໃນລະບົບ</p>`;
+                return;
+            }
+
+            grid.innerHTML = recent.map(item => createAssetCardHtml(item)).join('');
+            lucide.createIcons();
+        }
+
+        // Render Asset Library (With Filters)
+        function renderAssetLibrary() {
+            const grid = document.getElementById('library-assets-grid');
+            const searchVal = (document.getElementById('filter-search')?.value || '').toLowerCase();
+            const catVal = document.getElementById('filter-category')?.value || 'ALL';
+            const sortVal = document.getElementById('filter-sort')?.value || 'newest';
+
+            let filtered = assets.filter(item => {
+                const matchSearch = item.title.toLowerCase().includes(searchVal) ||
+                                    item.tags.some(t => t.toLowerCase().includes(searchVal)) ||
+                                    (item.keywords && item.keywords.toLowerCase().includes(searchVal));
+                const matchCat = catVal === 'ALL' || item.category === catVal;
+                return matchSearch && matchCat;
+            });
+
+            // Sorting
+            if (sortVal === 'newest') {
+                filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            } else if (sortVal === 'oldest') {
+                filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            } else if (sortVal === 'title') {
+                filtered.sort((a, b) => a.title.localeCompare(b.title));
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-sm">ບໍ່ພົບຂໍ້ມູນສື່ທີ່ກົງກັບຄຳຄົ້ນຫາ</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => createAssetCardHtml(item)).join('');
+            lucide.createIcons();
+        }
+
+        function handleDashSearch() {
+            const val = document.getElementById('dash-search-input').value;
+            const libSearch = document.getElementById('filter-search');
+            if (libSearch) libSearch.value = val;
+            switchTab('assets');
+        }
+
+        // Modal Controls (Add/Edit)
+        function openModal(id = null) {
+            const modal = document.getElementById('asset-modal');
+            const titleEl = document.getElementById('modal-title');
+            const form = document.getElementById('asset-form');
+
+            form.reset();
+            document.getElementById('asset-id').value = '';
+
+            if (id) {
+                const item = assets.find(a => a.id === id);
+                if (item) {
+                    titleEl.innerHTML = `<i data-lucide="edit" class="w-5 h-5"></i> <span>ແກ້ໄຂຂໍ້ມູນສື່</span>`;
+                    document.getElementById('asset-id').value = item.id;
+                    document.getElementById('form-title').value = item.title;
+                    document.getElementById('form-category').value = item.category;
+                    document.getElementById('form-url').value = item.url;
+                    document.getElementById('form-tags').value = item.tags.join(', ');
+                    document.getElementById('form-keywords').value = item.keywords || '';
+                    document.getElementById('form-description').value = item.description || '';
+                }
+            } else {
+                titleEl.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5"></i> <span>ເພີ່ມສື່ໃໝ່</span>`;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('asset-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                document.getElementById('form-url').value = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('asset-id').value;
+            const title = document.getElementById('form-title').value;
+            const category = document.getElementById('form-category').value;
+            const url = document.getElementById('form-url').value;
+            const tagsRaw = document.getElementById('form-tags').value;
+            const keywords = document.getElementById('form-keywords').value;
+            const description = document.getElementById('form-description').value;
+
+            const tags = tagsRaw.split(',').map(t => t.trim()).filter(t => t.length > 0);
+
+            if (id) {
+                // Edit
+                const index = assets.findIndex(a => a.id === id);
+                if (index !== -1) {
+                    assets[index] = {
+                        ...assets[index],
+                        title,
+                        category,
+                        url,
+                        tags,
+                        keywords,
+                        description
+                    };
+                }
+            } else {
+                // Add New
+                const newItem = {
+                    id: 'dam-' + Date.now(),
+                    title,
+                    category,
+                    url: url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+                    tags: tags.length ? tags : ['General'],
+                    keywords,
+                    description,
+                    fileType: category === 'ຮູບພາບ' ? 'JPG' : category === 'ວິດີໂອ' ? 'MP4' : 'FILE',
+                    fileSize: '1.5 MB',
+                    createdAt: new Date().toISOString()
+                };
+                assets.unshift(newItem);
+            }
+
+            saveData();
+            closeModal();
+        }
+
+        function deleteAsset(id) {
+            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລົບສື່ນີ້?')) {
+                assets = assets.filter(a => a.id !== id);
+                saveData();
+            }
+        }
+
+        // View Modal Detail
+        function openViewModal(id) {
+            const item = assets.find(a => a.id === id);
+            if (!item) return;
+
+            const content = document.getElementById('view-modal-content');
+            const defaultImg = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80';
+
+            content.innerHTML = `
+                <div class="relative bg-black h-64 flex items-center justify-center overflow-hidden">
+                    <img src="${item.url || defaultImg}" class="max-h-full max-w-full object-contain" onerror="this.src='${defaultImg}'">
+                </div>
+                <div class="p-6 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-100 text-indigo-800">${item.category}</span>
+                        <span class="text-xs text-slate-400">ID: ${item.id}</span>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-800">${item.title}</h2>
+                    <p class="text-xs text-slate-600 leading-relaxed">${item.description || 'ບໍ່ມີລາຍລະອຽດກຳນົດໄວ້'}</p>
+                    
+                    <div class="pt-2">
+                        <p class="text-xs font-bold text-slate-700 mb-1">ຄຳຄົ້ນ (Keywords):</p>
+                        <p class="text-xs text-slate-500">${item.keywords || '-'}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-bold text-slate-700 mb-1">ແທັກ (Tags):</p>
+                        <div class="flex flex-wrap gap-1">
+                            ${item.tags.map(t => `<span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">#${t}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('view-created-at').innerText = 'ວັນທີເພີ່ມ: ' + new Date(item.createdAt).toLocaleString('lo-LA');
+            
+            const modal = document.getElementById('view-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeViewModal() {
+            const modal = document.getElementById('view-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Reports Feature
+        function setReportTimeframe(tf) {
+            currentReportTimeframe = tf;
+            document.querySelectorAll('.rep-tf-btn').forEach(b => {
+                b.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+                b.classList.add('text-slate-600');
+            });
+            
+            const activeBtn = document.getElementById(`btn-rep-${tf}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            renderReports();
+        }
+
+        function initCharts() {
+            // Chart 1: Categories Doughnut
+            const ctx1 = document.getElementById('chartCategory').getContext('2d');
+            chartCategoryInstance = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ຮູບພາບ', 'ວິດີໂອ', 'ໂລໂກ້', 'ອຸປະກອນ PR'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#10b981', '#a855f7', '#f59e0b', '#3b82f6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Chart 2: Timeline Bar
+            const ctx2 = document.getElementById('chartTimeline').getContext('2d');
+            chartTimelineInstance = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'ຈຳນວນສື່',
+                        data: [],
+                        backgroundColor: '#6366f1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        function renderReports() {
+            if (!chartCategoryInstance || !chartTimelineInstance) return;
+
+            // Filter Assets based on Timeframe
+            const now = new Date();
+            let filtered = assets.filter(item => {
+                const itemDate = new Date(item.createdAt);
+                if (currentReportTimeframe === 'daily') {
+                    return itemDate.toDateString() === now.toDateString();
+                } else if (currentReportTimeframe === 'weekly') {
+                    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return itemDate >= oneWeekAgo;
+                } else if (currentReportTimeframe === 'monthly') {
+                    return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                } else if (currentReportTimeframe === 'yearly') {
+                    return itemDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+
+            // Update Doughnut Chart
+            const counts = {
+                'ຮູບພາບ': filtered.filter(a => a.category === 'ຮູບພາບ').length,
+                'ວິດີໂອ': filtered.filter(a => a.category === 'ວິດີໂອ').length,
+                'ໂລໂກ້': filtered.filter(a => a.category === 'ໂລໂກ້').length,
+                'ອຸປະກອນ PR': filtered.filter(a => a.category === 'ອຸປະກອນ PR').length
+            };
+            chartCategoryInstance.data.datasets[0].data = [counts['ຮູບພາບ'], counts['ວິດີໂອ'], counts['ໂລໂກ້'], counts['ອຸປະກອນ PR']];
+            chartCategoryInstance.update();
+
+            // Update Timeline Chart & Table
+            let labels = [];
+            let dataPoints = [];
+
+            if (currentReportTimeframe === 'daily') {
+                labels = ['00:00', '06:00', '12:00', '18:00', '23:59'];
+                dataPoints = [0, filtered.length, 0, 0, 0];
+                document.getElementById('report-period-text').innerText = 'ປະຈຳວັນ (ວັນນີ້)';
+            } else if (currentReportTimeframe === 'weekly') {
+                labels = ['ຈັນ', 'ອັງຄານ', 'ພຸດ', 'ພະຫັດ', 'ສຸກ', 'ເສົາ', 'ອາທິດ'];
+                dataPoints = [1, 2, 0, filtered.length, 0, 0, 0];
+                document.getElementById('report-period-text').innerText = 'ປະຈຳອາທິດ (7 ວັນຜ່ານມາ)';
+            } else if (currentReportTimeframe === 'monthly') {
+                labels = ['ອາທິດ 1', 'ອາທິດ 2', 'ອາທິດ 3', 'ອາທິດ 4'];
+                dataPoints = [filtered.length, 0, 0, 0];
+                document.getElementById('report-period-text').innerText = 'ປະຈຳເດືອນນີ້';
+            } else {
+                labels = ['ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ', 'ພຶດສະພາ', 'ມິຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ', 'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'];
+                dataPoints = labels.map((_, idx) => assets.filter(a => new Date(a.createdAt).getMonth() === idx).length);
+                document.getElementById('report-period-text').innerText = 'ປະຈຳປີ ' + now.getFullYear();
+            }
+
+            chartTimelineInstance.data.labels = labels;
+            chartTimelineInstance.data.datasets[0].data = dataPoints;
+            chartTimelineInstance.update();
+
+            // Render Table
+            const tbody = document.getElementById('report-table-body');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ບໍ່ມີຂໍ້ມູນລາຍງານໃນช่วงເວລານີ້</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(item => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-medium text-slate-800">${item.title}</td>
+                        <td class="p-3">${item.category}</td>
+                        <td class="p-3 text-slate-500">${item.tags.join(', ')}</td>
+                        <td class="p-3 text-slate-400 font-mono">${new Date(item.createdAt).toLocaleDateString('lo-LA')}</td>
+                        <td class="p-3 text-slate-400">${item.fileSize || 'N/A'}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Data Import/Export/Clear
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assets, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `dam_assets_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        assets = imported;
+                        saveData();
+                        alert('ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌ JSON');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmClearAll() {
+            if (confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລົບຂໍ້ມູນທັງໝົດໃນລະບົບ? ຂໍ້ມູນຈະຖືກລົບຖາວອນ!')) {
+                assets = [];
+                saveData();
+                alert('ລ້າງຂໍ້ມູນທັງໝົດຮຽບຮ້ອຍແລ້ວ');
+            }
+        }
+    </script>
+</body>
+</html>
