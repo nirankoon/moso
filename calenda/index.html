@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pixel Calendar - Retro PWA</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts: Silkscreen for Retro Headers & Inter for crisp readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            pixel: ['Silkscreen', 'cursive'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            pixel: {
+              bg: '#1a1c23',
+              card: '#24283b',
+              accent: '#ff9e64',
+              pink: '#f7768e',
+              purple: '#bb9af7',
+              blue: '#7aa2f7',
+              green: '#9ece6a',
+              yellow: '#e0af68',
+              border: '#414868'
+            }
+          },
+          keyframes: {
+            shake: {
+              '0%, 100%': { transform: 'translateX(0)' },
+              '20%, 60%': { transform: 'translateX(-4px) translateY(2px)' },
+              '40%, 80%': { transform: 'translateX(4px) translateY(-2px)' },
+            },
+            portalPulse: {
+              '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 15px rgba(187,154,247,0.4)' },
+              '50%': { transform: 'scale(1.03)', boxShadow: '0 0 30px rgba(187,154,247,0.8)' },
+            },
+            squashBounce: {
+              '0%': { transform: 'scale(1, 1)' },
+              '30%': { transform: 'scale(1.25, 0.75)' },
+              '50%': { transform: 'scale(0.85, 1.15)' },
+              '70%': { transform: 'scale(1.05, 0.95)' },
+              '100%': { transform: 'scale(1, 1)' },
+            }
+          },
+          animation: {
+            shake: 'shake 0.3s ease-in-out',
+            portal: 'portalPulse 1.5s infinite ease-in-out',
+            squash: 'squashBounce 0.4s ease-out',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Retro Pixelated Aesthetics */
+    .pixel-border {
+      box-shadow: 
+        0 -4px 0 -2px #1a1c23,
+        0 4px 0 -2px #1a1c23,
+        -4px 0 0 -2px #1a1c23,
+        4px 0 0 -2px #1a1c23,
+        0 0 0 2px #414868;
+    }
+    
+    .pixel-btn {
+      position: relative;
+      transition: all 0.1s ease;
+      box-shadow: inset -3px -3px 0px rgba(0,0,0,0.4), inset 3px 3px 0px rgba(255,255,255,0.2);
+    }
+    .pixel-btn:active {
+      transform: translateY(2px);
+      box-shadow: inset 2px 2px 0px rgba(0,0,0,0.5);
+    }
+
+    /* Dragging game state effects */
+    .dragging-event {
+      opacity: 0.85;
+      scale: 1.08;
+      rotate: 4deg;
+      box-shadow: 0 10px 25px -5px rgba(247, 118, 142, 0.6), 0 0 15px rgba(255, 158, 100, 0.8);
+      cursor: grabbing !important;
+      border: 2px dashed #ff9e64 !important;
+      z-index: 1000 !important;
+      animation: pulseAura 0.8s infinite alternate;
+    }
+
+    @keyframes pulseAura {
+      from { filter: drop-shadow(0 0 4px #7aa2f7); }
+      to { filter: drop-shadow(0 0 12px #bb9af7); }
+    }
+
+    /* Target Dropzone Glow */
+    .drag-over-slot {
+      background-color: rgba(122, 162, 247, 0.25) !important;
+      border: 2px dashed #7aa2f7 !important;
+      transform: scale(1.02);
+      transition: all 0.15s ease;
+    }
+
+    /* Particle Canvas Overlay */
+    #fxCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1a1c23; }
+    ::-webkit-scrollbar-thumb { background: #414868; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #7aa2f7; }
+  </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CALENDA">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="h-full flex flex-col font-sans bg-pixel-bg text-slate-100 overflow-x-hidden selection:bg-pixel-accent selection:text-slate-900">
+
+  <!-- Fullscreen Particle Animation FX Canvas -->
+  <canvas id="fxCanvas"></canvas>
+
+  <header class="bg-pixel-card border-b border-pixel-border px-4 py-3 sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 bg-pixel-accent text-slate-900 flex items-center justify-center font-pixel font-bold text-lg rounded shadow-md border-2 border-slate-900">
+            PX
+          </div>
+          <div>
+            <h1 class="font-pixel text-lg text-pixel-accent tracking-wider">PIXEL CALENDAR</h1>
+            <p class="text-xs text-slate-400 font-medium flex items-center gap-1">
+              <i data-lucide="map-pin" class="w-3 h-3 text-pixel-pink"></i> Vientiane, Laos (GMT+7)
+            </p>
+          </div>
+        </div>
+
+        <!-- Mobile View Switcher trigger or PWA status -->
+        <div class="sm:hidden flex items-center gap-2">
+          <button id="quickAddBtnMobile" class="p-2 bg-pixel-green text-slate-900 rounded font-pixel text-xs flex items-center gap-1 font-bold">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation & View Toggles -->
+      <div class="flex items-center gap-2 flex-wrap justify-center w-full sm:w-auto">
+        
+        <!-- Main Mode Switcher: My Calendar vs Shared Feed -->
+        <div class="bg-slate-900/80 p-1 rounded-lg border border-pixel-border flex items-center gap-1">
+          <button id="viewMyCalBtn" onclick="switchMainTab('my')" class="px-3 py-1.5 rounded text-xs font-pixel flex items-center gap-1.5 transition-all bg-pixel-blue text-slate-900 font-bold shadow">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> My Calendar
+          </button>
+          <button id="viewSharedCalBtn" onclick="switchMainTab('shared')" class="px-3 py-1.5 rounded text-xs font-pixel flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i> Shared Feeds
+            <span id="sharedBadge" class="bg-pixel-pink text-slate-900 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-0.5">3</span>
+          </button>
+        </div>
+
+        <!-- Calendar Display Modes (Month, Week, Day, Excel) -->
+        <div id="calendarDisplayModes" class="bg-slate-900/80 p-1 rounded-lg border border-pixel-border flex items-center gap-1">
+          <button onclick="changeViewMode('month')" id="btnViewMonth" class="px-2.5 py-1.5 rounded text-xs font-medium text-pixel-accent bg-pixel-card border border-pixel-accent/40">Month</button>
+          <button onclick="changeViewMode('week')" id="btnViewWeek" class="px-2.5 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-slate-200">Week</button>
+          <button onclick="changeViewMode('day')" id="btnViewDay" class="px-2.5 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-slate-200">Day</button>
+          <button onclick="changeViewMode('excel')" id="btnViewExcel" class="px-2.5 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-slate-200 flex items-center gap-1">
+            <i data-lucide="table" class="w-3 h-3 text-pixel-green"></i> Excel
+          </button>
+        </div>
+
+      </div>
+
+      <!-- User Profile & Settings -->
+      <div class="hidden lg:flex items-center gap-3">
+        <button onclick="exportCalendarData()" class="p-2 text-slate-400 hover:text-pixel-accent transition" title="Export iCal / JSON">
+          <i data-lucide="download" class="w-4 h-4"></i>
+        </button>
+        <button onclick="triggerImportJSON()" class="p-2 text-slate-400 hover:text-pixel-green transition" title="Import JSON / iCal">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+        </button>
+        <input type="file" id="importFileInput" class="hidden" accept=".json,.ics" onchange="handleFileImport(event)" />
+
+        <div class="flex items-center gap-2 pl-2 border-l border-pixel-border">
+          <div class="w-8 h-8 rounded-full bg-pixel-purple flex items-center justify-center font-bold text-slate-900 text-xs border border-slate-900">
+            LA
+          </div>
+          <div class="text-xs">
+            <div class="font-bold text-slate-200">Lao Developer</div>
+            <div class="text-[10px] text-pixel-green">● Online</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Dynamic Warp Drop Zone (Reveals on drag upward) -->
+  <div id="warpPortalZone" class="fixed top-16 left-1/2 -translate-x-1/2 z-30 hidden transition-all duration-300">
+    <div id="portalContainer" class="px-8 py-3 rounded-2xl bg-slate-900/90 border-2 border-pixel-purple shadow-2xl flex items-center gap-3 backdrop-blur-md animate-portal">
+      <i data-lucide="sparkles" class="w-6 h-6 text-pixel-purple animate-spin"></i>
+      <div>
+        <div class="font-pixel text-xs text-pixel-purple tracking-widest uppercase">WARP DROP ZONE</div>
+        <div class="text-[11px] text-slate-300">Drop event here to duplicate & quick-reschedule</div>
+      </div>
+      <i data-lucide="zap" class="w-5 h-5 text-pixel-yellow"></i>
+    </div>
+  </div>
+
+  <!-- Trash Disintegration Drop Zone -->
+  <div id="trashZone" class="fixed bottom-6 right-6 z-30 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
+    <div id="trashContainer" class="w-16 h-16 rounded-full bg-pixel-pink/20 border-2 border-pixel-pink flex items-center justify-center text-pixel-pink shadow-lg transition-transform duration-200 hover:scale-110">
+      <i data-lucide="trash-2" class="w-7 h-7"></i>
+    </div>
+  </div>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col gap-4">
+
+    <!-- Controls Bar: Date Navigation, Search, Filter & Quick Add -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-3 bg-pixel-card p-3 rounded-xl border border-pixel-border">
+      
+      <!-- Date Prev/Next/Today -->
+      <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center gap-1">
+          <button onclick="navigateDate(-1)" class="p-1.5 rounded bg-slate-900 border border-pixel-border text-slate-300 hover:text-pixel-accent hover:border-pixel-accent transition">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button onclick="navigateToday()" class="px-3 py-1.5 rounded bg-slate-900 border border-pixel-border font-pixel text-xs text-slate-200 hover:text-pixel-accent transition">
+            TODAY
+          </button>
+          <button onclick="navigateDate(1)" class="p-1.5 rounded bg-slate-900 border border-pixel-border text-slate-300 hover:text-pixel-accent hover:border-pixel-accent transition">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <h2 id="currentPeriodLabel" class="font-pixel text-sm sm:text-base text-pixel-accent tracking-wide ml-2">
+          September 2026
+        </h2>
+      </div>
+
+      <!-- Filters & Quick Add Button -->
+      <div class="flex items-center gap-2 w-full md:w-auto">
+        <div class="relative flex-1 md:w-48">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="searchInput" oninput="renderCalendar()" placeholder="Filter events..." class="w-full bg-slate-900 border border-pixel-border rounded text-xs pl-8 pr-3 py-1.5 text-slate-200 focus:outline-none focus:border-pixel-blue" />
+        </div>
+
+        <button onclick="openEventModal()" class="px-3 py-1.5 bg-pixel-green text-slate-900 font-pixel text-xs rounded font-bold flex items-center gap-1.5 hover:bg-emerald-400 transition pixel-btn whitespace-nowrap">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Event
+        </button>
+      </div>
+
+    </div>
+
+    <!-- MAIN TAB 1: MY CALENDAR CONTAINER -->
+    <div id="myCalendarContainer" class="flex-1 flex flex-col min-h-[550px]">
+      <div id="calendarGrid" class="flex-1 bg-pixel-card rounded-xl border border-pixel-border p-2 sm:p-4 shadow-xl overflow-x-auto">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </div>
+
+    <!-- MAIN TAB 2: SHARED FEEDS & EXTERNAL CALENDARS -->
+    <div id="sharedCalendarContainer" class="hidden flex-1 flex-col gap-4">
+      
+      <!-- Shared Calendar Header Info -->
+      <div class="bg-gradient-to-r from-pixel-purple/20 via-pixel-card to-pixel-blue/20 p-4 rounded-xl border border-pixel-purple/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="p-3 bg-pixel-purple text-slate-900 rounded-lg font-bold">
+            <i data-lucide="globe" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-pixel text-sm text-pixel-purple">EXTERNAL SHARED CALENDARS & PUBLIC FEEDS</h3>
+            <p class="text-xs text-slate-300 mt-0.5">Browse events from teammates, public Lao holidays, or community feeds. Import them into your main calendar with creator attribution.</p>
+          </div>
+        </div>
+
+        <button onclick="openAddFeedModal()" class="px-3 py-2 bg-pixel-purple text-slate-900 font-pixel text-xs rounded font-bold flex items-center gap-1.5 hover:bg-purple-300 transition pixel-btn">
+          <i data-lucide="rss" class="w-4 h-4"></i> Subscribe to Feed
+        </button>
+      </div>
+
+      <!-- Feed List and Event Grid Split View -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        
+        <!-- Left: Active Shared Calendar Feeds -->
+        <div class="bg-pixel-card p-4 rounded-xl border border-pixel-border flex flex-col gap-3">
+          <h4 class="font-pixel text-xs text-pixel-accent uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4"></i> Subscribed Feeds
+          </h4>
+
+          <div id="feedList" class="flex flex-col gap-2">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Right: Shared Events Grid / Stream -->
+        <div class="lg:col-span-2 bg-pixel-card p-4 rounded-xl border border-pixel-border flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-pixel text-xs text-pixel-blue uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="calendar-days" class="w-4 h-4"></i> Shared Events Stream
+            </h4>
+            <span class="text-xs text-slate-400">Drag or click "+ Import" to add to My Calendar</span>
+          </div>
+
+          <div id="sharedEventsStream" class="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[300px]">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ADD / EDIT EVENT MODAL -->
+  <div id="eventModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-pixel-card border-2 border-pixel-border rounded-xl max-w-md w-full p-5 shadow-2xl relative animate-squash">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-pixel-border mb-4">
+        <h3 id="modalTitle" class="font-pixel text-sm text-pixel-accent uppercase">CREATE NEW EVENT</h3>
+        <button onclick="closeEventModal()" class="text-slate-400 hover:text-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="eventForm" onsubmit="handleSaveEvent(event)" class="flex flex-col gap-3">
+        <input type="hidden" id="eventId" />
+
+        <div>
+          <label class="block text-xs font-pixel text-slate-300 mb-1">EVENT TITLE</label>
+          <input type="text" id="eventTitle" required placeholder="e.g. Laos Tech Meetup" class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-pixel-accent" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-pixel text-slate-300 mb-1">START DATE</label>
+            <input type="date" id="eventStartDate" required class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-pixel-accent" />
+          </div>
+          <div>
+            <label class="block text-xs font-pixel text-slate-300 mb-1">END DATE</label>
+            <input type="date" id="eventEndDate" required class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-pixel-accent" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-pixel text-slate-300 mb-1">CATEGORY / COLOR</label>
+            <select id="eventCategory" class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-pixel-accent">
+              <option value="work">Work (Blue)</option>
+              <option value="personal">Personal (Green)</option>
+              <option value="holiday">Holiday (Pink)</option>
+              <option value="imported">Imported / Shared (Purple)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-pixel text-slate-300 mb-1">LOCATION</label>
+            <input type="text" id="eventLocation" placeholder="Vientiane, Laos" class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-pixel-accent" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-pixel text-slate-300 mb-1">DESCRIPTION</label>
+          <textarea id="eventDescription" rows="2" placeholder="Details or agenda..." class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-pixel-accent"></textarea>
+        </div>
+
+        <!-- Creator Tag display if imported -->
+        <div id="creatorAttributionBox" class="hidden p-2 rounded bg-slate-900/60 border border-pixel-purple/40 text-xs text-pixel-purple flex items-center gap-2">
+          <i data-lucide="user-check" class="w-4 h-4"></i>
+          <span>Imported from external feed. Created by: <strong id="creatorNameTag">Dev Team</strong></span>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-pixel-border mt-2">
+          <button type="button" id="deleteEventBtn" onclick="handleDeleteEvent()" class="px-3 py-1.5 bg-pixel-pink/20 text-pixel-pink border border-pixel-pink/40 rounded text-xs font-pixel hidden hover:bg-pixel-pink hover:text-slate-900 transition">
+            DELETE
+          </button>
+          <div class="flex items-center gap-2 ml-auto">
+            <button type="button" onclick="closeEventModal()" class="px-3 py-1.5 bg-slate-800 text-slate-300 rounded text-xs font-pixel">CANCEL</button>
+            <button type="submit" class="px-4 py-1.5 bg-pixel-accent text-slate-900 rounded text-xs font-pixel font-bold pixel-btn">SAVE</button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- SUBSCRIBE TO FEED MODAL -->
+  <div id="addFeedModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-pixel-card border-2 border-pixel-border rounded-xl max-w-md w-full p-5 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-pixel-border mb-4">
+        <h3 class="font-pixel text-sm text-pixel-purple uppercase">SUBSCRIBE TO OTHER CALENDAR</h3>
+        <button onclick="closeAddFeedModal()" class="text-slate-400 hover:text-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleAddFeed(event)" class="flex flex-col gap-3">
+        <div>
+          <label class="block text-xs font-pixel text-slate-300 mb-1">CALENDAR NAME</label>
+          <input type="text" id="feedName" required placeholder="e.g. Design Team Shared Feed" class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-pixel-purple" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-pixel text-slate-300 mb-1">CREATOR / AUTHOR NAME</label>
+          <input type="text" id="feedAuthor" required placeholder="e.g. Somchai (Senior PM)" class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-pixel-purple" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-pixel text-slate-300 mb-1">FEED URL OR CODE</label>
+          <input type="text" id="feedUrl" placeholder="https://calendar.example.com/feed.ics" class="w-full bg-slate-900 border border-pixel-border rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-pixel-purple" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-pixel-border mt-2">
+          <button type="button" onclick="closeAddFeedModal()" class="px-3 py-1.5 bg-slate-800 text-slate-300 rounded text-xs font-pixel">CANCEL</button>
+          <button type="submit" class="px-4 py-1.5 bg-pixel-purple text-slate-900 rounded text-xs font-pixel font-bold pixel-btn">ADD FEED</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       STATE & INITIAL DATA
+       ========================================================================== */
+    let currentDate = new Date(2026, 8, 17); // Set to September 2026 for demonstration
+    let currentViewMode = 'month'; // 'month', 'week', 'day', 'excel'
+    let activeTab = 'my'; // 'my' or 'shared'
+    let draggedEventId = null;
+    let draggedEventSource = null; // 'my' or 'shared'
+
+    // Local Storage Key
+    const LOCAL_STORAGE_KEY = 'pixel_cal_events_v2';
+    const FEEDS_STORAGE_KEY = 'pixel_cal_feeds_v2';
+
+    // Default My Events Sample Data
+    let myEvents = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [
+      {
+        id: 'evt-1',
+        title: 'Lao IT Summit Vientiane',
+        startDate: '2026-09-18',
+        endDate: '2026-09-18',
+        category: 'work',
+        location: 'Lao-ITECC, Vientiane',
+        description: 'Tech conference on digital transformation.',
+        creator: 'Lao Developer (Me)'
+      },
+      {
+        id: 'evt-2',
+        title: 'Weekly Sprint Sync',
+        startDate: '2026-09-21',
+        endDate: '2026-09-21',
+        category: 'work',
+        location: 'Google Meet',
+        description: 'Review pixel calendar drag-and-drop feature.',
+        creator: 'Lao Developer (Me)'
+      }
+    ];
+
+    // External Subscribed Feeds & Their Events
+    let subscribedFeeds = JSON.parse(localStorage.getItem(FEEDS_STORAGE_KEY)) || [
+      {
+        id: 'feed-1',
+        name: 'Lao Public Holidays 2026',
+        author: 'Ministry of Culture Laos',
+        color: '#f7768e',
+        active: true,
+        events: [
+          {
+            id: 'ext-101',
+            title: 'Boun Ok Phansa (End of Lent)',
+            startDate: '2026-09-26',
+            endDate: '2026-09-26',
+            category: 'holiday',
+            location: 'Mekong Riverfront, Vientiane',
+            description: 'Boat racing festival and floating illuminated lanterns.',
+            creator: 'Ministry of Culture Laos'
+          }
+        ]
+      },
+      {
+        id: 'feed-2',
+        name: 'Design & UX Guild Feed',
+        author: 'Noy (Lead UX)',
+        color: '#bb9af7',
+        active: true,
+        events: [
+          {
+            id: 'ext-102',
+            title: 'Game Design & Pixel Art Workshop',
+            startDate: '2026-09-23',
+            endDate: '2026-09-23',
+            category: 'imported',
+            location: 'Hubba Vientiane Workspace',
+            description: 'Hands-on session on retro game particle FX.',
+            creator: 'Noy (Lead UX)'
+          },
+          {
+            id: 'ext-103',
+            title: 'Design System Review',
+            startDate: '2026-09-28',
+            endDate: '2026-09-28',
+            category: 'imported',
+            location: 'Figma Live',
+            description: 'Review retro dark theme palettes.',
+            creator: 'Noy (Lead UX)'
+          }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       CANVAS PARTICLE SYSTEM FOR RETRO GAME IMPACT FX
+       ========================================================================== */
+    const canvas = document.getElementById('fxCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 6 + 3; // Pixelated blocky size
+        this.speedX = (Math.random() - 0.5) * 12;
+        this.speedY = (Math.random() - 0.5) * 12 - 2;
+        this.color = color;
+        this.life = 1.0;
+        this.decay = Math.random() * 0.04 + 0.02;
+        this.gravity = 0.3;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.speedY += this.gravity;
+        this.life -= this.decay;
+      }
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillRect(Math.round(this.x), Math.round(this.y), Math.round(this.size), Math.round(this.size));
+      }
+    }
+
+    function createBurst(x, y, color = '#ff9e64', count = 30) {
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle(x, y, color));
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+        if (particles[i].life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    /* ==========================================================================
+       STORAGE HELPERS
+       ========================================================================== */
+    function saveEvents() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(myEvents));
+    }
+    function saveFeeds() {
+      localStorage.setItem(FEEDS_STORAGE_KEY, JSON.stringify(subscribedFeeds));
+    }
+
+    /* ==========================================================================
+       TAB & VIEW NAVIGATION
+       ========================================================================== */
+    function switchMainTab(tab) {
+      activeTab = tab;
+      const myCalContainer = document.getElementById('myCalendarContainer');
+      const sharedCalContainer = document.getElementById('sharedCalendarContainer');
+      const btnMy = document.getElementById('viewMyCalBtn');
+      const btnShared = document.getElementById('viewSharedCalBtn');
+      const displayModes = document.getElementById('calendarDisplayModes');
+
+      if (tab === 'my') {
+        myCalContainer.style.display = 'flex';
+        sharedCalContainer.style.display = 'none';
+        displayModes.style.display = 'flex';
+        
+        btnMy.className = "px-3 py-1.5 rounded text-xs font-pixel flex items-center gap-1.5 transition-all bg-pixel-blue text-slate-900 font-bold shadow";
+        btnShared.className = "px-3 py-1.5 rounded text-xs font-pixel flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200";
+        renderCalendar();
+      } else {
+        myCalContainer.style.display = 'none';
+        sharedCalContainer.style.display = 'flex';
+        displayModes.style.display = 'none';
+
+        btnShared.className = "px-3 py-1.5 rounded text-xs font-pixel flex items-center gap-1.5 transition-all bg-pixel-purple text-slate-900 font-bold shadow";
+        btnMy.className = "px-3 py-1.5 rounded text-xs font-pixel flex items-center gap-1.5 transition-all text-slate-400 hover:text-slate-200";
+        renderSharedFeeds();
+      }
+      lucide.createIcons();
+    }
+
+    function changeViewMode(mode) {
+      currentViewMode = mode;
+      ['Month', 'Week', 'Day', 'Excel'].forEach(m => {
+        const btn = document.getElementById('btnView' + m);
+        if (btn) {
+          if (m.toLowerCase() === mode) {
+            btn.className = "px-2.5 py-1.5 rounded text-xs font-medium text-pixel-accent bg-pixel-card border border-pixel-accent/40";
+          } else {
+            btn.className = "px-2.5 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-slate-200";
+          }
+        }
+      });
+      renderCalendar();
+    }
+
+    function navigateDate(delta) {
+      if (currentViewMode === 'month' || currentViewMode === 'excel') {
+        currentDate.setMonth(currentDate.getMonth() + delta);
+      } else if (currentViewMode === 'week') {
+        currentDate.setDate(currentDate.getDate() + delta * 7);
+      } else if (currentViewMode === 'day') {
+        currentDate.setDate(currentDate.getDate() + delta);
+      }
+      renderCalendar();
+    }
+
+    function navigateToday() {
+      currentDate = new Date();
+      renderCalendar();
+    }
+
+    /* ==========================================================================
+       MAIN CALENDAR RENDERER
+       ========================================================================== */
+    function renderCalendar() {
+      if (activeTab !== 'my') return;
+      const grid = document.getElementById('calendarGrid');
+      const periodLabel = document.getElementById('currentPeriodLabel');
+      grid.innerHTML = '';
+
+      const searchFilter = document.getElementById('searchInput').value.toLowerCase();
+      const filteredEvents = myEvents.filter(e => 
+        e.title.toLowerCase().includes(searchFilter) || 
+        (e.description && e.description.toLowerCase().includes(searchFilter))
+      );
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      // Update Period Header Label
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      
+      if (currentViewMode === 'month' || currentViewMode === 'excel') {
+        periodLabel.innerText = `${monthNames[month]} ${year}`;
+      } else if (currentViewMode === 'week') {
+        periodLabel.innerText = `Week of ${monthNames[month]} ${currentDate.getDate()}, ${year}`;
+      } else {
+        periodLabel.innerText = `${monthNames[month]} ${currentDate.getDate()}, ${year}`;
+      }
+
+      if (currentViewMode === 'month') {
+        renderMonthView(grid, year, month, filteredEvents);
+      } else if (currentViewMode === 'week') {
+        renderWeekView(grid, filteredEvents);
+      } else if (currentViewMode === 'day') {
+        renderDayView(grid, filteredEvents);
+      } else if (currentViewMode === 'excel') {
+        renderExcelView(grid, year, month, filteredEvents);
+      }
+
+      lucide.createIcons();
+    }
+
+    /* Month View Grid */
+    function renderMonthView(container, year, month, events) {
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+
+      let html = `
+        <div class="grid grid-cols-7 gap-1 text-center font-pixel text-[11px] text-pixel-accent mb-2 pb-2 border-b border-pixel-border">
+          <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+        </div>
+        <div class="grid grid-cols-7 gap-1 auto-rows-fr min-h-[480px]">
+      `;
+
+      // Previous Month Blank Slots
+      for (let i = 0; i < firstDay; i++) {
+        html += `<div class="bg-slate-900/30 rounded border border-slate-800/50 p-1 opacity-30 min-h-[75px]"></div>`;
+      }
+
+      // Current Month Days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+        const dayEvents = events.filter(e => e.startDate <= dateStr && e.endDate >= dateStr);
+
+        html += `
+          <div 
+            class="calendar-slot bg-slate-900/80 rounded border border-pixel-border/60 p-1.5 flex flex-col justify-between transition hover:border-pixel-blue group min-h-[85px] ${isToday ? 'ring-2 ring-pixel-accent bg-slate-900' : ''}"
+            data-date="${dateStr}"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDropOnDate(event, '${dateStr}')"
+            onclick="handleCellClick('${dateStr}')"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-pixel text-xs ${isToday ? 'text-pixel-accent font-bold' : 'text-slate-400 group-hover:text-slate-100'}">${day}</span>
+              <button onclick="event.stopPropagation(); openEventModal('${dateStr}')" class="opacity-0 group-hover:opacity-100 p-0.5 text-pixel-green hover:scale-125 transition">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <!-- Events List in Cell -->
+            <div class="flex flex-col gap-1 mt-1 overflow-y-auto max-h-[70px]">
+              ${dayEvents.map(evt => renderEventChip(evt)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    /* Helper: Event Chip Component with Retro Style & Drag Attributes */
+    function renderEventChip(evt, isShared = false) {
+      let bgClass = "bg-pixel-blue/20 text-pixel-blue border-pixel-blue/40";
+      if (evt.category === 'personal') bgClass = "bg-pixel-green/20 text-pixel-green border-pixel-green/40";
+      if (evt.category === 'holiday') bgClass = "bg-pixel-pink/20 text-pixel-pink border-pixel-pink/40";
+      if (evt.category === 'imported' || isShared) bgClass = "bg-pixel-purple/20 text-pixel-purple border-pixel-purple/40";
+
+      return `
+        <div 
+          id="chip-${evt.id}"
+          draggable="true"
+          ondragstart="handleDragStart(event, '${evt.id}', '${isShared ? 'shared' : 'my'}')"
+          ondragend="handleDragEnd(event)"
+          onclick="event.stopPropagation(); ${isShared ? `importSharedEvent('${evt.id}')` : `openEventModal(null, '${evt.id}')`}"
+          class="px-1.5 py-1 rounded border text-[11px] font-medium truncate flex items-center justify-between cursor-grab active:cursor-grabbing hover:brightness-125 transition shadow-sm ${bgClass}"
+          title="${evt.title} ${evt.creator ? `(By: ${evt.creator})` : ''}"
+        >
+          <span class="truncate flex items-center gap-1">
+            ${evt.creator && evt.creator !== 'Lao Developer (Me)' ? `<i data-lucide="user" class="w-2.5 h-2.5 text-pixel-purple"></i>` : ''}
+            ${evt.title}
+          </span>
+          ${isShared ? `<i data-lucide="arrow-right-circle" class="w-3 h-3 text-pixel-purple opacity-80 hover:scale-125 transition"></i>` : ''}
+        </div>
+      `;
+    }
+
+    /* Week View */
+    function renderWeekView(container, events) {
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+      let html = `<div class="grid grid-cols-7 gap-2 min-h-[450px]">`;
+      for (let i = 0; i < 7; i++) {
+        const dayDate = new Date(startOfWeek);
+        dayDate.setDate(startOfWeek.getDate() + i);
+        const dateStr = dayDate.toISOString().split('T')[0];
+        const dayEvents = events.filter(e => e.startDate <= dateStr && e.endDate >= dateStr);
+
+        html += `
+          <div class="bg-slate-900/80 rounded border border-pixel-border p-2 flex flex-col gap-2"
+               data-date="${dateStr}"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleDropOnDate(event, '${dateStr}')"
+               onclick="handleCellClick('${dateStr}')">
+            <div class="text-center font-pixel text-xs text-pixel-accent border-b border-pixel-border pb-1">
+              ${dayDate.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}
+            </div>
+            <div class="flex flex-col gap-1.5 flex-1">
+              ${dayEvents.map(evt => renderEventChip(evt)).join('')}
+            </div>
+          </div>
+        `;
+      }
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    /* Day View */
+    function renderDayView(container, events) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const dayEvents = events.filter(e => e.startDate <= dateStr && e.endDate >= dateStr);
+
+      container.innerHTML = `
+        <div class="bg-slate-900/80 rounded border border-pixel-border p-4 flex flex-col gap-4 min-h-[400px]">
+          <div class="flex items-center justify-between border-b border-pixel-border pb-2">
+            <h3 class="font-pixel text-sm text-pixel-accent">EVENTS FOR ${dateStr}</h3>
+            <button onclick="openEventModal('${dateStr}')" class="px-3 py-1 bg-pixel-green text-slate-900 font-pixel text-xs rounded font-bold">
+              + ADD EVENT
+            </button>
+          </div>
+          <div class="flex flex-col gap-2">
+            ${dayEvents.length === 0 ? `<p class="text-xs text-slate-500 italic">No events scheduled for today.</p>` : ''}
+            ${dayEvents.map(evt => `
+              <div class="p-3 bg-slate-800 rounded border border-pixel-border flex items-center justify-between">
+                <div>
+                  <h4 class="font-bold text-sm text-slate-100">${evt.title}</h4>
+                  <p class="text-xs text-slate-400 mt-1">${evt.description || 'No description'}</p>
+                  ${evt.creator ? `<span class="text-[10px] text-pixel-purple">Added by: ${evt.creator}</span>` : ''}
+                </div>
+                <button onclick="openEventModal(null, '${evt.id}')" class="px-2 py-1 bg-pixel-card border border-pixel-border text-xs rounded text-slate-300 hover:text-pixel-accent">
+                  Edit
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    /* Excel Table View */
+    function renderExcelView(container, year, month, events) {
+      container.innerHTML = `
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse font-sans text-xs">
+            <thead>
+              <tr class="bg-slate-900 font-pixel text-pixel-accent border-b border-pixel-border">
+                <th class="p-2 border-r border-pixel-border">ID</th>
+                <th class="p-2 border-r border-pixel-border">TITLE</th>
+                <th class="p-2 border-r border-pixel-border">START DATE</th>
+                <th class="p-2 border-r border-pixel-border">END DATE</th>
+                <th class="p-2 border-r border-pixel-border">CATEGORY</th>
+                <th class="p-2 border-r border-pixel-border">LOCATION</th>
+                <th class="p-2 border-r border-pixel-border">CREATOR</th>
+                <th class="p-2">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${events.map(e => `
+                <tr class="border-b border-pixel-border/40 hover:bg-slate-800/50">
+                  <td class="p-2 font-mono text-slate-500 border-r border-pixel-border/40">${e.id}</td>
+                  <td class="p-2 font-bold text-slate-200 border-r border-pixel-border/40">${e.title}</td>
+                  <td class="p-2 border-r border-pixel-border/40 text-pixel-blue">${e.startDate}</td>
+                  <td class="p-2 border-r border-pixel-border/40 text-pixel-blue">${e.endDate}</td>
+                  <td class="p-2 border-r border-pixel-border/40"><span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 border border-pixel-border">${e.category}</span></td>
+                  <td class="p-2 border-r border-pixel-border/40 text-slate-400">${e.location || '-'}</td>
+                  <td class="p-2 border-r border-pixel-border/40 text-pixel-purple">${e.creator || 'Lao Developer'}</td>
+                  <td class="p-2">
+                    <button onclick="openEventModal(null, '${e.id}')" class="text-pixel-accent hover:underline">Edit</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       SHARED CALENDAR FEEDS VIEW & IMPORT ENGINE
+       ========================================================================== */
+    function renderSharedFeeds() {
+      const feedList = document.getElementById('feedList');
+      const stream = document.getElementById('sharedEventsStream');
+
+      // 1. Render Feed Subscriptions
+      feedList.innerHTML = subscribedFeeds.map(feed => `
+        <div class="p-3 bg-slate-900 rounded-lg border border-pixel-border flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" ${feed.active ? 'checked' : ''} onchange="toggleFeedActive('${feed.id}')" class="accent-pixel-purple w-4 h-4 rounded" />
+            <div>
+              <div class="text-xs font-bold text-slate-200">${feed.name}</div>
+              <div class="text-[10px] text-slate-400">By: ${feed.author}</div>
+            </div>
+          </div>
+          <span class="text-[10px] font-pixel text-pixel-purple bg-pixel-purple/10 border border-pixel-purple/30 px-1.5 py-0.5 rounded">
+            ${feed.events.length} events
+          </span>
+        </div>
+      `).join('');
+
+      // 2. Aggregate Active Feed Events
+      let activeEvents = [];
+      subscribedFeeds.filter(f => f.active).forEach(f => {
+        f.events.forEach(e => {
+          activeEvents.push({ ...e, feedName: f.name });
+        });
+      });
+
+      // 3. Render Stream Cards
+      if (activeEvents.length === 0) {
+        stream.innerHTML = `<div class="col-span-2 text-center text-xs text-slate-500 py-12">No active subscribed feed events available.</div>`;
+        return;
+      }
+
+      stream.innerHTML = activeEvents.map(evt => `
+        <div 
+          id="shared-card-${evt.id}"
+          draggable="true"
+          ondragstart="handleDragStart(event, '${evt.id}', 'shared')"
+          ondragend="handleDragEnd(event)"
+          class="p-3.5 bg-slate-900/90 rounded-xl border border-pixel-purple/40 flex flex-col justify-between gap-2 hover:border-pixel-purple transition shadow-md group cursor-grab active:cursor-grabbing"
+        >
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-pixel-purple font-medium mb-1">
+              <span class="flex items-center gap-1"><i data-lucide="rss" class="w-3 h-3"></i> ${evt.feedName}</span>
+              <span class="font-mono text-slate-400">${evt.startDate}</span>
+            </div>
+            <h5 class="font-bold text-sm text-slate-100 group-hover:text-pixel-accent transition">${evt.title}</h5>
+            <p class="text-xs text-slate-400 mt-1 line-clamp-2">${evt.description || 'No detailed description.'}</p>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-pixel-border/50 text-[11px]">
+            <span class="text-pixel-purple font-medium flex items-center gap-1">
+              <i data-lucide="user-check" class="w-3 h-3"></i> By: ${evt.creator}
+            </span>
+
+            <button onclick="importSharedEvent('${evt.id}')" class="px-2.5 py-1 bg-pixel-purple text-slate-900 font-pixel text-[10px] rounded font-bold flex items-center gap-1 hover:bg-purple-300 transition pixel-btn">
+              <i data-lucide="download" class="w-3 h-3"></i> + IMPORT
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function toggleFeedActive(feedId) {
+      const feed = subscribedFeeds.find(f => f.id === feedId);
+      if (feed) {
+        feed.active = !feed.active;
+        saveFeeds();
+        renderSharedFeeds();
+      }
+    }
+
+    /* Import External Event to My Calendar (Non-Destructive) */
+    function importSharedEvent(eventId, targetDate = null) {
+      let foundEvent = null;
+      subscribedFeeds.forEach(f => {
+        const matched = f.events.find(e => e.id === eventId);
+        if (matched) foundEvent = matched;
+      });
+
+      if (!foundEvent) return;
+
+      // Check if already imported
+      const exists = myEvents.some(e => e.title === foundEvent.title && e.startDate === (targetDate || foundEvent.startDate));
+      if (exists) {
+        showNotification('Event already present in My Calendar!');
+        return;
+      }
+
+      // Clone & Import with creator attribution preserved
+      const newImport = {
+        ...foundEvent,
+        id: 'imported-' + Date.now(),
+        startDate: targetDate || foundEvent.startDate,
+        endDate: targetDate || foundEvent.endDate,
+        category: 'imported',
+        importedAt: new Date().toISOString()
+      };
+
+      myEvents.push(newImport);
+      saveEvents();
+
+      // Trigger Retro Burst FX
+      const rect = document.getElementById(`shared-card-${eventId}`)?.getBoundingClientRect();
+      if (rect) {
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, '#bb9af7', 40);
+      } else {
+        createBurst(window.innerWidth / 2, window.innerHeight / 2, '#bb9af7', 40);
+      }
+
+      showNotification(`Imported "${newImport.title}" (Added by: ${newImport.creator})!`);
+      
+      if (activeTab === 'my') renderCalendar();
+    }
+
+    /* ==========================================================================
+       RETRO GAME-STYLE DRAG AND DROP MECHANICS
+       ========================================================================== */
+    function handleDragStart(e, eventId, source = 'my') {
+      draggedEventId = eventId;
+      draggedEventSource = source;
+
+      const targetEl = e.target;
+      targetEl.classList.add('dragging-event');
+
+      // Reveal Warp Zone & Trash Zone with retro entry
+      document.getElementById('warpPortalZone').classList.remove('hidden');
+      const trash = document.getElementById('trashZone');
+      trash.classList.remove('translate-y-24', 'opacity-0');
+      trash.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+
+      // Attach mouse/touch movement tracker for retro up-drag floating portal interaction
+      window.addEventListener('dragover', trackDragPosition);
+    }
+
+    function trackDragPosition(e) {
+      if (e.clientY < 100) {
+        document.getElementById('portalContainer').classList.add('scale-110', 'border-pixel-accent');
+      } else {
+        document.getElementById('portalContainer').classList.remove('scale-110', 'border-pixel-accent');
+      }
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging-event');
+      
+      // Hide Drop Zones
+      document.getElementById('warpPortalZone').classList.add('hidden');
+      const trash = document.getElementById('trashZone');
+      trash.classList.add('translate-y-24', 'opacity-0');
+      trash.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+
+      window.removeEventListener('dragover', trackDragPosition);
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('drag-over-slot');
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('drag-over-slot');
+    }
+
+    /* Drop onto Calendar Cell */
+    function handleDropOnDate(e, targetDateStr) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over-slot');
+
+      if (!draggedEventId) return;
+
+      // Drop impact location for particle burst
+      createBurst(e.clientX, e.clientY, '#7aa2f7', 35);
+
+      if (draggedEventSource === 'shared') {
+        // Import external event to target date
+        importSharedEvent(draggedEventId, targetDateStr);
+      } else {
+        // Reschedule existing My Event
+        const evt = myEvents.find(item => item.id === draggedEventId);
+        if (evt) {
+          evt.startDate = targetDateStr;
+          evt.endDate = targetDateStr;
+          saveEvents();
+          renderCalendar();
+          showNotification(`Moved "${evt.title}" to ${targetDateStr}`);
+        }
+      }
+
+      draggedEventId = null;
+    }
+
+    /* Initialize Drop Listeners for Trash Zone and Warp Zone */
+    document.addEventListener('DOMContentLoaded', () => {
+      const trash = document.getElementById('trashZone');
+      const portal = document.getElementById('warpPortalZone');
+
+      // Trash Zone Disintegration
+      trash.addEventListener('dragover', (e) => { e.preventDefault(); });
+      trash.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (draggedEventId && draggedEventSource === 'my') {
+          // Trigger disintegration particle explosion
+          createBurst(e.clientX, e.clientY, '#f7768e', 60);
+          
+          // Screen shake FX
+          document.body.classList.add('animate-shake');
+          setTimeout(() => document.body.classList.remove('animate-shake'), 300);
+
+          myEvents = myEvents.filter(evt => evt.id !== draggedEventId);
+          saveEvents();
+          renderCalendar();
+          showNotification('Event disintegrated!');
+        }
+      });
+
+      // Warp Portal Duplicate Drop Zone
+      portal.addEventListener('dragover', (e) => { e.preventDefault(); });
+      portal.addEventListener('drop', (e) => {
+        e.preventDefault();
+        createBurst(e.clientX, e.clientY, '#bb9af7', 50);
+
+        if (draggedEventSource === 'my') {
+          const original = myEvents.find(e => e.id === draggedEventId);
+          if (original) {
+            const copy = { ...original, id: 'evt-' + Date.now(), title: original.title + ' (Warp Copy)' };
+            myEvents.push(copy);
+            saveEvents();
+            renderCalendar();
+            showNotification('Event duplicated via Warp Portal!');
+          }
+        } else {
+          importSharedEvent(draggedEventId);
+        }
+      });
+    });
+
+    /* ==========================================================================
+       EVENT MODAL & CRUD
+       ========================================================================== */
+    function openEventModal(dateStr = null, eventId = null) {
+      const modal = document.getElementById('eventModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const deleteBtn = document.getElementById('deleteEventBtn');
+      const creatorBox = document.getElementById('creatorAttributionBox');
+
+      document.getElementById('eventForm').reset();
+      document.getElementById('eventId').value = '';
+
+      const defaultDate = dateStr || new Date().toISOString().split('T')[0];
+
+      if (eventId) {
+        const evt = myEvents.find(e => e.id === eventId);
+        if (evt) {
+          modalTitle.innerText = "EDIT EVENT";
+          document.getElementById('eventId').value = evt.id;
+          document.getElementById('eventTitle').value = evt.title;
+          document.getElementById('eventStartDate').value = evt.startDate;
+          document.getElementById('eventEndDate').value = evt.endDate;
+          document.getElementById('eventCategory').value = evt.category;
+          document.getElementById('eventLocation').value = evt.location || '';
+          document.getElementById('eventDescription').value = evt.description || '';
+          deleteBtn.classList.remove('hidden');
+
+          if (evt.creator && evt.creator !== 'Lao Developer (Me)') {
+            creatorBox.classList.remove('hidden');
+            document.getElementById('creatorNameTag').innerText = evt.creator;
+          } else {
+            creatorBox.classList.add('hidden');
+          }
+        }
+      } else {
+        modalTitle.innerText = "CREATE NEW EVENT";
+        document.getElementById('eventStartDate').value = defaultDate;
+        document.getElementById('eventEndDate').value = defaultDate;
+        deleteBtn.classList.add('hidden');
+        creatorBox.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeEventModal() {
+      document.getElementById('eventModal').classList.add('hidden');
+    }
+
+    function handleSaveEvent(e) {
+      e.preventDefault();
+      const id = document.getElementById('eventId').value;
+      const title = document.getElementById('eventTitle').value;
+      const startDate = document.getElementById('eventStartDate').value;
+      const endDate = document.getElementById('eventEndDate').value;
+      const category = document.getElementById('eventCategory').value;
+      const location = document.getElementById('eventLocation').value;
+      const description = document.getElementById('eventDescription').value;
+
+      if (id) {
+        const evt = myEvents.find(item => item.id === id);
+        if (evt) {
+          evt.title = title;
+          evt.startDate = startDate;
+          evt.endDate = endDate;
+          evt.category = category;
+          evt.location = location;
+          evt.description = description;
+        }
+      } else {
+        myEvents.push({
+          id: 'evt-' + Date.now(),
+          title,
+          startDate,
+          endDate,
+          category,
+          location,
+          description,
+          creator: 'Lao Developer (Me)'
+        });
+      }
+
+      saveEvents();
+      closeEventModal();
+      renderCalendar();
+      showNotification('Event saved successfully!');
+    }
+
+    function handleDeleteEvent() {
+      const id = document.getElementById('eventId').value;
+      if (id) {
+        myEvents = myEvents.filter(e => e.id !== id);
+        saveEvents();
+        closeEventModal();
+        renderCalendar();
+        showNotification('Event deleted!');
+      }
+    }
+
+    function handleCellClick(dateStr) {
+      openEventModal(dateStr);
+    }
+
+    /* Feed Subscription Modal */
+    function openAddFeedModal() {
+      document.getElementById('addFeedModal').classList.remove('hidden');
+    }
+    function closeAddFeedModal() {
+      document.getElementById('addFeedModal').classList.add('hidden');
+    }
+
+    function handleAddFeed(e) {
+      e.preventDefault();
+      const name = document.getElementById('feedName').value;
+      const author = document.getElementById('feedAuthor').value;
+
+      const newFeed = {
+        id: 'feed-' + Date.now(),
+        name,
+        author,
+        color: '#7aa2f7',
+        active: true,
+        events: [
+          {
+            id: 'ext-' + Date.now(),
+            title: `${name} Orientation Meeting`,
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: new Date().toISOString().split('T')[0],
+            category: 'imported',
+            location: 'Online Feed',
+            description: 'Automated introductory event from newly subscribed feed.',
+            creator: author
+          }
+        ]
+      };
+
+      subscribedFeeds.push(newFeed);
+      saveFeeds();
+      closeAddFeedModal();
+      renderSharedFeeds();
+      showNotification(`Subscribed to feed "${name}"!`);
+    }
+
+    /* ==========================================================================
+       IMPORT / EXPORT UTILITIES & NOTIFICATIONS
+       ========================================================================== */
+    function exportCalendarData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(myEvents, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "pixel_calendar_backup.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showNotification('Exported calendar data!');
+    }
+
+    function triggerImportJSON() {
+      document.getElementById('importFileInput').click();
+    }
+
+    function handleFileImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (Array.isArray(importedData)) {
+            myEvents = importedData;
+            saveEvents();
+            renderCalendar();
+            showNotification('Calendar imported successfully!');
+          }
+        } catch (err) {
+          showNotification('Invalid JSON file format.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showNotification(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 bg-pixel-card border-2 border-pixel-accent text-pixel-accent px-4 py-2 rounded-lg font-pixel text-xs shadow-2xl z-50 animate-bounce flex items-center gap-2';
+      toast.innerHTML = `<i data-lucide="bell" class="w-4 h-4 text-pixel-yellow"></i> ${msg}`;
+      document.body.appendChild(toast);
+      lucide.createIcons();
+      setTimeout(() => toast.remove(), 2800);
+    }
+
+    // Initial App Boot
+    window.onload = function() {
+      renderCalendar();
+      lucide.createIcons();
+    };
+  </script>
+</body>
+</html>
