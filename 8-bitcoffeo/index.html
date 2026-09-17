@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>8-Bit Coffeo - Coffee #9</title>
+  <title>8-Bit Coffeo</title>
   <link rel="manifest" href="data:application/json,{
     %22name%22:%228-Bit%20Coffeo%22,
     %22short_name%22:%228BitCoffeo%22,
@@ -12,7 +12,6 @@
     %22background_color%22:%22%23F5EBE0%22,
     %22theme_color%22:%22%238D5B4C%22
   }">
-  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+Lao:wght@600;800&display=swap');
 
@@ -24,10 +23,9 @@
       --accent: #D5BDAF;
       --text: #2B1E1A;
       --shadow: #8D7B68;
-      --green: #25D366;
-      --green-dark: #128C7E;
-      --yellow: #FCF3CF;
-      --red: #FADBD8;
+      --tag-bg: #D6EAF8;
+      --tag-border: #2980B9;
+      --tag-text: #1B4F72;
     }
 
     * {
@@ -37,18 +35,26 @@
       font-family: 'Noto Sans Lao', 'Press Start 2P', monospace;
     }
 
-    body {
+    html, body {
       background-color: var(--bg);
       color: var(--text);
       margin: 0;
-      padding: 12px;
+      padding: 0;
       font-size: 14px;
-      position: relative;
+      width: 100%;
+      height: 100%;
       overflow-x: hidden;
-      min-height: 100vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
     }
 
-    /* Ambient Particle Background Canvas */
+    body {
+      padding: 12px;
+      padding-bottom: 40px;
+    }
+
+    /* Background Pixel Particles */
     #particleCanvas {
       position: fixed;
       top: 0;
@@ -57,42 +63,40 @@
       height: 100vh;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.65;
+      opacity: 0.5;
     }
 
     .app-container {
       position: relative;
       z-index: 1;
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
     }
 
-    /* Header Layout & Retro Pixel Box */
+    /* Header Styling */
     .header-box {
       background: var(--card-bg);
       border: 4px solid var(--border);
       box-shadow: 4px 4px 0 var(--border);
-      padding: 14px;
+      padding: 12px;
       text-align: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       position: relative;
     }
 
     h1 {
-      font-size: 17px;
+      font-size: 18px;
       margin: 0 0 8px 0;
       color: var(--primary);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .sub-info {
       font-size: 11px;
       line-height: 1.5;
-      color: var(--text);
     }
 
-    /* Compact Top Action Buttons */
     .top-actions {
       position: absolute;
       top: 8px;
@@ -105,14 +109,13 @@
       background: var(--bg);
       border: 2px solid var(--border);
       font-size: 12px;
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       box-shadow: 2px 2px 0 var(--border);
-      transition: transform 0.1s ease;
     }
 
     .icon-btn:active {
@@ -120,24 +123,23 @@
       box-shadow: 1px 1px 0 var(--border);
     }
 
-    /* WhatsApp Direct Join Button */
+    /* WhatsApp Button */
     .whatsapp-btn {
-      background: var(--green);
-      color: #FFF;
-      border: 3px solid var(--border);
-      box-shadow: 3px 3px 0 var(--border);
-      padding: 10px 12px;
-      font-weight: bold;
-      font-size: 12px;
-      text-align: center;
-      text-decoration: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      margin-top: 10px;
-      cursor: pointer;
-      transition: transform 0.1s ease, background-color 0.2s ease;
+      gap: 6px;
+      width: 100%;
+      background: #25D366;
+      color: #FFF;
+      border: 3px solid var(--border);
+      box-shadow: 3px 3px 0 var(--border);
+      padding: 10px;
+      font-weight: bold;
+      font-size: 12px;
+      text-decoration: none;
+      margin-bottom: 12px;
+      transition: transform 0.1s ease;
     }
 
     .whatsapp-btn:active {
@@ -145,12 +147,22 @@
       box-shadow: 1px 1px 0 var(--border);
     }
 
-    /* Controls & Filter Bar */
+    /* Controls & Search */
     .controls {
       display: flex;
       flex-direction: column;
       gap: 8px;
       margin-bottom: 12px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: #FFF;
+      border: 3px solid var(--border);
+      padding: 8px 12px;
+      font-size: 12px;
+      box-shadow: 3px 3px 0 var(--border);
+      outline: none;
     }
 
     .btn {
@@ -163,7 +175,7 @@
       text-align: center;
       color: var(--text);
       cursor: pointer;
-      transition: transform 0.1s ease, background-color 0.2s ease;
+      transition: transform 0.1s ease;
     }
 
     .btn:active {
@@ -176,46 +188,46 @@
       font-size: 12px;
     }
 
-    /* Filter Chips Horizontal Bar */
-    .filter-bar {
+    /* Sector Hashtag Filter Chips Bar */
+    .hashtag-bar {
       display: flex;
       gap: 6px;
       overflow-x: auto;
-      padding-bottom: 4px;
+      padding-bottom: 6px;
+      -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
 
-    .filter-bar::-webkit-scrollbar {
+    .hashtag-bar::-webkit-scrollbar {
       display: none;
     }
 
-    .filter-chip {
+    .hashtag-chip {
       background: var(--card-bg);
       border: 2px solid var(--border);
-      padding: 6px 10px;
-      font-size: 11px;
+      padding: 5px 9px;
+      font-size: 10px;
       font-weight: bold;
       cursor: pointer;
       white-space: nowrap;
       box-shadow: 2px 2px 0 var(--border);
-      transition: transform 0.1s ease, background-color 0.2s ease;
+      color: var(--text);
     }
 
-    .filter-chip.active {
+    .hashtag-chip.active {
       background: var(--primary);
       color: #FFF;
       transform: translate(1px, 1px);
       box-shadow: 1px 1px 0 var(--border);
     }
 
-    /* Member Cards Grid */
+    /* Cards Grid */
     .member-grid {
       display: grid;
-      grid-template-columns: repeat( auto-fill, minmax(100px, 1fr) );
+      grid-template-columns: repeat( auto-fit, minmax(115px, 1fr) );
       gap: 10px;
     }
 
-    /* Pixel Member Card & Animations */
     .card {
       background: var(--card-bg);
       border: 3px solid var(--border);
@@ -225,36 +237,37 @@
       flex-direction: column;
       align-items: center;
       position: relative;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.25s ease;
-      animation: spawnAnim 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      touch-action: manipulation;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      animation: spawnAnim 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .card:active {
-      transform: scale(0.95);
+      transform: scale(0.96);
     }
 
     .card.holding {
-      animation: pulseHold 0.4s infinite alternate ease-in-out;
+      animation: pulseHold 0.35s infinite alternate ease-in-out;
       border-color: #D35400;
     }
 
     .card.removing {
-      animation: removeAnim 0.3s forwards ease-in;
+      animation: removeAnim 0.25s forwards ease-in;
     }
 
     @keyframes spawnAnim {
-      0% { transform: scale(0) rotate(-5deg); opacity: 0; }
+      0% { transform: scale(0) rotate(-4deg); opacity: 0; }
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
     @keyframes pulseHold {
-      0% { transform: scale(0.98) rotate(-2deg); }
-      100% { transform: scale(1.04) rotate(2deg); }
+      0% { transform: scale(0.96) rotate(-2deg); }
+      100% { transform: scale(1.03) rotate(2deg); }
     }
 
     @keyframes removeAnim {
       0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(0) rotate(15deg); opacity: 0; }
+      100% { transform: scale(0) rotate(10deg); opacity: 0; }
     }
 
     .badge-icon {
@@ -265,35 +278,56 @@
     }
 
     .avatar {
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       border: 2px solid var(--border);
       background: #FFF;
       image-rendering: pixelated;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       pointer-events: none;
     }
 
     .member-num {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--primary);
       font-weight: bold;
     }
 
     .member-name {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       text-align: center;
       word-break: break-word;
       margin-top: 2px;
     }
 
-    /* Modal Styling */
+    /* Hashtags inside card */
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      justify-content: center;
+      margin-top: 6px;
+      width: 100%;
+    }
+
+    .tag-mini {
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      color: var(--tag-text);
+      font-size: 8px;
+      font-weight: bold;
+      padding: 1px 4px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    /* Modal Layout */
     .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.65);
       z-index: 99;
       justify-content: center;
       align-items: center;
@@ -310,12 +344,14 @@
       border: 4px solid var(--border);
       box-shadow: 6px 6px 0 var(--border);
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
+      max-height: 90vh;
+      overflow-y: auto;
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      animation: spawnAnim 0.25s ease-out;
+      gap: 8px;
+      animation: spawnAnim 0.2s ease-out;
     }
 
     .modal h2 {
@@ -326,12 +362,12 @@
     }
 
     .modal label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
       margin-top: 4px;
     }
 
-    .modal input, .modal textarea {
+    .modal input, .modal textarea, .modal select {
       width: 100%;
       background: #FFF;
       border: 2px solid var(--border);
@@ -342,24 +378,23 @@
 
     .action-row {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       justify-content: space-around;
-      margin: 4px 0;
     }
 
     .reaction-btn {
       font-size: 20px;
-      padding: 6px 12px;
+      padding: 6px 10px;
       border: 2px solid var(--border);
       background: var(--card-bg);
       cursor: pointer;
-      transition: transform 0.1s ease;
     }
 
     .reaction-btn:active {
-      transform: scale(1.2);
+      transform: scale(1.15);
     }
 
+    /* Screen-Aware Floating Reaction Bar */
     .reaction-overlay {
       display: none;
       position: fixed;
@@ -367,9 +402,9 @@
       background: var(--card-bg);
       border: 3px solid var(--border);
       box-shadow: 4px 4px 0 var(--border);
-      padding: 8px;
-      gap: 8px;
-      animation: spawnAnim 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      padding: 6px;
+      gap: 6px;
+      animation: spawnAnim 0.18s ease-out;
     }
 
     .reaction-overlay.active {
@@ -404,49 +439,42 @@
 </head>
 <body>
 
-  <!-- Ambient Particle Animation Canvas -->
   <canvas id="particleCanvas"></canvas>
 
   <div class="app-container">
-    <!-- Header Box -->
     <div class="header-box">
       <div class="top-actions">
         <button class="icon-btn" title="Export Data" onclick="exportData()">💾</button>
         <button class="icon-btn" title="Import Data" onclick="triggerImport()">📂</button>
       </div>
-      <h1>☕ 8-BIT COFFEO #9</h1>
+      <h1>☕ 8-Bit Coffeo</h1>
       <div class="sub-info">
         📅 20-9-2026 | 📍 Phordee Cafe<br>
         ⚜️ ຫົວຂໍ້: ແລກປ່ຽນບັນຫາທຸລະກິດ
       </div>
-
-      <!-- Direct WhatsApp Link Button -->
-      <a href="https://chat.whatsapp.com/LRSD5mpQqkg9h2YRviw28N?s=qs&p=i&mlu=4&amv=2" target="_blank" class="whatsapp-btn">
-        💬 OPEN WHATSAPP GROUP
-      </a>
     </div>
 
-    <!-- Hidden File Input for Data Import -->
+    <!-- Direct WhatsApp Button -->
+    <a href="https://chat.whatsapp.com/LRSD5mpQqkg9h2YRviw28N?s=qs&p=i&mlu=4&amv=2" target="_blank" class="whatsapp-btn">
+      💬 OPEN WHATSAPP GROUP
+    </a>
+
     <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importData(event)">
 
-    <!-- Controls & Filter Chips Bar -->
+    <!-- Controls, Search & Hashtag Filtering -->
     <div class="controls">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search name, sector, or #hashtag..." oninput="render()">
+
       <button class="btn add-btn" onclick="openAddModal()">+ ADD MEMBER</button>
 
-      <div class="filter-bar">
-        <div class="filter-chip active" onclick="setFilter('ALL', this)">ALL</div>
-        <div class="filter-chip" onclick="setFilter('⭐', this)">⭐ Star</div>
-        <div class="filter-chip" onclick="setFilter('❤️', this)">❤️ Love</div>
-        <div class="filter-chip" onclick="setFilter('👍', this)">👍 Like</div>
-        <div class="filter-chip" onclick="setFilter('👀', this)">👀 Watching</div>
-      </div>
+      <!-- Dynamic Hashtag Filter Bar -->
+      <div class="hashtag-bar" id="hashtagFilterBar"></div>
     </div>
 
-    <!-- Member Cards Grid -->
     <div class="member-grid" id="memberGrid"></div>
   </div>
 
-  <!-- Context Reaction Bar (Tap & Hold) -->
+  <!-- Screen-Aware Quick Status Overlay -->
   <div class="reaction-overlay" id="reactionOverlay">
     <span class="reaction-btn" onclick="setQuickStatus('⭐')">⭐</span>
     <span class="reaction-btn" onclick="setQuickStatus('❤️')">❤️</span>
@@ -455,7 +483,6 @@
     <span class="reaction-btn" onclick="setQuickStatus('')">❌</span>
   </div>
 
-  <!-- Member Detail / Edit Modal -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <h2 id="modalTitle">EDIT MEMBER</h2>
@@ -463,7 +490,17 @@
       
       <label>Name:</label>
       <input type="text" id="editName" placeholder="Name">
+
+      <label>Avatar Gender:</label>
+      <select id="editGender">
+        <option value="male">👨 Male Pixel</option>
+        <option value="female">👩 Female Pixel</option>
+        <option value="random">🎲 Random Sprite</option>
+      </select>
       
+      <label>Business Hashtags (Comma/Space separated):</label>
+      <input type="text" id="editHashtags" placeholder="#CoffeeShop #SoftwareApp #RealEstate">
+
       <label>Phone Number:</label>
       <input type="tel" id="editPhone" placeholder="+856 20...">
       
@@ -478,18 +515,18 @@
         <button class="reaction-btn" onclick="selectStatus('👀')">👀</button>
       </div>
 
-      <label>Move Position:</label>
+      <label>Rearrange Position:</label>
       <div class="action-row">
         <button class="btn" style="flex:1;" onclick="movePosition('UP')">⬆ UP</button>
         <button class="btn" style="flex:1;" onclick="movePosition('DOWN')">⬇ DOWN</button>
-        <button class="btn" style="flex:1; background:var(--yellow);" onclick="movePosition('TOP')">🔝 TOP</button>
+        <button class="btn" style="flex:1; background:#FCF3CF;" onclick="movePosition('TOP')">🔝 TOP</button>
       </div>
 
-      <label>Notes / Tags:</label>
-      <textarea id="editNotes" rows="3" placeholder="Add custom notes here..."></textarea>
+      <label>Notes / Business Sector Details:</label>
+      <textarea id="editNotes" rows="2" placeholder="Notes on coffee brand, software startup, property..."></textarea>
 
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="btn" style="background:var(--red)" onclick="deleteMember()">DELETE</button>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <button class="btn" style="background:#FADBD8" onclick="deleteMember()">DELETE</button>
         <button class="btn" onclick="closeModal()">CANCEL</button>
         <button class="btn" style="background:#A9DFBF" onclick="saveMember()">SAVE</button>
       </div>
@@ -497,19 +534,45 @@
   </div>
 
   <script>
-    // Pre-loaded Lao WhatsApp attendee list
+    // Pre-loaded Lao WhatsApp attendees with business hashtags
     const defaultList = [
-      "ທຽນ", "ຄຳສອນ", "ວົງ", "ນູ່", "ນ້ອຍ", "ສັກ", "ນ້າ", "ບຸ້ຍ", "ໂຊ້", "ຮຸ່ຍ",
-      "แม่ทิพย์", "ນໍ້າເຜິ້ງ", "ເຢຍ", "ສົມໄຈ", "ເລ້", "ສົມພອນ", "ຕູ່", "ແອ", "ປາຍ", "ນ້ອຍ",
-      "ໂບ", "ມ່ອງ", "ໄກສອນ", "ກຽດສຸວັນ", "ສົມັຍິງ", "ອິມ ຂໍເຂົ້າຮ່ວມນຳ", "leygodlike", "dola", "ແຄັດຕີ້"
+      { name: "ທຽນ", gender: "male", tags: ["#CoffeeShop", "#Retail"] },
+      { name: "ຄຳສອນ", gender: "male", tags: ["#RealEstate", "#Finance"] },
+      { name: "ວົງ", gender: "male", tags: ["#SoftwareApp", "#Tech"] },
+      { name: "ນູ່", gender: "female", tags: ["#Design", "#Marketing"] },
+      { name: "ນ້ອຍ", gender: "female", tags: ["#CoffeeShop", "#Bakery"] },
+      { name: "ສັກ", gender: "male", tags: ["#Logistics", "#Import"] },
+      { name: "ນ້າ", gender: "female", tags: ["#Consulting", "#HR"] },
+      { name: "ບຸ້ຍ", gender: "male", tags: ["#RealEstate", "#Construction"] },
+      { name: "ໂຊ້", gender: "male", tags: ["#SoftwareApp", "#ECommerce"] },
+      { name: "ຮຸ່ຍ", gender: "male", tags: ["#Finance", "#Investment"] },
+      { name: "แม่ทพย์", gender: "female", tags: ["#Restaurant", "#F&B"] },
+      { name: "ນໍ້າເຜິ້ງ", gender: "female", tags: ["#Beauty", "#Retail"] },
+      { name: "ເຢຍ", gender: "male", tags: ["#Agriculture", "#Export"] },
+      { name: "ສົມໄຈ", gender: "male", tags: ["#CarRental", "#Tourism"] },
+      { name: "ເລ້", gender: "male", tags: ["#CoffeeShop", "#Roastery"] },
+      { name: "ສົມພອນ", gender: "male", tags: ["#RealEstate", "#Hotel"] },
+      { name: "ຕູ່", gender: "female", tags: ["#Marketing", "#Media"] },
+      { name: "ແອ", gender: "female", tags: ["#Education", "#Training"] },
+      { name: "ປາຍ", gender: "female", tags: ["#Design", "#Fashion"] },
+      { name: "ໂບ", gender: "female", tags: ["#Event", "#PR"] },
+      { name: "ມ່ອງ", gender: "male", tags: ["#SoftwareApp", "#AI"] },
+      { name: "ໄກສອນ", gender: "male", tags: ["#Lawyer", "#Legal"] },
+      { name: "ກຽດສຸວັນ", gender: "male", tags: ["#Finance", "#Banking"] },
+      { name: "ສົມັຍິງ", gender: "female", tags: ["#Health", "#Pharmacy"] },
+      { name: "ອິມ ຂໍເຂົ້າຮ່ວມນຳ", gender: "female", tags: ["#Startup", "#Retail"] },
+      { name: "leygodlike", gender: "male", tags: ["#Gaming", "#SoftwareApp"] },
+      { name: "dola", gender: "male", tags: ["#Trading", "#Import"] },
+      { name: "ແຄັດຕີ້", gender: "female", tags: ["#CoffeeShop", "#Studio"] }
     ];
 
     let members = [];
-    let activeFilter = 'ALL';
+    let activeHashtag = 'ALL';
     let holdTimer = null;
     let selectedMemberIndex = null;
+    let isLongPressTriggered = false;
 
-    // Ambient Particle Background Canvas Animation
+    // Ambient Particles Canvas Animation
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -525,9 +588,9 @@
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.floor(Math.random() * 4) + 2;
-        this.speedY = -(Math.random() * 0.4 + 0.1);
-        this.opacity = Math.random() * 0.5 + 0.2;
+        this.size = Math.floor(Math.random() * 3) + 2;
+        this.speedY = -(Math.random() * 0.35 + 0.1);
+        this.opacity = Math.random() * 0.4 + 0.2;
       }
       update() {
         this.y += this.speedY;
@@ -542,57 +605,56 @@
       }
     }
 
-    function initParticles() {
-      particles = [];
-      for (let i = 0; i < 30; i++) {
-        particles.push(new PixelParticle());
-      }
-    }
+    for (let i = 0; i < 25; i++) particles.push(new PixelParticle());
 
     function animateParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
+      particles.forEach(p => { p.update(); p.draw(); });
       requestAnimationFrame(animateParticles);
     }
-    initParticles();
     animateParticles();
 
     // Data Management
     function initData() {
-      const localData = localStorage.getItem('coffeo_members_data');
+      const localData = localStorage.getItem('coffeo_members_hashtags');
       if (localData) {
         members = JSON.parse(localData);
       } else {
-        members = defaultList.map((name, idx) => ({
+        members = defaultList.map((item, idx) => ({
           id: idx + 1,
-          name: name,
+          name: item.name,
+          gender: item.gender,
+          hashtags: item.tags,
           phone: '',
           link: '',
           notes: '',
           status: '',
-          avatar: `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(name)}`
+          avatar: generateAvatar(item.name, item.gender)
         }));
         saveToLocal();
       }
+      renderHashtagBar();
       render();
     }
 
-    function saveToLocal() {
-      localStorage.setItem('coffeo_members_data', JSON.stringify(members));
+    function generateAvatar(seedName, gender) {
+      const style = (gender === 'female') ? 'pixel-art-neutral' : (gender === 'male' ? 'pixel-art' : 'bottts');
+      return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seedName)}`;
     }
 
-    // Backup Export & Import
+    function saveToLocal() {
+      localStorage.setItem('coffeo_members_hashtags', JSON.stringify(members));
+      renderHashtagBar();
+    }
+
     function exportData() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(members, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `8bit_coffeo_backup_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+      const anchor = document.createElement('a');
+      anchor.setAttribute("href", dataStr);
+      anchor.setAttribute("download", `8bit_coffeo_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
     }
 
     function triggerImport() {
@@ -602,7 +664,6 @@
     function importData(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
@@ -612,79 +673,128 @@
             saveToLocal();
             render();
             alert('Import successful!');
-          } else {
-            alert('Invalid data format!');
           }
         } catch (err) {
-          alert('Failed to parse backup JSON file!');
+          alert('Failed to parse backup file!');
         }
       };
       reader.readAsText(file);
       event.target.value = '';
     }
 
-    // Filter Chips
-    function setFilter(filterType, element) {
-      activeFilter = filterType;
-      document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
-      element.classList.add('active');
+    // Dynamic Hashtag Filter Bar
+    function renderHashtagBar() {
+      const bar = document.getElementById('hashtagFilterBar');
+      const tagMap = new Map();
+
+      members.forEach(m => {
+        if (m.hashtags) {
+          m.hashtags.forEach(tag => {
+            const formatted = tag.startsWith('#') ? tag : `#${tag}`;
+            tagMap.set(formatted, (tagMap.get(formatted) || 0) + 1);
+          });
+        }
+      });
+
+      let html = `<div class="hashtag-chip ${activeHashtag === 'ALL' ? 'active' : ''}" onclick="setHashtagFilter('ALL')">ALL</div>`;
+      tagMap.forEach((count, tag) => {
+        html += `<div class="hashtag-chip ${activeHashtag === tag ? 'active' : ''}" onclick="setHashtagFilter('${tag}')">${tag} (${count})</div>`;
+      });
+
+      bar.innerHTML = html;
+    }
+
+    function setHashtagFilter(tag) {
+      activeHashtag = tag;
+      renderHashtagBar();
       render();
     }
 
+    // Main Card Grid Render Logic
     function render() {
       const grid = document.getElementById('memberGrid');
+      const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
       grid.innerHTML = '';
 
       members.forEach((m, index) => {
-        if (activeFilter !== 'ALL' && m.status !== activeFilter) return;
+        // Filter by hashtag chip
+        if (activeHashtag !== 'ALL' && (!m.hashtags || !m.hashtags.includes(activeHashtag))) {
+          return;
+        }
+
+        // Filter by Search Query (Name, Sector, Hashtags)
+        if (searchVal) {
+          const matchName = m.name.toLowerCase().includes(searchVal);
+          const matchNotes = (m.notes || '').toLowerCase().includes(searchVal);
+          const matchTags = (m.hashtags || []).some(t => t.toLowerCase().includes(searchVal));
+          if (!matchName && !matchNotes && !matchTags) return;
+        }
 
         const card = document.createElement('div');
         card.className = 'card';
+
+        const tagsHtml = (m.hashtags || []).map(t => `<span class="tag-mini">${t}</span>`).join('');
+
         card.innerHTML = `
           <div class="badge-icon">${m.status || ''}</div>
           <img class="avatar" src="${m.avatar}" alt="pixel-art">
           <div class="member-num">#${index + 1}</div>
           <div class="member-name">${m.name}</div>
+          <div class="card-tags">${tagsHtml}</div>
         `;
 
         // Touch & Hold Logic
-        card.addEventListener('touchstart', (e) => startHold(e, card, index), {passive: true});
-        card.addEventListener('touchend', () => endHold(card));
-        card.addEventListener('touchmove', () => endHold(card));
+        card.addEventListener('touchstart', (e) => {
+          isLongPressTriggered = false;
+          selectedMemberIndex = index;
+          card.classList.add('holding');
+          holdTimer = setTimeout(() => {
+            isLongPressTriggered = true;
+            card.classList.remove('holding');
+            showScreenAwareReactionOverlay(e);
+          }, 420);
+        }, {passive: true});
 
-        // Click / Tap Action
+        card.addEventListener('touchend', () => {
+          clearTimeout(holdTimer);
+          card.classList.remove('holding');
+        });
+
+        card.addEventListener('touchmove', () => {
+          clearTimeout(holdTimer);
+          card.classList.remove('holding');
+        });
+
+        // Click event for Mobile Tap and Desktop Click
         card.addEventListener('click', () => {
-          if (!card.dataset.longPressed) {
+          if (!isLongPressTriggered) {
             openEditModal(index);
           }
-          delete card.dataset.longPressed;
+          isLongPressTriggered = false;
         });
 
         grid.appendChild(card);
       });
     }
 
-    function startHold(e, cardElement, index) {
-      selectedMemberIndex = index;
-      cardElement.classList.add('holding');
-      holdTimer = setTimeout(() => {
-        cardElement.dataset.longPressed = "true";
-        cardElement.classList.remove('holding');
-        showReactionOverlay(e);
-      }, 450);
-    }
-
-    function endHold(cardElement) {
-      clearTimeout(holdTimer);
-      if (cardElement) cardElement.classList.remove('holding');
-    }
-
-    function showReactionOverlay(e) {
+    // Screen-Aware Position Logic for Tap & Hold Reaction Popup
+    function showScreenAwareReactionOverlay(e) {
       const overlay = document.getElementById('reactionOverlay');
-      const touch = e.touches ? e.touches[0] : e;
-      overlay.style.top = `${Math.max(10, touch.clientY - 50)}px`;
-      overlay.style.left = `${Math.min(touch.clientX - 80, window.innerWidth - 200)}px`;
       overlay.classList.add('active');
+
+      const touch = e.touches ? e.touches[0] : e;
+      const overlayWidth = 210;
+      let leftPos = touch.clientX - (overlayWidth / 2);
+      let topPos = touch.clientY - 60;
+
+      if (leftPos < 10) leftPos = 10;
+      if (leftPos + overlayWidth > window.innerWidth - 10) {
+        leftPos = window.innerWidth - overlayWidth - 10;
+      }
+      if (topPos < 10) topPos = touch.clientY + 20;
+
+      overlay.style.top = `${topPos}px`;
+      overlay.style.left = `${leftPos}px`;
     }
 
     function setQuickStatus(statusIcon) {
@@ -696,12 +806,14 @@
       document.getElementById('reactionOverlay').classList.remove('active');
     }
 
-    // Modal Operations
+    // Modal Handlers
     function openEditModal(index) {
       selectedMemberIndex = index;
       const m = members[index];
       document.getElementById('editIndex').value = index;
       document.getElementById('editName').value = m.name;
+      document.getElementById('editGender').value = m.gender || 'male';
+      document.getElementById('editHashtags').value = (m.hashtags || []).join(' ');
       document.getElementById('editPhone').value = m.phone || '';
       document.getElementById('editLink').value = m.link || '';
       document.getElementById('editNotes').value = m.notes || '';
@@ -713,6 +825,8 @@
       selectedMemberIndex = null;
       document.getElementById('editIndex').value = '';
       document.getElementById('editName').value = '';
+      document.getElementById('editGender').value = 'male';
+      document.getElementById('editHashtags').value = '#CoffeeShop';
       document.getElementById('editPhone').value = '';
       document.getElementById('editLink').value = '';
       document.getElementById('editNotes').value = '';
@@ -759,24 +873,37 @@
       const name = document.getElementById('editName').value.trim();
       if (!name) return alert('Name is required!');
 
+      const gender = document.getElementById('editGender').value;
+      const rawTags = document.getElementById('editHashtags').value;
       const phone = document.getElementById('editPhone').value;
       const link = document.getElementById('editLink').value;
       const notes = document.getElementById('editNotes').value;
 
+      // Parse Hashtags
+      const hashtags = rawTags
+        .split(/[\s,]+/)
+        .filter(t => t.length > 0)
+        .map(t => t.startsWith('#') ? t : `#${t}`);
+
       if (selectedMemberIndex !== null) {
         members[selectedMemberIndex].name = name;
+        members[selectedMemberIndex].gender = gender;
+        members[selectedMemberIndex].hashtags = hashtags;
         members[selectedMemberIndex].phone = phone;
         members[selectedMemberIndex].link = link;
         members[selectedMemberIndex].notes = notes;
+        members[selectedMemberIndex].avatar = generateAvatar(name, gender);
       } else {
         members.push({
           id: members.length + 1,
           name: name,
+          gender: gender,
+          hashtags: hashtags,
           phone: phone,
           link: link,
           notes: notes,
           status: '',
-          avatar: `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(name)}`
+          avatar: generateAvatar(name, gender)
         });
       }
 
@@ -795,7 +922,7 @@
             saveToLocal();
             closeModal();
             render();
-          }, 280);
+          }, 240);
         } else {
           members.splice(selectedMemberIndex, 1);
           saveToLocal();
@@ -805,24 +932,12 @@
       }
     }
 
-    // Dismiss floating context menu on tap outside
+    // Dismiss Reaction Menu on outside touch
     window.addEventListener('touchstart', (e) => {
       if (!e.target.closest('#reactionOverlay') && !e.target.closest('.card')) {
         document.getElementById('reactionOverlay').classList.remove('active');
       }
     });
-
-    // PWA Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        const swCode = `
-          self.addEventListener('install', e => e.waitUntil(caches.open('8bit-coffeo-v1').then(c => c.addAll(['./']))));
-          self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-        `;
-        const blob = new Blob([swCode], {type: 'application/javascript'});
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-      });
-    }
 
     initData();
   </script>
