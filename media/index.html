@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຄຸ້ມຄອງຂໍ້ມູນສື່ມວນຊົນ ແລະ ເຄືອຂ່າຍ (CRM)</title>
+    
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans Lao"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js for Reports -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Noto Sans Lao', sans-serif; background-color: #f3f4f6; }
+        .hidden-section { display: none; }
+        .active-section { display: block; }
+        .nav-active { background-color: #3b82f6; color: white !important; }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MEDIA">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="text-gray-800">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="font-bold text-lg">Media CRM</h1>
+        <button onclick="toggleSidebar()" class="text-white focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white w-64 h-full shadow-lg absolute md:relative z-10 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-bold text-blue-600 leading-tight">ລະບົບຄຸ້ມຄອງຂໍ້ມູນ<br>ສື່ມວນຊົນ & ເຄືອຂ່າຍ</h2>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="#" onclick="showSection('dashboard', this)" class="nav-link nav-active flex items-center p-3 rounded-lg text-gray-600 hover:bg-blue-50 transition">
+                    <i class="fas fa-chart-pie w-6 text-center mr-2"></i> ໜ້າຫຼັກ / ລາຍງານ
+                </a>
+                <a href="#" onclick="showSection('database', this)" class="nav-link flex items-center p-3 rounded-lg text-gray-600 hover:bg-blue-50 transition">
+                    <i class="fas fa-users w-6 text-center mr-2"></i> ຖານຂໍ້ມູນເຄືອຂ່າຍ
+                </a>
+                <a href="#" onclick="showSection('settings', this)" class="nav-link flex items-center p-3 rounded-lg text-gray-600 hover:bg-blue-50 transition">
+                    <i class="fas fa-cog w-6 text-center mr-2"></i> ຕັ້ງຄ່າ & ສຳຮອງຂໍ້ມູນ
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 h-full overflow-y-auto p-4 md:p-8">
+            
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="active-section">
+                <h2 class="text-2xl font-bold mb-6">ພາບລວມລາຍງານ (Dashboard)</h2>
+                
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                        <p class="text-sm text-gray-500">ຈຳນວນທັງໝົດ</p>
+                        <h3 class="text-3xl font-bold" id="totalCount">0</h3>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                        <p class="text-sm text-gray-500">ສື່ມວນຊົນ (Media)</p>
+                        <h3 class="text-3xl font-bold" id="mediaCount">0</h3>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                        <p class="text-sm text-gray-500">ພັນທະມິດ (Partner)</p>
+                        <h3 class="text-3xl font-bold" id="partnerCount">0</h3>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-yellow-500">
+                        <p class="text-sm text-gray-500">ແຂກ VIP</p>
+                        <h3 class="text-3xl font-bold" id="vipCount">0</h3>
+                    </div>
+                </div>
+
+                <!-- Reports Filter -->
+                <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">ລາຍງານການເພີ່ມຂໍ້ມູນ</h3>
+                        <select id="reportFilter" onchange="updateChart()" class="border p-2 rounded-md focus:ring-blue-500 outline-none">
+                            <option value="daily">ລາຍວັນ (7 ມື້ຫຼ້າສຸດ)</option>
+                            <option value="monthly">ລາຍເດືອນ (ປີນີ້)</option>
+                            <option value="yearly">ລາຍປີ</option>
+                        </select>
+                    </div>
+                    <div class="relative h-64 w-full">
+                        <canvas id="reportChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Database Section -->
+            <section id="database" class="hidden-section">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h2 class="text-2xl font-bold mb-4 md:mb-0">ຖານຂໍ້ມູນເຄືອຂ່າຍ (CRM Data)</h2>
+                    <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow-md flex items-center">
+                        <i class="fas fa-plus mr-2"></i> ເພີ່ມຂໍ້ມູນໃໝ່
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-700 border-b">
+                                <th class="p-4 font-semibold">ຊື່ ແລະ ນາມສະກຸນ</th>
+                                <th class="p-4 font-semibold">ປະເພດ</th>
+                                <th class="p-4 font-semibold">ອົງກອນ</th>
+                                <th class="p-4 font-semibold">ເບີໂທ</th>
+                                <th class="p-4 font-semibold">ອີເມວ</th>
+                                <th class="p-4 font-semibold text-center">ຈັດການ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="divide-y divide-gray-100">
+                            <!-- Data will be injected here -->
+                        </tbody>
+                    </table>
+                    <div id="emptyState" class="p-8 text-center text-gray-500 hidden">
+                        ຍັງບໍ່ມີຂໍ້ມູນ. ກະລຸນາກົດ "ເພີ່ມຂໍ້ມູນໃໝ່"
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings / Import Export Section -->
+            <section id="settings" class="hidden-section">
+                <h2 class="text-2xl font-bold mb-6">ຕັ້ງຄ່າ & ສຳຮອງຂໍ້ມູນ (Import / Export)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Export -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-bold mb-2">ສົ່ງອອກຂໍ້ມູນ (Export Data)</h3>
+                        <p class="text-gray-500 mb-4">ດາວໂຫຼດຂໍ້ມູນທັງໝົດເປັນໄຟລ໌ JSON ເພື່ອສຳຮອງໄວ້ໃນເຄື່ອງ.</p>
+                        <button onclick="exportData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-download mr-2"></i> ສົ່ງອອກເປັນໄຟລ໌ JSON
+                        </button>
+                    </div>
+
+                    <!-- Import -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-bold mb-2">ນຳເຂົ້າຂໍ້ມູນ (Import Data)</h3>
+                        <p class="text-gray-500 mb-4">ນຳເຂົ້າຂໍ້ມູນຈາກໄຟລ໌ JSON ທີ່ເຄີຍສຳຮອງໄວ້.</p>
+                        <input type="file" id="importFile" accept=".json" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3"/>
+                        <button onclick="importData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-upload mr-2"></i> ດຳເນີນການນຳເຂົ້າ
+                        </button>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="bg-red-50 p-6 rounded-lg shadow-sm border border-red-200 md:col-span-2">
+                        <h3 class="text-lg font-bold text-red-600 mb-2">ເຂດອັນຕະລາຍ (Danger Zone)</h3>
+                        <p class="text-gray-600 mb-4">ລຶບຂໍ້ມູນທັງໝົດອອກຈາກລະບົບ (ບໍ່ສາມາດກູ້ຄືນໄດ້ ຖ້າບໍ່ໄດ້ Export ໄວ້).</p>
+                        <button onclick="clearAllData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                            <i class="fas fa-trash-alt mr-2"></i> ລຶບຂໍ້ມູນທັງໝົດ
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="formModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 px-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold" id="modalTitle">ເພີ່ມຂໍ້ມູນໃໝ່</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800 focus:outline-none">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <form id="contactForm" class="space-y-4">
+                    <input type="hidden" id="contactId">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ຊື່ ແລະ ນາມສະກຸນ <span class="text-red-500">*</span></label>
+                        <input type="text" id="name" required class="w-full border rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ປະເພດ <span class="text-red-500">*</span></label>
+                        <select id="type" required class="w-full border rounded-md p-2 focus:ring-blue-500 outline-none">
+                            <option value="Media">ສື່ມວນຊົນ (Media)</option>
+                            <option value="Partner">ພັນທະມິດ (Partner)</option>
+                            <option value="VIP">ແຂກ VIP</option>
+                            <option value="Other">ອື່ນໆ (Other)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ສຳນັກງານ / ອົງກອນ</label>
+                        <input type="text" id="organization" class="w-full border rounded-md p-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ເບີໂທຕິດຕໍ່</label>
+                        <input type="text" id="phone" class="w-full border rounded-md p-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ອີເມວ</label>
+                        <input type="email" id="email" class="w-full border rounded-md p-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ປະຫວັດການຕິດຕໍ່ / ໝາຍເຫດ</label>
+                        <textarea id="notes" rows="3" class="w-full border rounded-md p-2 focus:ring-blue-500 outline-none" placeholder="ເຊັ່ນ: ເຊີນຮ່ວມງານເປີດຕົວວັນທີ..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">ວັນທີເພີ່ມ/ແກ້ໄຂ</label>
+                        <input type="date" id="dateAdded" required class="w-full border rounded-md p-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </form>
+            </div>
+            <div class="p-4 border-t bg-gray-50 flex justify-end space-x-2 rounded-b-lg">
+                <button onclick="closeModal()" class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">ຍົກເລີກ</button>
+                <button onclick="saveContact()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm">ບັນທຶກຂໍ້ມູນ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data State
+        let contacts = [];
+        let reportChartInstance = null;
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            document.getElementById('dateAdded').valueAsDate = new Date();
+        });
+
+        // Toggle Sidebar on Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Navigation / Section Toggle
+        function showSection(sectionId, element) {
+            // Hide all sections
+            document.getElementById('dashboard').className = 'hidden-section';
+            document.getElementById('database').className = 'hidden-section';
+            document.getElementById('settings').className = 'hidden-section';
+            
+            // Show target section
+            document.getElementById(sectionId).className = 'active-section';
+
+            // Update Nav styling
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(link => {
+                link.classList.remove('nav-active', 'bg-blue-600', 'text-white');
+                link.classList.add('text-gray-600');
+            });
+            
+            element.classList.add('nav-active', 'bg-blue-600', 'text-white');
+            element.classList.remove('text-gray-600');
+
+            if(window.innerWidth < 768) {
+                toggleSidebar(); // Auto-close sidebar on mobile
+            }
+
+            if(sectionId === 'dashboard') {
+                updateDashboardStats();
+                updateChart();
+            }
+        }
+
+        // LocalStorage Functions
+        function loadData() {
+            const stored = localStorage.getItem('crm_data');
+            if (stored) {
+                contacts = JSON.parse(stored);
+            }
+            renderTable();
+            updateDashboardStats();
+            updateChart();
+        }
+
+        function saveData() {
+            localStorage.setItem('crm_data', JSON.stringify(contacts));
+            renderTable();
+            updateDashboardStats();
+            updateChart();
+        }
+
+        // Modal Functions
+        function openModal(id = null) {
+            const modal = document.getElementById('formModal');
+            const form = document.getElementById('contactForm');
+            modal.classList.remove('hidden');
+
+            if (id) {
+                document.getElementById('modalTitle').innerText = 'ແກ້ໄຂຂໍ້ມູນ';
+                const contact = contacts.find(c => c.id === id);
+                document.getElementById('contactId').value = contact.id;
+                document.getElementById('name').value = contact.name;
+                document.getElementById('type').value = contact.type;
+                document.getElementById('organization').value = contact.organization;
+                document.getElementById('phone').value = contact.phone;
+                document.getElementById('email').value = contact.email;
+                document.getElementById('notes').value = contact.notes;
+                document.getElementById('dateAdded').value = contact.dateAdded;
+            } else {
+                document.getElementById('modalTitle').innerText = 'ເພີ່ມຂໍ້ມູນໃໝ່';
+                form.reset();
+                document.getElementById('contactId').value = '';
+                document.getElementById('dateAdded').valueAsDate = new Date();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('formModal').classList.add('hidden');
+        }
+
+        // CRUD Operations
+        function saveContact() {
+            const form = document.getElementById('contactForm');
+            if(!form.checkValidity()) {
+                alert("ກະລຸນາປ້ອນຂໍ້ມູນໃນຊ່ອງທີ່ຈຳເປັນໃຫ້ຄົບຖ້ວນ (*)");
+                return;
+            }
+
+            const idInput = document.getElementById('contactId').value;
+            
+            const data = {
+                name: document.getElementById('name').value,
+                type: document.getElementById('type').value,
+                organization: document.getElementById('organization').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                notes: document.getElementById('notes').value,
+                dateAdded: document.getElementById('dateAdded').value
+            };
+
+            if (idInput) {
+                // Update
+                const index = contacts.findIndex(c => c.id == idInput);
+                contacts[index] = { ...data, id: Number(idInput) };
+            } else {
+                // Insert
+                contacts.push({ ...data, id: Date.now() });
+            }
+
+            saveData();
+            closeModal();
+            alert("ບັນທຶກຂໍ້ມູນສຳເລັດ!");
+        }
+
+        function deleteContact(id) {
+            if(confirm("ທ່ານແນ່ໃຈຫຼືບໍ່ ທີ່ຈະລຶບຂໍ້ມູນນີ້?")) {
+                contacts = contacts.filter(c => c.id !== id);
+                saveData();
+            }
+        }
+
+        // Render Table
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+
+            if (contacts.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                // Sort by newest first
+                const sortedContacts = [...contacts].sort((a,b) => b.id - a.id);
+
+                sortedContacts.forEach(contact => {
+                    let typeColor = 'bg-gray-100 text-gray-800';
+                    let typeText = contact.type;
+                    if(contact.type === 'Media') { typeColor = 'bg-green-100 text-green-800'; typeText = 'ສື່ມວນຊົນ'; }
+                    else if(contact.type === 'Partner') { typeColor = 'bg-purple-100 text-purple-800'; typeText = 'ພັນທະມິດ'; }
+                    else if(contact.type === 'VIP') { typeColor = 'bg-yellow-100 text-yellow-800'; typeText = 'VIP'; }
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-gray-50 transition";
+                    tr.innerHTML = `
+                        <td class="p-4 border-b border-gray-100 font-medium">${contact.name}</td>
+                        <td class="p-4 border-b border-gray-100">
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold ${typeColor}">${typeText}</span>
+                        </td>
+                        <td class="p-4 border-b border-gray-100 text-gray-600">${contact.organization || '-'}</td>
+                        <td class="p-4 border-b border-gray-100 text-gray-600">${contact.phone || '-'}</td>
+                        <td class="p-4 border-b border-gray-100 text-gray-600">${contact.email || '-'}</td>
+                        <td class="p-4 border-b border-gray-100 text-center">
+                            <button onclick="openModal(${contact.id})" class="text-blue-500 hover:text-blue-700 mx-1 p-2" title="ແກ້ໄຂ"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteContact(${contact.id})" class="text-red-500 hover:text-red-700 mx-1 p-2" title="ລຶບ"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        // Settings: Export, Import, Clear All
+        function exportData() {
+            if(contacts.length === 0) {
+                alert("ບໍ່ມີຂໍ້ມູນໃຫ້ສົ່ງອອກ!");
+                return;
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(contacts));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href",     dataStr);
+            downloadAnchorNode.setAttribute("download", "CRM_Data_Backup_" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            if(fileInput.files.length === 0) {
+                alert("ກະລຸນາເລືອກໄຟລ໌ JSON ກ່ອນ!");
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    if(Array.isArray(importedData)) {
+                        if(confirm("ຂໍ້ມູນປັດຈຸບັນຈະຖືກລວມເຂົ້າກັບຂໍ້ມູນໃໝ່. ຕ້ອງການດຳເນີນການຕໍ່ບໍ່?")) {
+                            // Merge and prevent exact duplicates based on ID
+                            const existingIds = new Set(contacts.map(c => c.id));
+                            importedData.forEach(item => {
+                                if(!existingIds.has(item.id)) contacts.push(item);
+                            });
+                            saveData();
+                            alert("ນຳເຂົ້າຂໍ້ມູນສຳເລັດ!");
+                            fileInput.value = "";
+                        }
+                    } else {
+                        alert("ຮູບແບບໄຟລ໌ບໍ່ຖືກຕ້ອງ!");
+                    }
+                } catch(e) {
+                    alert("ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌!");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if(confirm("ຄຳເຕືອນ! ຂໍ້ມູນທັງໝົດຈະຖືກລຶບ ແລະ ບໍ່ສາມາດກູ້ຄືນໄດ້. ທ່ານແນ່ໃຈບໍ່?")) {
+                contacts = [];
+                saveData();
+                alert("ລຶບຂໍ້ມູນທັງໝົດສຳເລັດແລ້ວ.");
+            }
+        }
+
+        // Reports & Dashboard
+        function updateDashboardStats() {
+            document.getElementById('totalCount').innerText = contacts.length;
+            document.getElementById('mediaCount').innerText = contacts.filter(c => c.type === 'Media').length;
+            document.getElementById('partnerCount').innerText = contacts.filter(c => c.type === 'Partner').length;
+            document.getElementById('vipCount').innerText = contacts.filter(c => c.type === 'VIP').length;
+        }
+
+        function updateChart() {
+            const filter = document.getElementById('reportFilter').value;
+            const ctx = document.getElementById('reportChart').getContext('2d');
+            
+            let labels = [];
+            let dataCounts = [];
+            
+            // Helper to get dates
+            const today = new Date();
+            
+            if (filter === 'daily') {
+                // Last 7 days
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date(today);
+                    d.setDate(d.getDate() - i);
+                    const dateStr = d.toISOString().split('T')[0];
+                    labels.push(dateStr);
+                    dataCounts.push(contacts.filter(c => c.dateAdded === dateStr).length);
+                }
+            } else if (filter === 'monthly') {
+                // Months of current year
+                const months = ['ມ.ກ', 'ກ.ພ', 'ມ.ນ', 'ມ.ສ', 'ພ.ພ', 'ມິ.ຖ', 'ກ.ລ', 'ສ.ຫ', 'ກ.ຍ', 'ຕ.ລ', 'ພ.ຈ', 'ທ.ວ'];
+                const currentYear = today.getFullYear();
+                labels = months;
+                dataCounts = Array(12).fill(0);
+                contacts.forEach(c => {
+                    const dateObj = new Date(c.dateAdded);
+                    if(dateObj.getFullYear() === currentYear) {
+                        dataCounts[dateObj.getMonth()]++;
+                    }
+                });
+            } else if (filter === 'yearly') {
+                // Group by year
+                const yearMap = {};
+                contacts.forEach(c => {
+                    const y = new Date(c.dateAdded).getFullYear();
+                    yearMap[y] = (yearMap[y] || 0) + 1;
+                });
+                labels = Object.keys(yearMap).sort();
+                dataCounts = labels.map(y => yearMap[y]);
+                if(labels.length === 0) { labels = [today.getFullYear().toString()]; dataCounts = [0]; }
+            }
+
+            if (reportChartInstance) {
+                reportChartInstance.destroy();
+            }
+
+            reportChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ຈຳນວນທີ່ຖືກເພີ່ມເຂົ້າ (ຄົນ/ອົງກອນ)',
+                        data: dataCounts,
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
