@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບປະຕິທິນການປະຊາສຳພັນ - PR & Campaign Calendar</title>
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body, input, select, textarea, button {
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CALENDAR">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <i data-lucide="megaphone" class="w-8 h-8 text-amber-300"></i>
+                <div>
+                    <h1 class="text-xl font-bold leading-tight">ລະບົບປະຕິທິນການປະຊາສຳພັນ</h1>
+                    <p class="text-xs text-indigo-200">PR & Campaign Calendar Management System</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="openModal()" class="bg-amber-500 hover:bg-amber-600 text-indigo-950 font-semibold px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 transition shadow">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> ເພີ່ມກິດຈະກຳໃໝ່
+                </button>
+                <button onclick="exportData()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-1.5 transition border border-indigo-400">
+                    <i data-lucide="download" class="w-4 h-4"></i> Export
+                </button>
+                <label class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-1.5 transition border border-indigo-400 cursor-pointer">
+                    <i data-lucide="upload" class="w-4 h-4"></i> Import
+                    <input type="file" id="importInput" class="hidden" accept=".json" onchange="importData(event)">
+                </label>
+                <button onclick="confirmClearData()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-1.5 transition">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Clear
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Time Filter / Period Selector for Reports -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+                <span class="font-semibold text-slate-700">ຊ່ວງເວລາລາຍງານ:</span>
+            </div>
+            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                <button onclick="setPeriodFilter('all')" id="btn-all" class="period-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700">ທັງໝົດ</button>
+                <button onclick="setPeriodFilter('daily')" id="btn-daily" class="period-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ປະຈຳວັນ (ມື້ນີ້)</button>
+                <button onclick="setPeriodFilter('weekly')" id="btn-weekly" class="period-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ປະຈຳອາທິດ</button>
+                <button onclick="setPeriodFilter('monthly')" id="btn-monthly" class="period-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ປະຈຳເດືອນ</button>
+                <button onclick="setPeriodFilter('yearly')" id="btn-yearly" class="period-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">ປະຈຳປີ</button>
+            </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase">ກິດຈະກຳ/ຂ່າວ ທັງໝົດ</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-total">0</h3>
+                </div>
+                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase">ງົບປະມານວາງແຜນ (ກີບ)</p>
+                    <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="stat-budget">0 ₭</h3>
+                </div>
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase">ຜົນການຕອບຮັບ (Reach/Views)</p>
+                    <h3 class="text-2xl font-bold text-blue-600 mt-1" id="stat-reach">0</h3>
+                </div>
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
+                    <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase">ກຳລັງດຳເນີນການ</p>
+                    <h3 class="text-2xl font-bold text-amber-600 mt-1" id="stat-active">0</h3>
+                </div>
+                <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 lg:col-span-2">
+                <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-600"></i>
+                    ສະຫຼຸບກິດຈະກຳ ແຍກຕາມປະເພດ
+                </h2>
+                <div class="h-64">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-indigo-600"></i>
+                    ສະຖານະຂອງວຽກ
+                </h2>
+                <div class="h-64 flex items-center justify-center">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Data Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- Table Header Filters -->
+            <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row gap-3 justify-between items-center">
+                <div class="w-full md:w-72 relative">
+                    <input type="text" id="searchInput" oninput="renderDashboard()" placeholder="ຄົ້ນຫາ ຫົວຂໍ້, ຊ່ອງທາງ..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <select id="filterType" onchange="renderDashboard()" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">-- ທຸກປະເພດ --</option>
+                        <option value="Press Release">ຂ່າວປະຊາສຳພັນ (Press Release)</option>
+                        <option value="Media Ad">ສື່ໂຄສະນາ (Media Ad)</option>
+                        <option value="Event">ກິດຈະກຳ (Event)</option>
+                        <option value="Feedback">ການຕອບຮັບ (Feedback)</option>
+                    </select>
+
+                    <select id="filterStatus" onchange="renderDashboard()" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">-- ທຸກສະຖານະ --</option>
+                        <option value="Planned">ວາງແຜນ (Planned)</option>
+                        <option value="In Progress">ກຳລັງດຳເນີນ (In Progress)</option>
+                        <option value="Completed">ສຳເລັດ (Completed)</option>
+                        <option value="Cancelled">ຍົກເລີກ (Cancelled)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                        <tr>
+                            <th class="p-3">ວັນທີ</th>
+                            <th class="p-3">ຫົວຂໍ້ຂ່າວ / ກິດຈະກຳ</th>
+                            <th class="p-3">ປະເພດ</th>
+                            <th class="p-3">ຊ່ອງທາງ</th>
+                            <th class="p-3 text-right">ງົບປະມານ</th>
+                            <th class="p-3 text-right">Reach / Views</th>
+                            <th class="p-3 text-center">ສະຖານະ</th>
+                            <th class="p-3 text-center">ຈັດການ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-200">
+                        <!-- Dynamic content loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyMessage" class="hidden p-8 text-center text-slate-400">
+                <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 text-slate-300"></i>
+                <p>ບໍ່ພົບຂໍ້ມູນກິດຈະກຳ</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form (Add / Edit) -->
+    <div id="campaignModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300">
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-indigo-700 text-white rounded-t-xl">
+                <h3 class="font-bold text-lg" id="modalTitle">ເພີ່ມກິດຈະກຳ/ຂ່າວໃໝ່</h3>
+                <button onclick="closeModal()" class="text-white hover:text-slate-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <form id="campaignForm" onsubmit="handleFormSubmit(event)" class="p-5 space-y-4">
+                <input type="hidden" id="itemId">
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ຫົວຂໍ້ຂ່າວ / ກິດຈະກຳ <span class="text-rose-500">*</span></label>
+                    <input type="text" id="title" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ຕົວຢ່າງ: ຂ່າວເປີດໂຕສາຂາໃໝ່">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ປະເພດ</label>
+                        <select id="type" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Press Release">ຂ່າວປະຊາສຳພັນ</option>
+                            <option value="Media Ad">ສື່ໂຄສະນາ (Media Ad)</option>
+                            <option value="Event">ກິດຈະກຳ (Event)</option>
+                            <option value="Feedback">ການຕອບຮັບ (Feedback)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ຊ່ອງທາງ (Media Channel)</label>
+                        <input type="text" id="channel" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Facebook, TV, Newspaper, TikTok...">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ວັນທີເລີ່ມ <span class="text-rose-500">*</span></label>
+                        <input type="date" id="startDate" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ວັນທີສິ້ນສຸດ</label>
+                        <input type="date" id="endDate" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ງົບປະມານ (ກີບ)</label>
+                        <input type="number" id="budget" min="0" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ຜູ້ເຂົ້າເຖິງ (Reach/Views)</label>
+                        <input type="number" id="reach" min="0" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ສະຖານະ</label>
+                    <select id="status" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="Planned">ວາງແຜນ (Planned)</option>
+                        <option value="In Progress">ກຳລັງດຳເນີນ (In Progress)</option>
+                        <option value="Completed">ສຳເລັດ (Completed)</option>
+                        <option value="Cancelled">ຍົກເລີກ (Cancelled)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ລາຍລະອຽດ / ຜົນການຕອບຮັບ (Feedback Notes)</label>
+                    <textarea id="notes" rows="3" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ໝາຍເຫດ ຫຼື ຜົນສະຫຼຸບການຕອບຮັບ..."></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-100">ຍົກເລີກ</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">ບັນທຶກ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const STORAGE_KEY = 'lao_pr_calendar_data';
+        
+        // Initial Sample Data in Lao Language
+        const defaultItems = [
+            {
+                id: '1',
+                title: 'ແຖລງຂ່າວ ເປີດໂຕຜະລິດຕະພັນໃໝ່ Q3',
+                type: 'Press Release',
+                channel: 'ໜັງສືພິມ, TV, Website',
+                startDate: getTodayOffset(0),
+                endDate: getTodayOffset(1),
+                budget: 15000000,
+                reach: 45000,
+                status: 'In Progress',
+                notes: 'ເຊີນນັກຂ່າວ 15 ສຳນັກຂ່າວເຂົ້າຮ່ວມ'
+            },
+            {
+                id: '2',
+                title: 'ຍິງໂຄສະນາ Promotion ຕົ້ນເດືອນ Facebook & TikTok',
+                type: 'Media Ad',
+                channel: 'Social Media',
+                startDate: getTodayOffset(-3),
+                endDate: getTodayOffset(5),
+                budget: 8000000,
+                reach: 120000,
+                status: 'In Progress',
+                notes: 'ເນັ້ນກຸ່ມລູກຄ້າອາຍຸ 18-35 ປີ'
+            },
+            {
+                id: '3',
+                title: 'ງານສຳມະນາ PR & Digital Marketing Forum 2026',
+                type: 'Event',
+                channel: 'Event / On-site',
+                startDate: getTodayOffset(10),
+                endDate: getTodayOffset(11),
+                budget: 25000000,
+                reach: 500,
+                status: 'Planned',
+                notes: 'ຈັດຢູ່ໂຮງແຮມລານຊ້າງ'
+            },
+            {
+                id: '4',
+                title: 'ສຳຫຼວດຄວາມພໍໃຈລູກຄ້າ ຫຼັງການນຳໃຊ້ສິນຄ້າ',
+                type: 'Feedback',
+                channel: 'Online Survey',
+                startDate: getTodayOffset(-10),
+                endDate: getTodayOffset(-2),
+                budget: 2000000,
+                reach: 1200,
+                status: 'Completed',
+                notes: 'ລູກຄ້າພໍໃຈ 88%'
+            }
+        ];
+
+        let items = [];
+        let currentPeriodFilter = 'all';
+        let typeChartInstance = null;
+        let statusChartInstance = null;
+
+        // Helper date generator
+        function getTodayOffset(days) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            return d.toISOString().split('T')[0];
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            renderDashboard();
+            lucide.createIcons();
+        });
+
+        // LocalStorage Handlers
+        function loadData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    items = JSON.parse(stored);
+                } catch(e) {
+                    items = defaultItems;
+                }
+            } else {
+                items = defaultItems;
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        }
+
+        // Filter Logic
+        function setPeriodFilter(period) {
+            currentPeriodFilter = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.className = 'period-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200';
+            });
+            document.getElementById(`btn-${period}`).className = 'period-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700';
+            renderDashboard();
+        }
+
+        function getFilteredItems() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const type = document.getElementById('filterType').value;
+            const status = document.getElementById('filterStatus').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            return items.filter(item => {
+                // Search filter
+                const matchesSearch = item.title.toLowerCase().includes(search) || item.channel.toLowerCase().includes(search);
+                
+                // Type filter
+                const matchesType = (type === 'all') || (item.type === type);
+                
+                // Status filter
+                const matchesStatus = (status === 'all') || (item.status === status);
+
+                // Date/Period Filter
+                let matchesPeriod = true;
+                if (currentPeriodFilter === 'daily') {
+                    matchesPeriod = (item.startDate <= today && (item.endDate >= today || !item.endDate));
+                } else if (currentPeriodFilter === 'weekly') {
+                    const now = new Date();
+                    const firstDay = new Date(now.setDate(now.getDate() - now.getDay()));
+                    const lastDay = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+                    const itemDate = new Date(item.startDate);
+                    matchesPeriod = (itemDate >= firstDay && itemDate <= lastDay);
+                } else if (currentPeriodFilter === 'monthly') {
+                    const now = new Date();
+                    const itemDate = new Date(item.startDate);
+                    matchesPeriod = (itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear());
+                } else if (currentPeriodFilter === 'yearly') {
+                    const now = new Date();
+                    const itemDate = new Date(item.startDate);
+                    matchesPeriod = (itemDate.getFullYear() === now.getFullYear());
+                }
+
+                return matchesSearch && matchesType && matchesStatus && matchesPeriod;
+            });
+        }
+
+        // Render Dashboard
+        function renderDashboard() {
+            const filteredData = getFilteredItems();
+            renderStats(filteredData);
+            renderTable(filteredData);
+            renderCharts(filteredData);
+            lucide.createIcons();
+        }
+
+        // Render Summary Stats Cards
+        function renderStats(data) {
+            document.getElementById('stat-total').innerText = data.length;
+            
+            const totalBudget = data.reduce((acc, curr) => acc + (Number(curr.budget) || 0), 0);
+            document.getElementById('stat-budget').innerText = totalBudget.toLocaleString('lo-LA') + ' ₭';
+
+            const totalReach = data.reduce((acc, curr) => acc + (Number(curr.reach) || 0), 0);
+            document.getElementById('stat-reach').innerText = totalReach.toLocaleString('lo-LA');
+
+            const activeCount = data.filter(i => i.status === 'In Progress').length;
+            document.getElementById('stat-active').innerText = activeCount;
+        }
+
+        // Render Data Table
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            const emptyMsg = document.getElementById('emptyMessage');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                return;
+            } else {
+                emptyMsg.classList.add('hidden');
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+
+                const statusBadges = {
+                    'Planned': '<span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">ວາງແຜນ</span>',
+                    'In Progress': '<span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">ກຳລັງດຳເນີນ</span>',
+                    'Completed': '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold">ສຳເລັດ</span>',
+                    'Cancelled': '<span class="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-semibold">ຍົກເລີກ</span>'
+                };
+
+                const typeLabels = {
+                    'Press Release': 'ຂ່າວປະຊາສຳພັນ',
+                    'Media Ad': 'ສື່ໂຄສະນາ',
+                    'Event': 'ກິດຈະກຳ',
+                    'Feedback': 'ການຕອບຮັບ'
+                };
+
+                tr.innerHTML = `
+                    <td class="p-3 text-xs whitespace-nowrap">
+                        <div class="font-medium text-slate-800">${item.startDate}</div>
+                        <div class="text-slate-400 text-[10px]">${item.endDate ? 'ເຖິງ ' + item.endDate : ''}</div>
+                    </td>
+                    <td class="p-3 font-medium text-slate-800">
+                        <div>${escapeHtml(item.title)}</div>
+                        ${item.notes ? `<div class="text-xs text-slate-400 font-normal truncate max-w-xs">${escapeHtml(item.notes)}</div>` : ''}
+                    </td>
+                    <td class="p-3 text-xs text-slate-600">${typeLabels[item.type] || item.type}</td>
+                    <td class="p-3 text-xs text-slate-600">${escapeHtml(item.channel || '-')}</td>
+                    <td class="p-3 text-xs text-right font-semibold text-slate-700">${Number(item.budget || 0).toLocaleString('lo-LA')} ₭</td>
+                    <td class="p-3 text-xs text-right text-blue-600 font-semibold">${Number(item.reach || 0).toLocaleString('lo-LA')}</td>
+                    <td class="p-3 text-center">${statusBadges[item.status] || item.status}</td>
+                    <td class="p-3 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="editItem('${item.id}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteItem('${item.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Chart.js Visualizations
+        function renderCharts(data) {
+            // Type Bar Chart
+            const typeCounts = {
+                'Press Release': 0,
+                'Media Ad': 0,
+                'Event': 0,
+                'Feedback': 0
+            };
+            data.forEach(d => { if (typeCounts[d.type] !== undefined) typeCounts[d.type]++; });
+
+            const ctxType = document.getElementById('typeChart').getContext('2d');
+            if (typeChartInstance) typeChartInstance.destroy();
+            typeChartInstance = new Chart(ctxType, {
+                type: 'bar',
+                data: {
+                    labels: ['ຂ່າວປະຊາສຳພັນ', 'ສື່ໂຄສະນາ', 'ກິດຈະກຳ (Event)', 'ຜົນການຕອບຮັບ'],
+                    datasets: [{
+                        label: 'ຈຳນວນກິດຈະກຳ',
+                        data: [typeCounts['Press Release'], typeCounts['Media Ad'], typeCounts['Event'], typeCounts['Feedback']],
+                        backgroundColor: ['#6366f1', '#06b6d4', '#f59e0b', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Status Pie Chart
+            const statusCounts = { 'Planned': 0, 'In Progress': 0, 'Completed': 0, 'Cancelled': 0 };
+            data.forEach(d => { if (statusCounts[d.status] !== undefined) statusCounts[d.status]++; });
+
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            if (statusChartInstance) statusChartInstance.destroy();
+            statusChartInstance = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ວາງແຜນ', 'ກຳລັງດຳເນີນ', 'ສຳເລັດ', 'ຍົກເລີກ'],
+                    datasets: [{
+                        data: [statusCounts['Planned'], statusCounts['In Progress'], statusCounts['Completed'], statusCounts['Cancelled']],
+                        backgroundColor: ['#94a3b8', '#f59e0b', '#10b981', '#f43f5e']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        // Modal Logic
+        function openModal(isEdit = false) {
+            const modal = document.getElementById('campaignModal');
+            document.body.classList.add('modal-active');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            if (!isEdit) {
+                document.getElementById('campaignForm').reset();
+                document.getElementById('itemId').value = '';
+                document.getElementById('modalTitle').innerText = 'ເພີ່ມກິດຈະກຳ/ຂ່າວໃໝ່';
+                document.getElementById('startDate').value = getTodayOffset(0);
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('campaignModal');
+            document.body.classList.remove('modal-active');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // CRUD Operations
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('itemId').value;
+            
+            const itemData = {
+                id: id ? id : Date.now().toString(),
+                title: document.getElementById('title').value,
+                type: document.getElementById('type').value,
+                channel: document.getElementById('channel').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                budget: parseFloat(document.getElementById('budget').value) || 0,
+                reach: parseInt(document.getElementById('reach').value) || 0,
+                status: document.getElementById('status').value,
+                notes: document.getElementById('notes').value
+            };
+
+            if (id) {
+                const idx = items.findIndex(i => i.id === id);
+                if (idx !== -1) items[idx] = itemData;
+            } else {
+                items.unshift(itemData);
+            }
+
+            saveData();
+            renderDashboard();
+            closeModal();
+        }
+
+        function editItem(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('itemId').value = item.id;
+            document.getElementById('title').value = item.title;
+            document.getElementById('type').value = item.type;
+            document.getElementById('channel').value = item.channel || '';
+            document.getElementById('startDate').value = item.startDate;
+            document.getElementById('endDate').value = item.endDate || '';
+            document.getElementById('budget').value = item.budget || '';
+            document.getElementById('reach').value = item.reach || '';
+            document.getElementById('status').value = item.status;
+            document.getElementById('notes').value = item.notes || '';
+
+            document.getElementById('modalTitle').innerText = 'ແກ້ໄຂຂໍ້ມູນກິດຈະກຳ';
+            openModal(true);
+        }
+
+        function deleteItem(id) {
+            if (confirm('ທ່ານຕ້ອງການລຶບรายการນີ້ແທ້ບໍ?')) {
+                items = items.filter(i => i.id !== id);
+                saveData();
+                renderDashboard();
+            }
+        }
+
+        function confirmClearData() {
+            if (confirm('ທ່ານແນ່ໃຈບໍທີ່ຈະລຶບຂໍ້ມູນທັງໝົດ? ຂໍ້ມູນທີ່ບັນທຶກໄວ້ຈະຖືກລຶບອອກຈາກເຄື່ອງຂອງທ່ານ.')) {
+                items = [];
+                saveData();
+                renderDashboard();
+            }
+        }
+
+        // Export / Import Data
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(items, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `pr_calendar_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedItems = JSON.parse(e.target.result);
+                    if (Array.isArray(importedItems)) {
+                        items = importedItems;
+                        saveData();
+                        renderDashboard();
+                        alert('ນຳເຂົ້າຂໍ້ມູນ ສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບ ໄຟລ໌ JSON ບໍ່ຖືກຕ້ອງ!');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌!');
+                }
+            };
+            if(event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
