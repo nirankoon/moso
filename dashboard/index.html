@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="lo" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບ Dashboard ວິເຄາະ ແລະ ລາຍງານ - Executive BI Dashboard</title>
+    
+    <!-- Google Font: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        lao: ['"Noto Sans Lao"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+
+        /* Glassmorphism styling */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 4px;
+        }
+
+        /* Print Mode Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 12pt;
+            }
+            .glass-card {
+                background: #ffffff !important;
+                border: 1px solid #cccccc !important;
+                box-shadow: none !important;
+            }
+        }
+        
+        .print-only {
+            display: none;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DASHBOARD">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-300 font-lao antialiased" id="app-body">
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar / Navigation -->
+        <aside id="sidebar" class="no-print fixed inset-y-0 left-0 z-40 w-64 bg-slate-900/95 border-r border-slate-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
+            <!-- Brand Logo Header -->
+            <div class="p-5 border-b border-slate-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                        <i class="fa-solid font-bold fa-chart-line text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base text-white leading-tight">ລະບົບ BI Dashboard</h1>
+                        <span class="text-xs text-indigo-400 font-medium">Executive Analytics</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <a href="#overview" onclick="switchTab('overview')" id="nav-overview" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
+                    <i class="fa-solid fa-gauge-high text-base"></i>
+                    <span>ພາບລວມ (Dashboard)</span>
+                </a>
+                <a href="#pr-data" onclick="switchTab('pr-data')" id="nav-pr-data" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/60 hover:text-white transition-all">
+                    <i class="fa-solid fa-money-bill-wave text-base"></i>
+                    <span>ງົບປະມານ PR & ເບີກ-ຈ່າຍ</span>
+                </a>
+                <a href="#docs-data" onclick="switchTab('docs-data')" id="nav-docs-data" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/60 hover:text-white transition-all">
+                    <i class="fa-solid fa-file-invoice text-base"></i>
+                    <span>ເອກະສານ ຂາເຂົ້າ-ຂາອອກ</span>
+                </a>
+                <a href="#reports" onclick="switchTab('reports')" id="nav-reports" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/60 hover:text-white transition-all">
+                    <i class="fa-solid fa-file-contract text-base"></i>
+                    <span>ລາຍງານຜູ້ບໍລິຫານ (Reports)</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar Bottom Quick Actions -->
+            <div class="p-4 border-t border-slate-800/80 space-y-2">
+                <button onclick="openImportModal()" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-slate-800 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-file-import text-indigo-400"></i>
+                    <span>ນຳເຂົ້າຂໍ້ມູນ (Import)</span>
+                </button>
+                <button onclick="exportDataJSON()" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-slate-800 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-file-export text-emerald-400"></i>
+                    <span>ສົ່ງອອກຂໍ້ມູນ (Export)</span>
+                </button>
+                <button onclick="confirmClearModal()" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-rose-500/10 text-xs font-semibold text-rose-400 hover:bg-rose-500/20 transition">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>ລຶບຂໍ້ມູນທັງໝົດ</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden md:ml-64">
+            
+            <!-- Top Header Bar -->
+            <header class="no-print bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h2 id="page-title" class="text-lg font-bold text-white">ສະຖິຕິ ແລະ ການວິເຄາະພາບລວມ</h2>
+                        <p class="text-xs text-slate-400 hidden sm:block">ລະບົບຕິດຕາມງົບປະມານ ແລະ ເອກະສານບໍລິຫານ</p>
+                    </div>
+                </div>
+
+                <!-- Right Header Tools -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Theme Toggle Button -->
+                    <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition" title="ປ່ຽນທີມ (Theme)">
+                        <i id="theme-icon" class="fa-solid fa-moon"></i>
+                    </button>
+                    
+                    <!-- Reset Sample Data Button -->
+                    <button onclick="confirmResetSampleData()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30 text-xs font-semibold border border-indigo-500/30 transition">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>ໂຫຼດຂໍ້ມູນຕົວຢ່າງ</span>
+                    </button>
+
+                    <!-- Print Button -->
+                    <button onclick="triggerPrint()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 text-xs font-semibold shadow-lg shadow-indigo-600/20 transition">
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden sm:inline">ພິມລາຍງານ</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Scrollable Content Container -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+
+                <!-- Period Filter Bar (Overview Tab) -->
+                <div id="period-filter-section" class="no-print glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-indigo-400"></i>
+                        <span class="text-sm font-semibold text-slate-200">ກັ່ນຕອງຕາມໄລຍະເວລາ:</span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <button onclick="setPeriod('daily')" id="period-daily" class="period-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 transition">ປະຈຳວັນ</button>
+                        <button onclick="setPeriod('weekly')" id="period-weekly" class="period-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 transition">ປະຈຳອາທິດ</button>
+                        <button onclick="setPeriod('monthly')" id="period-monthly" class="period-btn active px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white shadow transition">ປະຈຳເດືອນ</button>
+                        <button onclick="setPeriod('yearly')" id="period-yearly" class="period-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 transition">ປະຈຳປີ</button>
+                        <button onclick="setPeriod('custom')" id="period-custom" class="period-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-800 transition">ກຳນົດເອງ</button>
+                    </div>
+
+                    <!-- Custom Date Input Range (Hidden by default) -->
+                    <div id="custom-date-inputs" class="hidden flex items-center gap-2 w-full lg:w-auto mt-2 lg:mt-0">
+                        <input type="date" id="start-date" onchange="updateDashboard()" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+                        <span class="text-xs text-slate-400">ຫາ</span>
+                        <input type="date" id="end-date" onchange="updateDashboard()" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <!-- TAB 1: OVERVIEW DASHBOARD -->
+                <div id="tab-overview" class="tab-content space-y-6">
+                    
+                    <!-- Executive KPI Summary Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                        
+                        <!-- KPI 1: Approved Budget -->
+                        <div class="glass-card p-4 rounded-2xl relative overflow-hidden group hover:border-indigo-500/50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium">ງົບປະມານ PR ທັງໝົດ</p>
+                                    <h3 id="kpi-total-pr" class="text-lg xl:text-xl font-bold text-white mt-1">0 ₭</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center gap-1 text-[11px] text-emerald-400">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>ອະນຸມັດໃນລະບົບ</span>
+                            </div>
+                        </div>
+
+                        <!-- KPI 2: Actual Disbursement -->
+                        <div class="glass-card p-4 rounded-2xl relative overflow-hidden group hover:border-emerald-500/50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium">ຍອດເບີກ-ຈ່າຍຕົວຈິງ</p>
+                                    <h3 id="kpi-disbursed" class="text-lg xl:text-xl font-bold text-emerald-400 mt-1">0 ₭</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center gap-1 text-[11px] text-slate-400">
+                                <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i>
+                                <span>ຈ່າຍອອກແລ້ວ</span>
+                            </div>
+                        </div>
+
+                        <!-- KPI 3: Efficiency % -->
+                        <div class="glass-card p-4 rounded-2xl relative overflow-hidden group hover:border-cyan-500/50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium">ປະສິດທິພາບເບີກ-ຈ່າຍ</p>
+                                    <h3 id="kpi-efficiency" class="text-lg xl:text-xl font-bold text-cyan-400 mt-1">0%</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                </div>
+                            </div>
+                            <!-- Progress bar -->
+                            <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                <div id="kpi-efficiency-bar" class="bg-cyan-400 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- KPI 4: Incoming Docs -->
+                        <div class="glass-card p-4 rounded-2xl relative overflow-hidden group hover:border-blue-500/50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium">ເອກະສານຂາເຂົ້າ</p>
+                                    <h3 id="kpi-incoming-docs" class="text-xl font-bold text-blue-400 mt-1">0</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-file-import"></i>
+                                </div>
+                            </div>
+                            <p class="mt-3 text-[11px] text-slate-400">ສະບັບທັງໝົດ</p>
+                        </div>
+
+                        <!-- KPI 5: Outgoing Docs -->
+                        <div class="glass-card p-4 rounded-2xl relative overflow-hidden group hover:border-purple-500/50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium">ເອກະສານຂາອອກ</p>
+                                    <h3 id="kpi-outgoing-docs" class="text-xl font-bold text-purple-400 mt-1">0</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-file-export"></i>
+                                </div>
+                            </div>
+                            <p class="mt-3 text-[11px] text-slate-400">ສະບັບທັງໝົດ</p>
+                        </div>
+
+                        <!-- KPI 6: Pending Docs -->
+                        <div class="glass-card p-4 rounded-2xl relative overflow-hidden group hover:border-amber-500/50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-slate-400 font-medium">ເອກະສານຄ້າງດຳເນີນການ</p>
+                                    <h3 id="kpi-pending-docs" class="text-xl font-bold text-amber-400 mt-1">0</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-clock"></i>
+                                </div>
+                            </div>
+                            <p class="mt-3 text-[11px] text-amber-400 font-medium">ລໍຖ້າການອະນຸມັດ/ແກ້ໄຂ</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Analytics Charts Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Chart 1: PR vs Disbursement comparison -->
+                        <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-column text-indigo-400"></i>
+                                    <span>ປຽບທຽບງົບປະມານ PR ແລະ ການເບີກ-ຈ່າຍ</span>
+                                </h3>
+                                <span class="text-xs text-slate-400">ຫົວໜ່ວຍ: ກີບ (LAK)</span>
+                            </div>
+                            <div class="relative h-64 w-full">
+                                <canvas id="chartPrVsDisbursed"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Document Flow Line Chart -->
+                        <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-blue-400"></i>
+                                    <span>ແນວໂນ້ມປະລິມານເອກະສານ ຂາເຂົ້າ-ຂາອອກ</span>
+                                </h3>
+                                <span class="text-xs text-slate-400">ຕາມໄລຍະເວລາ</span>
+                            </div>
+                            <div class="relative h-64 w-full">
+                                <canvas id="chartDocTrends"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: Document Status Breakdown -->
+                        <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-pie text-purple-400"></i>
+                                    <span>ສະພາບການອະນຸມັດ ແລະ ສະຖານະເອກະສານ</span>
+                                </h3>
+                            </div>
+                            <div class="relative h-64 w-full flex items-center justify-center">
+                                <canvas id="chartDocStatus"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 4: Department Disbursement Efficiency -->
+                        <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-sitemap text-emerald-400"></i>
+                                    <span>ປະສິດທິພາບການໃຊ້ງົບປະມານຕາມພະແນກ (%)</span>
+                                </h3>
+                            </div>
+                            <div class="relative h-64 w-full">
+                                <canvas id="chartDeptEfficiency"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- TAB 2: PR BUDGET & DISBURSEMENT DATA TABLE -->
+                <div id="tab-pr-data" class="tab-content hidden space-y-4">
+                    <div class="glass-card p-5 rounded-2xl space-y-4">
+                        
+                        <!-- Table Controls -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
+                                <div class="relative flex-1 sm:w-72">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="pr-search" oninput="renderPRTable()" placeholder="ຄົ້ນຫາຫົວຂໍ້, ພະແນກ..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+                                </div>
+                                <select id="pr-status-filter" onchange="renderPRTable()" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                                    <option value="ALL">ທຸກສະຖານະ</option>
+                                    <option value="ອະນຸມັດແລ້ວ">ອະນຸມັດແລ້ວ</option>
+                                    <option value="ກຳລັງດຳເນີນການ">ກຳລັງດຳເນີນການ</option>
+                                    <option value="ປະຕິເສດ">ປະຕິເສດ</option>
+                                </select>
+                            </div>
+
+                            <button onclick="openPRModal()" class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/20 transition">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>ເພີ່ມรายการ PR ໃໝ່</span>
+                            </button>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-800">
+                            <table class="w-full text-left text-xs text-slate-300">
+                                <thead class="bg-slate-800/80 text-slate-400 uppercase text-[11px] font-semibold border-b border-slate-700">
+                                    <tr>
+                                        <th class="p-3">ວັນທີ</th>
+                                        <th class="p-3">ຫົວຂໍ້/ລາຍການ PR</th>
+                                        <th class="p-3">ພະແນກ</th>
+                                        <th class="p-3 text-right">ງົບ PR (₭)</th>
+                                        <th class="p-3 text-right">ຍອດເບີກຈ່າຍ (₭)</th>
+                                        <th class="p-3 text-center">ສະຖານະ</th>
+                                        <th class="p-3 text-center">ຈັດການ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pr-table-body" class="divide-y divide-slate-800/60">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- TAB 3: DOCUMENT LOGS DATA TABLE -->
+                <div id="tab-docs-data" class="tab-content hidden space-y-4">
+                    <div class="glass-card p-5 rounded-2xl space-y-4">
+                        
+                        <!-- Table Controls -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
+                                <div class="relative flex-1 sm:w-72">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="doc-search" oninput="renderDocTable()" placeholder="ຄົ້ນຫາເລກທີ, ຫົວຂໍ້, ຜູ້ສົ່ງ..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+                                </div>
+                                <select id="doc-type-filter" onchange="renderDocTable()" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                                    <option value="ALL">ທຸກປະເພດ</option>
+                                    <option value="ຂາເຂົ້າ">ຂາເຂົ້າ</option>
+                                    <option value="ຂາອອກ">ຂາອອກ</option>
+                                </select>
+                            </div>
+
+                            <button onclick="openDocModal()" class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/20 transition">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>ເພີ່ມເອກະສານໃໝ່</span>
+                            </button>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-800">
+                            <table class="w-full text-left text-xs text-slate-300">
+                                <thead class="bg-slate-800/80 text-slate-400 uppercase text-[11px] font-semibold border-b border-slate-700">
+                                    <tr>
+                                        <th class="p-3">ວັນທີ</th>
+                                        <th class="p-3">ເລກທີເອກະສານ</th>
+                                        <th class="p-3">ປະເພດ</th>
+                                        <th class="p-3">ຫົວຂໍ້ເອກະສານ</th>
+                                        <th class="p-3">ຜູ້ສົ່ງ/ຜູ້ຮັບ</th>
+                                        <th class="p-3 text-center">ສະຖານະ</th>
+                                        <th class="p-3 text-center">ຈັດການ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="doc-table-body" class="divide-y divide-slate-800/60">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- TAB 4: EXECUTIVE REPORT VIEW -->
+                <div id="tab-reports" class="tab-content hidden space-y-6">
+                    <div class="glass-card p-6 sm:p-8 rounded-2xl max-w-4xl mx-auto space-y-6" id="printable-area">
+                        
+                        <!-- Report Official Header -->
+                        <div class="border-b border-slate-700/80 pb-6 text-center space-y-2">
+                            <h2 class="text-xl font-bold text-white uppercase tracking-wide">ສາທາລະນະລັດ ປະຊາທິປະໄຕ ປະຊາຊົນລາວ</h2>
+                            <p class="text-xs text-slate-300 font-medium">ສັນຕິພາບ ອາດສະຫຼາດ ປະຊາທິປະໄຕ ເອກະພາບ ວັດທະນາຖາວອນ</p>
+                            <div class="pt-4 flex items-center justify-between">
+                                <div class="text-left">
+                                    <h3 class="text-base font-bold text-indigo-400">ບົດລາຍງານສະຫຼຸບຜົນການດຳເນີນງານ</h3>
+                                    <p class="text-xs text-slate-400" id="report-date-range">ປະຈຳເດືອນ</p>
+                                </div>
+                                <div class="text-right text-xs text-slate-400">
+                                    <p>ວັນທີພິມ: <span id="report-generated-date">01/01/2026</span></p>
+                                    <p>ລະບົບ: Executive BI System</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Report Summary Cards Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-2">
+                            <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-[11px] text-slate-400">ງົບ PR ທັງໝົດ</span>
+                                <h4 id="report-pr-total" class="text-sm font-bold text-white mt-1">0 ₭</h4>
+                            </div>
+                            <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-[11px] text-slate-400">ຍອດເບີກຈ່າຍ</span>
+                                <h4 id="report-disbursed-total" class="text-sm font-bold text-emerald-400 mt-1">0 ₭</h4>
+                            </div>
+                            <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-[11px] text-slate-400">ປະສິດທິພາບ</span>
+                                <h4 id="report-efficiency" class="text-sm font-bold text-cyan-400 mt-1">0%</h4>
+                            </div>
+                            <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-[11px] text-slate-400">ເອກະສານລວມ</span>
+                                <h4 id="report-doc-total" class="text-sm font-bold text-indigo-400 mt-1">0 ສະບັບ</h4>
+                            </div>
+                        </div>
+
+                        <!-- PR Budget Table Section -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider">1. ສະຫຼຸບງົບປະມານ PR & ການເບີກ-ຈ່າຍ ຕາມພະແນກ</h4>
+                            <table class="w-full text-left text-xs border border-slate-700 rounded-lg overflow-hidden">
+                                <thead class="bg-slate-800 text-slate-300">
+                                    <tr>
+                                        <th class="p-2 border-b border-slate-700">ພະແນກ</th>
+                                        <th class="p-2 border-b border-slate-700 text-right">ງົບປະມານ PR (₭)</th>
+                                        <th class="p-2 border-b border-slate-700 text-right">ຍອດເບີກຈ່າຍ (₭)</th>
+                                        <th class="p-2 border-b border-slate-700 text-right">ປະສິດທິພາບ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-dept-table" class="divide-y divide-slate-800">
+                                    <!-- Dynamic Content -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Document Log Summary Section -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider">2. ສະຫຼຸບປະລິມານເອກະສານ ຂາເຂົ້າ - ຂາອອກ</h4>
+                            <div class="grid grid-cols-3 gap-3 text-center text-xs">
+                                <div class="bg-slate-800/30 p-2.5 rounded-lg border border-slate-700/40">
+                                    <span class="text-slate-400">ຂາເຂົ້າ:</span>
+                                    <span id="report-inc-count" class="font-bold text-blue-400 ml-1">0</span>
+                                </div>
+                                <div class="bg-slate-800/30 p-2.5 rounded-lg border border-slate-700/40">
+                                    <span class="text-slate-400">ຂາອອກ:</span>
+                                    <span id="report-out-count" class="font-bold text-purple-400 ml-1">0</span>
+                                </div>
+                                <div class="bg-slate-800/30 p-2.5 rounded-lg border border-slate-700/40">
+                                    <span class="text-slate-400">ຄ້າງດຳເນີນການ:</span>
+                                    <span id="report-pend-count" class="font-bold text-amber-400 ml-1">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Official Signatures -->
+                        <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs text-slate-300">
+                            <div class="space-y-12">
+                                <p>ຜູ້ຈັດທຳບົດລາຍງານ</p>
+                                <p class="font-semibold">(....................................................)</p>
+                            </div>
+                            <div class="space-y-12">
+                                <p>ຜູ້ອຳນວຍການ / ຜູ້ບໍລິຫານ</p>
+                                <p class="font-semibold">(....................................................)</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL 1: ADD / EDIT PR RECORD -->
+    <div id="pr-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 id="pr-modal-title" class="text-base font-bold text-white">ເພີ່ມรายการ PR ໃໝ່</h3>
+                <button onclick="closePRModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <form id="pr-form" onsubmit="handlePRSubmit(event)" class="space-y-3">
+                <input type="hidden" id="pr-id">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">ວັນທີ</label>
+                    <input type="date" id="pr-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">ຫົວຂໍ້/ລາຍການ PR</label>
+                    <input type="text" id="pr-title" required placeholder="ຕົວຢ່າງ: ຊື້ປະກອນ IT ປະຈຳໄຕມາດ" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">ພະແນກ</label>
+                    <select id="pr-dept" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <option value="ພະແນກບໍລິຫານ ແລະ ບຸກຄະລາກອນ">ພະແນກບໍລິຫານ ແລະ ບຸກຄະລາກອນ</option>
+                        <option value="ພະແນກກວດສອບ ແລະ ການເງິນ">ພະແນກກວດສອບ ແລະ ການເງິນ</option>
+                        <option value="ພະແນກເຕັກໂນໂລຊີ ແລະ ຂໍ້ມູນຂ່າວສານ">ພະແນກເຕັກໂນໂລຊີ ແລະ ຂໍ້ມູນຂ່າວສານ</option>
+                        <option value="ພະແນກການຕະຫຼາດ ແລະ ປະຊາສຳພັນ">ພະແນກການຕະຫຼາດ ແລະ ປະຊາສຳພັນ</option>
+                        <option value="ພະແນກຈັດຊື້-ຈັດຈ້າງ">ພະແນກຈັດຊື້-ຈັດຈ້າງ</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">ງົບ PR (₭)</label>
+                        <input type="number" id="pr-amount" required min="0" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">ຍອດເບີກຈ່າຍ (₭)</label>
+                        <input type="number" id="pr-disbursed" required min="0" placeholder="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">ສະຖານະ</label>
+                    <select id="pr-status" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <option value="ອະນຸມັດແລ້ວ">ອະນຸມັດແລ້ວ</option>
+                        <option value="ກຳລັງດຳເນີນການ">ກຳລັງດຳເນີນການ</option>
+                        <option value="ປະຕິເສດ">ປະຕິເສດ</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3">
+                    <button type="button" onclick="closePRModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs text-slate-300 hover:bg-slate-700">ຍົກເລີກ</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/20">ບັນທຶກข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ADD / EDIT DOCUMENT LOG -->
+    <div id="doc-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 id="doc-modal-title" class="text-base font-bold text-white">ເພີ່ມເອກະສານໃໝ່</h3>
+                <button onclick="closeDocModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <form id="doc-form" onsubmit="handleDocSubmit(event)" class="space-y-3">
+                <input type="hidden" id="doc-id">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">ວັນທີ</label>
+                        <input type="date" id="doc-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">ເລກທີເອກະສານ</label>
+                        <input type="text" id="doc-ref" required placeholder="DOC-2026-001" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">ປະເພດເອກະສານ</label>
+                        <select id="doc-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="ຂາເຂົ້າ">ຂາເຂົ້າ (Incoming)</option>
+                            <option value="ຂາອອກ">ຂາອອກ (Outgoing)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">ສະຖານະ</label>
+                        <select id="doc-status" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="ສຳເລັດ">ສຳເລັດ</option>
+                            <option value="ກຳລັງດຳເນີນການ">ກຳລັງດຳເນີນການ</option>
+                            <option value="ຄ້າງ">ຄ້າງ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">ຫົວຂໍ້ເອກະສານ</label>
+                    <input type="text" id="doc-title" required placeholder="ຕົວຢ່າງ: ຫນັງສືເຊີນເຂົ້າຮ່ວມກອງປະຊຸມ" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">ຜູ້ສົ່ງ / ຜູ້ຮັບ</label>
+                    <input type="text" id="doc-party" required placeholder="ຕົວຢ່າງ: ກະຊວງເຕັກໂນໂລຊີ" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeDocModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs text-slate-300 hover:bg-slate-700">ຍົກເລີກ</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/20">ບັນທຶກຂໍ້ມູນ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: IMPORT DATA -->
+    <div id="import-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white">ນຳເຂົ້າຂໍ້ມູນ (Import JSON/CSV)</h3>
+                <button onclick="closeImportModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <p class="text-xs text-slate-400">ເລືອກໄຟລ໌ JSON ທີ່ໄດ້ສົ່ງອອກຈາກລະບົບ ເພື່ອນຳເຂົ້າຂໍ້ມູນຄືນໃໝ່.</p>
+            
+            <div class="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center hover:border-indigo-500 transition cursor-pointer" onclick="document.getElementById('import-file-input').click()">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400 mb-2"></i>
+                <p class="text-xs text-slate-300">ກົດເພື່ອເລືອກໄຟລ໌ ຫຼື ວາງໄຟລ໌ບ່ອນນີ້</p>
+                <p class="text-[10px] text-slate-500 mt-1">ຮອງຮັບໄຟລ໌: .json</p>
+                <input type="file" id="import-file-input" accept=".json" onchange="handleFileImport(event)" class="hidden">
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button type="button" onclick="closeImportModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs text-slate-300 hover:bg-slate-700">ຍົກເລີກ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: CONFIRM ACTION MODAL (Replaces native confirm) -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="confirm-modal-title" class="text-base font-bold text-white">ຢືນຢັນການດຳເນີນການ</h3>
+            <p id="confirm-modal-msg" class="text-xs text-slate-400">ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການດຳເນີນການນີ້?</p>
+
+            <div class="flex items-center justify-center gap-3 pt-2">
+                <button onclick="closeConfirmModal(false)" class="px-4 py-2 rounded-xl bg-slate-800 text-xs text-slate-300 hover:bg-slate-700 w-1/2">ຍົກເລີກ</button>
+                <button id="confirm-modal-action" onclick="closeConfirmModal(true)" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white w-1/2">ຢືນຢັນ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* STORAGE KEYS */
+        const PR_STORAGE_KEY = 'lao_bi_pr_records_v1';
+        const DOC_STORAGE_KEY = 'lao_bi_doc_logs_v1';
+
+        /* INITIAL SAMPLE DATA IN LAO LANGUAGE */
+        const SAMPLE_PR_DATA = [
+            { id: 'PR-1', date: '2026-09-01', title: 'ຊື້ປະກອນອຸປະກອນ IT ປະຈຳໄຕມາດ 3', dept: 'ພະແນກເຕັກໂນໂລຊີ ແລະ ຂໍ້ມູນຂ່າວສານ', prAmount: 250000000, disbursedAmount: 240000000, status: 'ອະນຸມັດແລ້ວ' },
+            { id: 'PR-2', date: '2026-09-03', title: 'ໂຄສະນາປະຊາສຳພັນຜະລິດຕະພັນໃໝ່', dept: 'ພະແນກການຕະຫຼາດ ແລະ ປະຊາສຳພັນ', prAmount: 500000000, disbursedAmount: 480000000, status: 'ອະນຸມັດແລ້ວ' },
+            { id: 'PR-3', date: '2026-09-08', title: 'ປັບປຸງຫ້ອງການ ແລະ ເຟີນີເຈີ', dept: 'ພະແນກບໍລິຫານ ແລະ ບຸກຄະລາກອນ', prAmount: 180000000, disbursedAmount: 120000000, status: 'ກຳລັງດຳເນີນການ' },
+            { id: 'PR-4', date: '2026-09-10', title: 'ຈັດງານອົບຮົມສາມະນາພະນັກງານ', dept: 'ພະແນກບໍລິຫານ ແລະ ບຸກຄະລາກອນ', prAmount: 95000000, disbursedAmount: 95000000, status: 'ອະນຸມັດແລ້ວ' },
+            { id: 'PR-5', date: '2026-09-12', title: 'ຈັດຊື້ລົດບໍລິຫານປະຈຳຕຳແໜ່ງ', dept: 'ພະແນກຈັດຊື້-ຈັດຈ້າງ', prAmount: 750000000, disbursedAmount: 0, status: 'ປະຕິເສດ' },
+            { id: 'PR-6', date: '2026-09-14', title: 'ຊື້ວັດຖຸດິບ ແລະ ເຄື່ອງໃຊ້ຫ້ອງການ', dept: 'ພະແນກຈັດຊື້-ຈັດຈ້າງ', prAmount: 60000000, disbursedAmount: 55000000, status: 'ອະນຸມັດແລ້ວ' },
+            { id: 'PR-7', date: '2026-09-16', title: 'ຄ່າບໍລິການ Software Server', dept: 'ພະແນກເຕັກໂນໂລຊີ ແລະ ຂໍ້ມູນຂ່າວສານ', prAmount: 120000000, disbursedAmount: 120000000, status: 'ອະນຸມັດແລ້ວ' }
+        ];
+
+        const SAMPLE_DOC_DATA = [
+            { id: 'DOC-1', date: '2026-09-02', refNo: 'DOC-2026-001', docType: 'ຂາເຂົ້າ', title: 'ຫນັງສືເຊີນເຂົ້າຮ່ວມກອງປະຊຸມກະຊວງ', party: 'ກະຊວງເຕັກໂນໂລຊີ', status: 'ສຳເລັດ' },
+            { id: 'DOC-2', date: '2026-09-05', refNo: 'DOC-2026-002', docType: 'ຂາອອກ', title: 'ບົດລາຍງານການເງິນປະຈຳເດືອນ 8', party: 'ສະພາບໍລິຫານ', status: 'ສຳເລັດ' },
+            { id: 'DOC-3', date: '2026-09-09', refNo: 'DOC-2026-003', docType: 'ຂາເຂົ້າ', title: 'ສັນຍາການຮ່ວມມືໂຄງການໃໝ່', party: 'ບໍລິສັດ ABC ຈຳກັດ', status: 'ກຳລັງດຳເນີນການ' },
+            { id: 'DOC-4', date: '2026-09-11', refNo: 'DOC-2026-004', docType: 'ຂາອອກ', title: 'ແຈ້ງການວັນພັກລັດຖະການ', party: 'ທຸກພະແນກ', status: 'ສຳເລັດ' },
+            { id: 'DOC-5', date: '2026-09-15', refNo: 'DOC-2026-005', docType: 'ຂາເຂົ້າ', title: 'ໃບສະເໜີງົບປະມານໂຄງການ D', party: 'ພະແນກການຕະຫຼາດ', status: 'ຄ້າງ' }
+        ];
+
+        /* SYSTEM STATE */
+        let prRecords = [];
+        let docLogs = [];
+        let activePeriod = 'monthly';
+        let confirmResolver = null;
+        let chartPrVsDisbursedInstance = null;
+        let chartDocTrendsInstance = null;
+        let chartDocStatusInstance = null;
+        let chartDeptEfficiencyInstance = null;
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            setupDefaultDates();
+            initCharts();
+            updateDashboard();
+            renderPRTable();
+            renderDocTable();
+        });
+
+        // Load data from LocalStorage or Fallback to Sample Data
+        function loadState() {
+            const savedPR = localStorage.getItem(PR_STORAGE_KEY);
+            const savedDoc = localStorage.getItem(DOC_STORAGE_KEY);
+
+            prRecords = savedPR ? JSON.parse(savedPR) : [...SAMPLE_PR_DATA];
+            docLogs = savedDoc ? JSON.parse(savedDoc) : [...SAMPLE_DOC_DATA];
+
+            if (!savedPR || !savedDoc) {
+                saveState();
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem(PR_STORAGE_KEY, JSON.stringify(prRecords));
+            localStorage.setItem(DOC_STORAGE_KEY, JSON.stringify(docLogs));
+        }
+
+        function setupDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('start-date').value = firstDay;
+            document.getElementById('end-date').value = today;
+            document.getElementById('pr-date').value = today;
+            document.getElementById('doc-date').value = today;
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-xmark text-rose-400',
+                warning: 'fa-triangle-exclamation text-amber-400',
+                info: 'fa-circle-info text-indigo-400'
+            };
+
+            toast.className = 'glass-card p-3.5 rounded-xl shadow-xl flex items-center gap-3 text-xs text-white pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300 border border-slate-700/80';
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-base"></i>
+                <span class="font-medium">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function setPeriod(period) {
+            activePeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+                btn.classList.add('text-slate-300');
+            });
+
+            const activeBtn = document.getElementById(`period-${period}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+                activeBtn.classList.remove('text-slate-300');
+            }
+
+            const customInputs = document.getElementById('custom-date-inputs');
+            if (period === 'custom') {
+                customInputs.classList.remove('hidden');
+            } else {
+                customInputs.classList.add('hidden');
+            }
+
+            updateDashboard();
+        }
+
+        function getFilteredData() {
+            const now = new Date();
+            let startDate, endDate;
+
+            if (activePeriod === 'daily') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+            } else if (activePeriod === 'weekly') {
+                const past7 = new Date();
+                past7.setDate(now.getDate() - 7);
+                startDate = past7;
+                endDate = now;
+            } else if (activePeriod === 'monthly') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+            } else if (activePeriod === 'yearly') {
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+            } else if (activePeriod === 'custom') {
+                const s = document.getElementById('start-date').value;
+                const e = document.getElementById('end-date').value;
+                startDate = s ? new Date(s) : new Date(0);
+                endDate = e ? new Date(e + 'T23:59:59') : new Date();
+            }
+
+            const filteredPR = prRecords.filter(item => {
+                const d = new Date(item.date);
+                return d >= startDate && d <= endDate;
+            });
+
+            const filteredDocs = docLogs.filter(item => {
+                const d = new Date(item.date);
+                return d >= startDate && d <= endDate;
+            });
+
+            return { filteredPR, filteredDocs, startDate, endDate };
+        }
+
+        function updateDashboard() {
+            const { filteredPR, filteredDocs } = getFilteredData();
+
+            // KPI 1: Approved Total PR Budget
+            const totalPR = filteredPR
+                .filter(i => i.status !== 'ປະຕິເສດ')
+                .reduce((sum, item) => sum + Number(item.prAmount), 0);
+            
+            // KPI 2: Total Disbursed Amount
+            const totalDisbursed = filteredPR
+                .reduce((sum, item) => sum + Number(item.disbursedAmount), 0);
+
+            // KPI 3: Efficiency Rate %
+            const efficiency = totalPR > 0 ? ((totalDisbursed / totalPR) * 100).toFixed(1) : 0;
+
+            // KPI 4 & 5 & 6: Document Counts
+            const incDocs = filteredDocs.filter(d => d.docType === 'ຂາເຂົ້າ').length;
+            const outDocs = filteredDocs.filter(d => d.docType === 'ຂາອອກ').length;
+            const pendingDocs = filteredDocs.filter(d => d.status === 'ຄ້າງ' || d.status === 'ກຳລັງດຳເນີນການ').length;
+
+            // Update UI Elements
+            document.getElementById('kpi-total-pr').innerText = formatKip(totalPR);
+            document.getElementById('kpi-disbursed').innerText = formatKip(totalDisbursed);
+            document.getElementById('kpi-efficiency').innerText = `${efficiency}%`;
+            document.getElementById('kpi-efficiency-bar').style.width = `${Math.min(efficiency, 100)}%`;
+            document.getElementById('kpi-incoming-docs').innerText = incDocs;
+            document.getElementById('kpi-outgoing-docs').innerText = outDocs;
+            document.getElementById('kpi-pending-docs').innerText = pendingDocs;
+
+            updateCharts(filteredPR, filteredDocs);
+            updateReportView(filteredPR, filteredDocs, totalPR, totalDisbursed, efficiency);
+        }
+
+        function formatKip(num) {
+            return new Intl.NumberFormat('lo-LA').format(num) + ' ₭';
+        }
+
+        function initCharts() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#94a3b8' : '#475569';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+
+            // Chart 1: PR vs Disbursement
+            const ctx1 = document.getElementById('chartPrVsDisbursed').getContext('2d');
+            chartPrVsDisbursedInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: textColor, font: { family: 'Noto Sans Lao' } } } },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                    }
+                }
+            });
+
+            // Chart 2: Doc Trends
+            const ctx2 = document.getElementById('chartDocTrends').getContext('2d');
+            chartDocTrendsInstance = new Chart(ctx2, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: textColor, font: { family: 'Noto Sans Lao' } } } },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                    }
+                }
+            });
+
+            // Chart 3: Doc Status Doughnut
+            const ctx3 = document.getElementById('chartDocStatus').getContext('2d');
+            chartDocStatusInstance = new Chart(ctx3, {
+                type: 'doughnut',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Noto Sans Lao' } } } }
+                }
+            });
+
+            // Chart 4: Dept Efficiency
+            const ctx4 = document.getElementById('chartDeptEfficiency').getContext('2d');
+            chartDeptEfficiencyInstance = new Chart(ctx4, {
+                type: 'bar',
+                data: { labels: [], datasets: [] },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { max: 100, ticks: { color: textColor, callback: v => v + '%' }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(prData, docData) {
+            // 1. Group PR & Disbursed by Dept
+            const depts = [...new Set(prData.map(i => i.dept))];
+            const prByDept = depts.map(d => prData.filter(i => i.dept === d && i.status !== 'ປະຕິເສດ').reduce((s, i) => s + Number(i.prAmount), 0));
+            const disbByDept = depts.map(d => prData.filter(i => i.dept === d).reduce((s, i) => s + Number(i.disbursedAmount), 0));
+
+            chartPrVsDisbursedInstance.data = {
+                labels: depts.map(d => d.replace('ພະແນກ', '')),
+                datasets: [
+                    { label: 'ງົບ PR', data: prByDept, backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 6 },
+                    { label: 'ເບີກຈ່າຍ', data: disbByDept, backgroundColor: 'rgba(16, 185, 129, 0.8)', borderRadius: 6 }
+                ]
+            };
+            chartPrVsDisbursedInstance.update();
+
+            // 2. Doc Trends by Date
+            const docDates = [...new Set(docData.map(i => i.date))].sort();
+            const incByDate = docDates.map(d => docData.filter(i => i.date === d && i.docType === 'ຂາເຂົ້າ').length);
+            const outByDate = docDates.map(d => docData.filter(i => i.date === d && i.docType === 'ຂາອອກ').length);
+
+            chartDocTrendsInstance.data = {
+                labels: docDates,
+                datasets: [
+                    { label: 'ຂາເຂົ້າ', data: incByDate, borderColor: '#60a5fa', tension: 0.3, fill: false },
+                    { label: 'ຂາອອກ', data: outByDate, borderColor: '#c084fc', tension: 0.3, fill: false }
+                ]
+            };
+            chartDocTrendsInstance.update();
+
+            // 3. Status Breakdown
+            const approvedCount = prData.filter(i => i.status === 'ອະນຸມັດແລ້ວ').length;
+            const pendingCount = prData.filter(i => i.status === 'ກຳລັງດຳເນີນການ').length;
+            const rejectedCount = prData.filter(i => i.status === 'ປະຕິເສດ').length;
+
+            chartDocStatusInstance.data = {
+                labels: ['ອະນຸມັດແລ້ວ', 'ກຳລັງດຳເນີນການ', 'ປະຕິເສດ'],
+                datasets: [{
+                    data: [approvedCount, pendingCount, rejectedCount],
+                    backgroundColor: ['#10b981', '#f59e0b', '#f43f5e']
+                }]
+            };
+            chartDocStatusInstance.update();
+
+            // 4. Dept Efficiency Rate
+            const deptEfficiencies = depts.map((d, idx) => {
+                const pr = prByDept[idx];
+                const disb = disbByDept[idx];
+                return pr > 0 ? ((disb / pr) * 100).toFixed(1) : 0;
+            });
+
+            chartDeptEfficiencyInstance.data = {
+                labels: depts.map(d => d.replace('ພະແນກ', '')),
+                datasets: [{
+                    label: 'ປະສິດທິພາບ %',
+                    data: deptEfficiencies,
+                    backgroundColor: '#06b6d4',
+                    borderRadius: 6
+                }]
+            };
+            chartDeptEfficiencyInstance.update();
+        }
+
+        function renderPRTable() {
+            const tbody = document.getElementById('pr-table-body');
+            const search = document.getElementById('pr-search').value.toLowerCase();
+            const statusFilter = document.getElementById('pr-status-filter').value;
+
+            const filtered = prRecords.filter(item => {
+                const matchSearch = item.title.toLowerCase().includes(search) || item.dept.toLowerCase().includes(search);
+                const matchStatus = statusFilter === 'ALL' || item.status === statusFilter;
+                return matchSearch && matchStatus;
+            });
+
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-3 font-mono text-slate-400">${item.date}</td>
+                    <td class="p-3 font-medium text-white">${item.title}</td>
+                    <td class="p-3 text-slate-300">${item.dept}</td>
+                    <td class="p-3 text-right font-mono text-indigo-300">${formatKip(item.prAmount)}</td>
+                    <td class="p-3 text-right font-mono text-emerald-400">${formatKip(item.disbursedAmount)}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${
+                            item.status === 'ອະນຸມັດແລ້ວ' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                            item.status === 'ກຳລັງດຳເນີນການ' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                            'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                        }">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="editPR('${item.id}')" class="text-indigo-400 hover:text-indigo-300 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deletePR('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDocTable() {
+            const tbody = document.getElementById('doc-table-body');
+            const search = document.getElementById('doc-search').value.toLowerCase();
+            const typeFilter = document.getElementById('doc-type-filter').value;
+
+            const filtered = docLogs.filter(item => {
+                const matchSearch = item.refNo.toLowerCase().includes(search) || item.title.toLowerCase().includes(search) || item.party.toLowerCase().includes(search);
+                const matchType = typeFilter === 'ALL' || item.docType === typeFilter;
+                return matchSearch && matchType;
+            });
+
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-3 font-mono text-slate-400">${item.date}</td>
+                    <td class="p-3 font-mono text-indigo-400 font-semibold">${item.refNo}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-medium ${item.docType === 'ຂາເຂົ້າ' ? 'bg-blue-500/10 text-blue-400' : 'bg-purple-500/10 text-purple-400'}">
+                            ${item.docType}
+                        </span>
+                    </td>
+                    <td class="p-3 font-medium text-white">${item.title}</td>
+                    <td class="p-3 text-slate-300">${item.party}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold ${
+                            item.status === 'ສຳເລັດ' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                            item.status === 'ກຳລັງດຳເນີນການ' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                            'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                        }">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="editDoc('${item.id}')" class="text-indigo-400 hover:text-indigo-300 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteDoc('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openPRModal(isEdit = false) {
+            document.getElementById('pr-modal-title').innerText = isEdit ? 'ແກ້ໄຂรายการ PR' : 'ເພີ່ມรายการ PR ໃໝ່';
+            if (!isEdit) {
+                document.getElementById('pr-id').value = '';
+                document.getElementById('pr-form').reset();
+                document.getElementById('pr-date').value = new Date().toISOString().split('T')[0];
+            }
+            document.getElementById('pr-modal').classList.remove('hidden');
+        }
+
+        function closePRModal() {
+            document.getElementById('pr-modal').classList.add('hidden');
+        }
+
+        function handlePRSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('pr-id').value || 'PR-' + Date.now();
+            const record = {
+                id,
+                date: document.getElementById('pr-date').value,
+                title: document.getElementById('pr-title').value,
+                dept: document.getElementById('pr-dept').value,
+                prAmount: Number(document.getElementById('pr-amount').value),
+                disbursedAmount: Number(document.getElementById('pr-disbursed').value),
+                status: document.getElementById('pr-status').value
+            };
+
+            const idx = prRecords.findIndex(i => i.id === id);
+            if (idx >= 0) {
+                prRecords[idx] = record;
+                showToast('ແກ້ໄຂຂໍ້ມູນ PR ສຳເລັດແລ້ວ', 'success');
+            } else {
+                prRecords.unshift(record);
+                showToast('ເພີ່ມຂໍ້ມູນ PR ໃໝ່ສຳເລັດແລ້ວ', 'success');
+            }
+
+            saveState();
+            closePRModal();
+            renderPRTable();
+            updateDashboard();
+        }
+
+        function editPR(id) {
+            const item = prRecords.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('pr-id').value = item.id;
+            document.getElementById('pr-date').value = item.date;
+            document.getElementById('pr-title').value = item.title;
+            document.getElementById('pr-dept').value = item.dept;
+            document.getElementById('pr-amount').value = item.prAmount;
+            document.getElementById('pr-disbursed').value = item.disbursedAmount;
+            document.getElementById('pr-status').value = item.status;
+            openPRModal(true);
+        }
+
+        async function deletePR(id) {
+            const confirmed = await openConfirmModal('ທ່ານຕ້ອງການລຶບรายการ PR ນີ້ບໍ?');
+            if (confirmed) {
+                prRecords = prRecords.filter(i => i.id !== id);
+                saveState();
+                renderPRTable();
+                updateDashboard();
+                showToast('ລຶບຂໍ້ມູນ PR ສຳເລັດ', 'warning');
+            }
+        }
+
+        function openDocModal(isEdit = false) {
+            document.getElementById('doc-modal-title').innerText = isEdit ? 'ແກ້ໄຂເອກະສານ' : 'ເພີ່ມເອກະສານໃໝ່';
+            if (!isEdit) {
+                document.getElementById('doc-id').value = '';
+                document.getElementById('doc-form').reset();
+                document.getElementById('doc-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('doc-ref').value = 'DOC-2026-' + String(docLogs.length + 1).padStart(3, '0');
+            }
+            document.getElementById('doc-modal').classList.remove('hidden');
+        }
+
+        function closeDocModal() {
+            document.getElementById('doc-modal').classList.add('hidden');
+        }
+
+        function handleDocSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('doc-id').value || 'DOC-' + Date.now();
+            const record = {
+                id,
+                date: document.getElementById('doc-date').value,
+                refNo: document.getElementById('doc-ref').value,
+                docType: document.getElementById('doc-type').value,
+                title: document.getElementById('doc-title').value,
+                party: document.getElementById('doc-party').value,
+                status: document.getElementById('doc-status').value
+            };
+
+            const idx = docLogs.findIndex(i => i.id === id);
+            if (idx >= 0) {
+                docLogs[idx] = record;
+                showToast('ແກ້ໄຂເອກະສານສຳເລັດ', 'success');
+            } else {
+                docLogs.unshift(record);
+                showToast('ເພີ່ມເອກະສານໃໝ່ສຳເລັດ', 'success');
+            }
+
+            saveState();
+            closeDocModal();
+            renderDocTable();
+            updateDashboard();
+        }
+
+        function editDoc(id) {
+            const item = docLogs.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('doc-id').value = item.id;
+            document.getElementById('doc-date').value = item.date;
+            document.getElementById('doc-ref').value = item.refNo;
+            document.getElementById('doc-type').value = item.docType;
+            document.getElementById('doc-title').value = item.title;
+            document.getElementById('doc-party').value = item.party;
+            document.getElementById('doc-status').value = item.status;
+            openDocModal(true);
+        }
+
+        async function deleteDoc(id) {
+            const confirmed = await openConfirmModal('ທ່ານຕ້ອງການລຶບເອກະສານນີ້ບໍ?');
+            if (confirmed) {
+                docLogs = docLogs.filter(i => i.id !== id);
+                saveState();
+                renderDocTable();
+                updateDashboard();
+                showToast('ລຶບເອກະສານສຳເລັດ', 'warning');
+            }
+        }
+
+        function exportDataJSON() {
+            const fullData = {
+                exportedAt: new Date().toISOString(),
+                prRecords,
+                docLogs
+            };
+            const blob = new Blob([JSON.stringify(fullData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lao_bi_dashboard_export_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('ສົ່ງອອກຂໍ້ມູນ JSON ສຳເລັດແລ້ວ', 'success');
+        }
+
+        function openImportModal() {
+            document.getElementById('import-modal').classList.remove('hidden');
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.add('hidden');
+        }
+
+        function handleFileImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    if (imported.prRecords && imported.docLogs) {
+                        prRecords = imported.prRecords;
+                        docLogs = imported.docLogs;
+                        saveState();
+                        updateDashboard();
+                        renderPRTable();
+                        renderDocTable();
+                        closeImportModal();
+                        showToast('ນຳເຂົ້າຂໍ້ມູນສຳເລັດແລ້ວ', 'success');
+                    } else {
+                        showToast('ຮູບແບບໄຟລ໌ບໍ່ຖືກຕ້ອງ', 'error');
+                    }
+                } catch (err) {
+                    showToast('ເກີດຂໍ້ຜິດພາດໃນການອ່ານໄຟລ໌', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function confirmResetSampleData() {
+            const confirmed = await openConfirmModal('ທ່ານຕ້ອງການໂຫຼດຂໍ້ມູນຕົວຢ່າງຄືນໃໝ່ບໍ? ຂໍ້ມູນປະຈຸບັນຈະຖືກແທນທີ່');
+            if (confirmed) {
+                prRecords = [...SAMPLE_PR_DATA];
+                docLogs = [...SAMPLE_DOC_DATA];
+                saveState();
+                updateDashboard();
+                renderPRTable();
+                renderDocTable();
+                showToast('ໂຫຼດຂໍ້ມູນຕົວຢ່າງສຳເລັດແລ້ວ', 'success');
+            }
+        }
+
+        async function confirmClearModal() {
+            const confirmed = await openConfirmModal('ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບຂໍ້ມູນທັງໝົດໃນລະບົບ?');
+            if (confirmed) {
+                prRecords = [];
+                docLogs = [];
+                saveState();
+                updateDashboard();
+                renderPRTable();
+                renderDocTable();
+                showToast('ລຶບຂໍ້ມູນທັງໝົດສຳເລັດແລ້ວ', 'warning');
+            }
+        }
+
+        function updateReportView(prData, docData, totalPR, totalDisbursed, efficiency) {
+            document.getElementById('report-pr-total').innerText = formatKip(totalPR);
+            document.getElementById('report-disbursed-total').innerText = formatKip(totalDisbursed);
+            document.getElementById('report-efficiency').innerText = `${efficiency}%`;
+            document.getElementById('report-doc-total').innerText = `${docData.length} ສະບັບ`;
+
+            document.getElementById('report-generated-date').innerText = new Date().toLocaleDateString('lo-LA');
+
+            const depts = [...new Set(prRecords.map(i => i.dept))];
+            const deptTbody = document.getElementById('report-dept-table');
+
+            deptTbody.innerHTML = depts.map(dept => {
+                const deptPR = prData.filter(i => i.dept === dept && i.status !== 'ປະຕິເສດ').reduce((s, i) => s + Number(i.prAmount), 0);
+                const deptDisb = prData.filter(i => i.dept === dept).reduce((s, i) => s + Number(i.disbursedAmount), 0);
+                const deptEff = deptPR > 0 ? ((deptDisb / deptPR) * 100).toFixed(1) : 0;
+
+                return `
+                    <tr>
+                        <td class="p-2 font-medium">${dept}</td>
+                        <td class="p-2 text-right font-mono">${formatKip(deptPR)}</td>
+                        <td class="p-2 text-right font-mono text-emerald-400">${formatKip(deptDisb)}</td>
+                        <td class="p-2 text-right font-mono">${deptEff}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('report-inc-count').innerText = docData.filter(d => d.docType === 'ຂາເຂົ້າ').length;
+            document.getElementById('report-out-count').innerText = docData.filter(d => d.docType === 'ຂາອອກ').length;
+            document.getElementById('report-pend-count').innerText = docData.filter(d => d.status === 'ຄ້າງ' || d.status === 'ກຳລັງດຳເນີນການ').length;
+        }
+
+        function openConfirmModal(msg) {
+            document.getElementById('confirm-modal-msg').innerText = msg;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+            return new Promise(resolve => {
+                confirmResolver = resolve;
+            });
+        }
+
+        function closeConfirmModal(result) {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            if (confirmResolver) {
+                confirmResolver(result);
+                confirmResolver = null;
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('theme-icon');
+            if (isDark) {
+                icon.className = 'fa-solid fa-moon';
+                showToast('ປ່ຽນເປັນ Dark Mode', 'info');
+            } else {
+                icon.className = 'fa-solid fa-sun text-amber-400';
+                showToast('ປ່ຽນເປັນ Light Mode', 'info');
+            }
+            initCharts();
+            updateDashboard();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
+                el.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
+                activeNav.classList.remove('text-slate-400');
+            }
+
+            const titleMap = {
+                'overview': 'ສະຖິຕິ ແລະ ການວິເຄາະພາບລວມ',
+                'pr-data': 'ຈັດການຂໍ້ມູນ ງົບປະມານ PR & ເບີກ-ຈ່າຍ',
+                'docs-data': 'ຈັດການເອກະສານ ຂາເຂົ້າ-ຂາອອກ',
+                'reports': 'ບົດລາຍງານສະຫຼຸບສຳລັບຜູ້ບໍລິຫານ'
+            };
+            document.getElementById('page-title').innerText = titleMap[tabId] || 'ລະບົບ Dashboard ວິເຄາະ';
+
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function triggerPrint() {
+            switchTab('reports');
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+    </script>
+</body>
+</html>
