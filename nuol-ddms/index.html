@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ລະບົບຄຸ້ມຄອງຂໍ້ມູນການຕ້ອນຮັບ ແລະ ສັນຍາຄວາມຮ່ວມມື - ມຊ (NUOL Tracker)</title>
+    
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0B1E31',
+                            900: '#0F2942',
+                            950: '#081624',
+                        },
+                        gold: {
+                            400: '#E5C158',
+                            500: '#D4AF37',
+                            600: '#B89320',
+                        },
+                        burgundy: {
+                            700: '#800020',
+                            800: '#600018',
+                        }
+                    },
+                    fontFamily: {
+                        lao: ['Noto Sans Lao', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #F8FAFC;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Print Media Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background-color: white !important;
+                color: black !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #E2E8F0 !important;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NUOL-DDMS">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col text-slate-800 antialiased font-lao">
+
+    <header class="bg-navy-900 text-white shadow-lg border-b-4 border-gold-500 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- University Logo / Branding -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-14 h-14 rounded-full bg-gold-500 text-navy-900 flex items-center justify-center font-bold text-2xl shadow-inner border-2 border-white">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-burgundy-700 text-xs text-white px-2 py-0.5 rounded uppercase font-semibold tracking-wider">ມຊ (NUOL)</span>
+                            <span class="text-xs text-gold-400">International & Academic Cooperation Management System</span>
+                        </div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-wide mt-0.5">
+                            ລະບົບຄຸ້ມຄອງຂໍ້ມູນການຕ້ອນຮັບ ແລະ ສັນຍາຄວາມຮ່ວມມື (MOU/MOA)
+                        </h1>
+                        <p class="text-xs text-slate-300">ມະຫາວິທະຍາໄລແຫ່ງຊາດ Lao National University</p>
+                    </div>
+                </div>
+
+                <!-- Action Controls & Status -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="loadSampleData()" class="bg-navy-800 hover:bg-slate-800 text-gold-400 border border-gold-500/50 text-xs px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-database"></i>
+                        <span>ໂຫຼດຂໍ້ມູນຕົວຢ່າງ</span>
+                    </button>
+                    <button onclick="switchTab('tab-backup')" class="bg-gold-500 hover:bg-gold-600 text-navy-900 font-medium text-xs px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>สำຮອງ/ນຳເຂົ້າ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-navy-950 text-slate-300 shadow-md sticky top-0 z-30 no-print border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-start sm:justify-between overflow-x-auto no-scrollbar py-1 space-x-1 sm:space-x-2">
+                <button onclick="switchTab('tab-dashboard')" id="btn-tab-dashboard" class="nav-tab px-3.5 py-2.5 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 whitespace-nowrap bg-gold-500 text-navy-900 font-semibold shadow">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>ແຜງຄວບຄຸມ (Dashboard)</span>
+                </button>
+                <button onclick="switchTab('tab-data')" id="btn-tab-data" class="nav-tab px-3.5 py-2.5 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-navy-900 hover:text-white">
+                    <i class="fa-solid fa-table-list"></i>
+                    <span>ຈັດການຂໍ້ມູນ (Data)</span>
+                </button>
+                <button onclick="switchTab('tab-reports')" id="btn-tab-reports" class="nav-tab px-3.5 py-2.5 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-navy-900 hover:text-white">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>ລາຍງານສະຫຼຸບ (Reports)</span>
+                </button>
+                <button onclick="switchTab('tab-schema')" id="btn-tab-schema" class="nav-tab px-3.5 py-2.5 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-navy-900 hover:text-white">
+                    <i class="fa-solid fa-sitemap"></i>
+                    <span>ໂຄງສ້າງ DB (Schema)</span>
+                </button>
+                <button onclick="switchTab('tab-files')" id="btn-tab-files" class="nav-tab px-3.5 py-2.5 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-navy-900 hover:text-white">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>ຈັດເກັມຟາຍ & ຊື່ຟາຍ</span>
+                </button>
+                <button onclick="switchTab('tab-backup')" id="btn-tab-backup" class="nav-tab px-3.5 py-2.5 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-navy-900 hover:text-white">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>ຈັດການລະບົບ & ຂໍ້ມູນ</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= TAB 1: DASHBOARD & ANALYTICS ================= -->
+        <div id="tab-dashboard" class="tab-content space-y-6">
+            
+            <!-- Top KPI Stat Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Total Delegations Card -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 flex items-center justify-between hover:shadow-md transition">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ຍອດຄະນະຜູ້ແທນທັງໝົດ</p>
+                        <h3 id="stat-total" class="text-3xl font-bold text-navy-900 mt-1">0</h3>
+                        <p class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-arrow-trend-up"></i> ສະຖິຕິຮວມທັງໝົດ</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-users-rectangle"></i>
+                    </div>
+                </div>
+
+                <!-- Foreign vs Domestic Card -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 flex items-center justify-between hover:shadow-md transition">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ຕ່າງປະເທດ / ພາຍໃນ</p>
+                        <h3 class="text-2xl font-bold text-navy-900 mt-1">
+                            <span id="stat-int" class="text-navy-900">0</span> <span class="text-xs font-normal text-slate-400">/</span> <span id="stat-dom" class="text-burgundy-700">0</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            <span class="inline-block w-2 h-2 rounded-full bg-navy-900"></span> ຕ່າງປະເທດ 
+                            <span class="inline-block w-2 h-2 rounded-full bg-burgundy-700 ml-2"></span> ພາຍໃນ
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-navy-900 flex items-center justify-center text-xl border border-blue-100">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                </div>
+
+                <!-- MOU / MOA Agreements Card -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 flex items-center justify-between hover:shadow-md transition">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ສັນຍາ MOU / MOA</p>
+                        <h3 id="stat-agreements" class="text-3xl font-bold text-burgundy-700 mt-1">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">ສັນຍາຄວາມຮ່ວມມືທີ່ໄດ້ເຊັນ</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-burgundy-700 text-white flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-file-contract"></i>
+                    </div>
+                </div>
+
+                <!-- Top Country Partner Card -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 flex items-center justify-between hover:shadow-md transition">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ປະເທດຮ່ວມມືຫຼາຍທີ່ສຸດ</p>
+                        <h3 id="stat-top-country" class="text-xl font-bold text-navy-900 mt-1 truncate max-w-[150px]">-</h3>
+                        <p id="stat-top-country-count" class="text-xs text-gold-600 font-medium mt-1">0 ຄັ້ງ</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-gold-600 flex items-center justify-center text-xl border border-amber-200">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart 1: Monthly Visit Trends -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-navy-900 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-gold-500"></i>
+                            <span>ສະຖິຕິການຕ້ອນຮັບຕາມເດືອນ (Monthly Visit Trends)</span>
+                        </h3>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="chartMonthly"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Delegations by Country -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-navy-900 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-burgundy-700"></i>
+                            <span>ສັດສ່ວນຄະນະຜູ້ແທນຕາມປະເທດ/ອົງກອນ (By Country)</span>
+                        </h3>
+                    </div>
+                    <div class="h-64 relative flex justify-center">
+                        <canvas id="chartCountry"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 3: NUOL Host Executive Breakdown -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-navy-900 flex items-center gap-2">
+                            <i class="fa-solid fa-user-tie text-navy-900"></i>
+                            <span>ຄວາມຖີ່ການຕ້ອນຮັບຂອງຜູ້ບໍລິຫານ ມຊ (Host Executives)</span>
+                        </h3>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="chartHost"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 4: Agreement / Document Types -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-navy-900 flex items-center gap-2">
+                            <i class="fa-solid fa-folder-open text-emerald-600"></i>
+                            <span>ປະເພດເອກະສານ / ສັນຍາ (Document Categories)</span>
+                        </h3>
+                    </div>
+                    <div class="h-64 relative flex justify-center">
+                        <canvas id="chartDocType"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Table Preview -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                    <h3 class="font-bold text-navy-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-navy-900"></i>
+                        <span>ລາຍການຕ້ອນຮັບລ່າສຸດ (Recent Delegation Visits)</span>
+                    </h3>
+                    <button onclick="switchTab('tab-data')" class="text-xs text-navy-900 hover:text-gold-600 font-semibold flex items-center gap-1">
+                        <span>ເບິ່ງທັງໝົດ</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-100 text-slate-600 uppercase font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">ວັນທີ</th>
+                                <th class="p-3">ປະເພດ</th>
+                                <th class="p-3">ປະເທດ / ອົງກອນ</th>
+                                <th class="p-3">ຫົວໜ້າຄະນະ</th>
+                                <th class="p-3">ຜູ້ຕ້ອນຮັບຝ່າຍ ມຊ</th>
+                                <th class="p-3">ປະເພດເອກະສານ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-recent-body" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 2: DATA MANAGEMENT & CRUD ================= -->
+        <div id="tab-data" class="tab-content hidden space-y-4">
+            
+            <!-- Controls & Action Bar -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-3">
+                
+                <!-- Search and Filters -->
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="filter-search" oninput="renderDataTable()" placeholder="ຄົ້ນຫາຊື່, ອົງກອນ, ຫົວຂໍ້..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900 focus:outline-none">
+                    </div>
+
+                    <select id="filter-type" onchange="renderDataTable()" class="px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900 focus:outline-none">
+                        <option value="ALL">ທຸກປະເພດ (ຕ່າງປະເທດ/ພາຍໃນ)</option>
+                        <option value="ຕ່າງປະເທດ">ຕ່າງປະເທດ (International)</option>
+                        <option value="ພາຍໃນ">ພາຍໃນ (Domestic)</option>
+                    </select>
+
+                    <select id="filter-year" onchange="renderDataTable()" class="px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900 focus:outline-none">
+                        <option value="ALL">ທຸກໆປີ (All Years)</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+
+                <!-- Add Button -->
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <button onclick="openRecordModal()" class="w-full sm:w-auto bg-navy-900 hover:bg-slate-800 text-white font-medium text-xs px-4 py-2.5 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow">
+                        <i class="fa-solid fa-plus-circle text-gold-400"></i>
+                        <span>ເພີ່ມຂໍ້ມູນຄະນະຜູ້ແທນໃໝ່</span>
+                    </button>
+                    <button onclick="confirmClearAllData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-medium text-xs px-3 py-2.5 rounded-lg transition duration-200 flex items-center justify-center gap-1.5" title="ລຶບຂໍ້ມູນທັງໝົດ">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Data Table Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-navy-900 text-white uppercase font-semibold text-xs tracking-wider">
+                            <tr>
+                                <th class="p-3.5">ວັນທີ</th>
+                                <th class="p-3.5">ປະເພດ</th>
+                                <th class="p-3.5">ປະເທດ/ອົງກອນ</th>
+                                <th class="p-3.5">ຫົວໜ້າຄະນະຜູ້ແທນ</th>
+                                <th class="p-3.5">ຜູ້ຕ້ອນຮັບຝ່າຍ ມຊ</th>
+                                <th class="p-3.5">ປະເພດເອກະສານ</th>
+                                <th class="p-3.5">ຟາຍ/ລິ້ງ</th>
+                                <th class="p-3.5 text-center">ຈັດການ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crud-table-body" class="divide-y divide-slate-100">
+                            <!-- Populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer / Pagination status -->
+                <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                    <div id="table-count-info">ສະແດງ 0 ຈາກ 0 ລາຍການ</div>
+                    <div class="text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i>ກົດທີ່ປຸ່ມຈັດການເພື່ອເບິ່ງ detail, ແກ້ໄຂ ຫຼື ລຶບ</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 3: REPORTING ENGINE ================= -->
+        <div id="tab-reports" class="tab-content hidden space-y-6">
+            
+            <!-- Filter Bar for Reports -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 no-print space-y-4">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h3 class="font-bold text-navy-900 text-base">ລາຍງານສະຫຼຸບການຕ້ອນຮັບ ແລະ MOU/MOA</h3>
+                        <p class="text-xs text-slate-500">ເລືອກຊ່ວງເວລາ ແລະ ຮູບແບບລາຍງານເພື່ອຈັດພິມ ຫຼື ສົ່ງອອກ PDF</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.print()" class="bg-burgundy-700 hover:bg-burgundy-800 text-white text-xs px-4 py-2.5 rounded-lg transition duration-200 flex items-center gap-2 shadow">
+                            <i class="fa-solid fa-print"></i>
+                            <span>ພິມລາຍງານ (Print / PDF)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Time Range Selectors -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">ຮູບແບບລາຍງານ</label>
+                        <select id="report-period" onchange="updateReportView()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                            <option value="YEARLY">ປະຈຳປີ (Yearly)</option>
+                            <option value="MONTHLY">ປະຈຳເດືອນ (Monthly)</option>
+                            <option value="WEEKLY">ປະຈຳອາທິດ (Weekly)</option>
+                            <option value="CUSTOM">ກຳນົດເອງ (Custom Range)</option>
+                        </select>
+                    </div>
+
+                    <div id="report-year-container">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">ເລືອກປີ</label>
+                        <select id="report-year" onchange="updateReportView()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+
+                    <div id="report-month-container">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">ເລືອກເດືອນ</label>
+                        <select id="report-month" onchange="updateReportView()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                            <option value="ALL">ທຸກໆເດືອນ (All Months)</option>
+                            <option value="01">ເດືອນ 1 (ມັງກອນ)</option>
+                            <option value="02">ເດືອນ 2 (ກຸມພາ)</option>
+                            <option value="03">ເດືອນ 3 (ມີນາ)</option>
+                            <option value="04">ເດືອນ 4 (ເມສາ)</option>
+                            <option value="05">ເດືອນ 5 (ພຶດສະພາ)</option>
+                            <option value="06">ເດືອນ 6 (ມິຖຸນາ)</option>
+                            <option value="07">ເດືອນ 7 (ກໍລະກົດ)</option>
+                            <option value="08">ເດືອນ 8 (ສິງຫາ)</option>
+                            <option value="09">ເດືອນ 9 (ກັນຍາ)</option>
+                            <option value="10">ເດືອນ 10 (ຕຸລາ)</option>
+                            <option value="11">ເດືອນ 11 (ພະຈິກ)</option>
+                            <option value="12">ເດືອນ 12 (ທັນວາ)</option>
+                        </select>
+                    </div>
+
+                    <div id="report-custom-container" class="hidden flex gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ແຕ່ວັນທີ</label>
+                            <input type="date" id="report-start-date" onchange="updateReportView()" class="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ເຖິງວັນທີ</label>
+                            <input type="date" id="report-end-date" onchange="updateReportView()" class="w-full px-2 py-2 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRINTABLE REPORT SHEET AREA -->
+            <div id="printable-report" class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 space-y-6 print-card">
+                
+                <!-- Report Formal Header -->
+                <div class="border-b-2 border-navy-900 pb-4 text-center space-y-1">
+                    <p class="font-bold text-sm text-navy-900">ສາທາລະນະລັດ ປະຊາທິປະໄຕ ປະຊາຊົນລາວ</p>
+                    <p class="text-xs text-slate-600 font-medium">ສັນຕິພາບ ເອກະລາດ ປະຊາທິປະໄຕ ເອກະພາບ ວັດທະນະຖາວອນ</p>
+                    <div class="py-2">
+                        <p class="font-bold text-base text-navy-900">ມະຫາວິທະຍາໄລແຫ່ງຊາດ</p>
+                        <p class="text-xs text-slate-600">ຫ້ອງການວິເທດສຳພັນ ແລະ ຄວາມຮ່ວມມື</p>
+                    </div>
+                    <h2 class="text-xl font-bold text-burgundy-700 pt-2 uppercase tracking-wide">
+                        ໃບສະຫຼຸບສະຖິຕິການຕ້ອນຮັບຄະນະຜູ້ແທນ ແລະ ການເຊັນສັນຍາຄວາມຮ່ວມມື
+                    </h2>
+                    <p id="report-period-label" class="text-xs text-slate-500 italic">ປະຈຳປີ 2026</p>
+                </div>
+
+                <!-- Report Executive Summary Box -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div>
+                        <p class="text-xs text-slate-500">ຍອດຄະນະຜູ້ແທນ:</p>
+                        <p id="rep-stat-total" class="text-lg font-bold text-navy-900">0 ຄັ້ງ</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">ຕ່າງປະເທດ / ພາຍໃນ:</p>
+                        <p id="rep-stat-ratio" class="text-lg font-bold text-navy-900">0 / 0</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">ສັນຍາ MOU/MOA:</p>
+                        <p id="rep-stat-mou" class="text-lg font-bold text-burgundy-700">0 ສະບັບ</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">ປະເທດຮ່ວມມືຫຼັກ:</p>
+                        <p id="rep-stat-top-country" class="text-lg font-bold text-gold-600">-</p>
+                    </div>
+                </div>
+
+                <!-- Detail Table for Report -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-sm text-navy-900">ລາຍລະອຽດບັນຊີຄະນະຜູ້ແທນ ແລະ ເອກະສານ:</h4>
+                    <table class="w-full text-left text-xs border border-slate-300 border-collapse">
+                        <thead class="bg-slate-100 text-slate-800 font-semibold border-b border-slate-300">
+                            <tr>
+                                <th class="p-2 border border-slate-300">ລ/ດ</th>
+                                <th class="p-2 border border-slate-300">ວັນທີ</th>
+                                <th class="p-2 border border-slate-300">ປະເພດ</th>
+                                <th class="p-2 border border-slate-300">ປະເທດ / ອົງກອນ</th>
+                                <th class="p-2 border border-slate-300">ຫົວໜ້າຄະນະ</th>
+                                <th class="p-2 border border-slate-300">ຜູ້ຕ້ອນຮັບຝ່າຍ ມຊ</th>
+                                <th class="p-2 border border-slate-300">ຫົວຂໍ້ການພົບປະ / MOU</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Report Signatures Block -->
+                <div class="pt-8 grid grid-cols-2 text-center text-xs space-y-2 border-t border-slate-200">
+                    <div>
+                        <p class="font-semibold text-slate-700">ຜູ້ຈັດເຮັດລາຍງານ (IT & Data Analyst)</p>
+                        <p class="text-slate-400 mt-12">(ລາຍເຊັນ ແລະ ຊື່ເຕັມ)</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-slate-700">ຫົວໜ້າຫ້ອງການວິເທດສຳພັນ ມຊ</p>
+                        <p class="text-slate-400 mt-12">(ລາຍເຊັນ ແລະ ຕາປະທັບ)</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 4: DATABASE SCHEMA & ARCHITECTURE ================= -->
+        <div id="tab-schema" class="tab-content hidden space-y-6">
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div>
+                        <h3 class="font-bold text-navy-900 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-database text-gold-500"></i>
+                            <span>ໂຄງສ້າງຖານຂໍ້ມູນ (Database Schema & Table Design)</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">ອອກແບບສະເພາະສຳລັບ IT & Data Analyst ມຊ ເພື່ອຮອງຮັບການຂະຫຍາຍຕົວ ແລະ ວິເຄາະຂໍ້ມູນ</p>
+                    </div>
+                    <span class="bg-navy-900 text-gold-400 text-xs px-3 py-1 rounded-full font-semibold">Relational DB Design</span>
+                </div>
+
+                <!-- Interactive Visual ERD Flow Diagram -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-sm text-navy-900 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-burgundy-700"></i>
+                        <span>ແຜນຜັງຄວາມສຳພັນຖານຂໍ້ມູນ (Entity Relationship Diagram - ERD)</span>
+                    </h4>
+                    
+                    <div class="p-6 bg-slate-900 rounded-xl text-white font-mono text-xs overflow-x-auto shadow-inner border border-slate-800">
+                        <div class="flex flex-col lg:flex-row items-center justify-between gap-6 min-w-[750px]">
+                            
+                            <!-- Entity 1: Foreign/Local Org -->
+                            <div class="bg-slate-800 border-2 border-blue-500 rounded-lg p-3 w-56 shadow">
+                                <div class="font-bold text-blue-400 border-b border-slate-700 pb-1 mb-2 text-center">tbl_delegations</div>
+                                <div class="space-y-1 text-slate-300">
+                                    <div><span class="text-amber-400 font-bold">PK</span> delegation_id</div>
+                                    <div>org_name_lao / eng</div>
+                                    <div>country_name</div>
+                                    <div>delegation_type (INT/DOM)</div>
+                                    <div>head_of_delegation</div>
+                                </div>
+                            </div>
+
+                            <div class="text-slate-500 text-lg font-bold"><i class="fa-solid fa-arrow-right"></i> 1:N</div>
+
+                            <!-- Entity 2: Visits (Central Entity) -->
+                            <div class="bg-slate-800 border-2 border-gold-500 rounded-lg p-3 w-64 shadow">
+                                <div class="font-bold text-gold-400 border-b border-slate-700 pb-1 mb-2 text-center">tbl_visits (Central Event)</div>
+                                <div class="space-y-1 text-slate-300">
+                                    <div><span class="text-amber-400 font-bold">PK</span> visit_id</div>
+                                    <div><span class="text-cyan-400">FK</span> delegation_id</div>
+                                    <div>visit_date (YYYY-MM-DD)</div>
+                                    <div>meeting_topic</div>
+                                    <div>doc_category</div>
+                                    <div>created_at / updated_at</div>
+                                </div>
+                            </div>
+
+                            <div class="text-slate-500 text-lg font-bold">N:M <i class="fa-solid fa-arrow-right"></i></div>
+
+                            <!-- Entity 3: Host Executives & Media -->
+                            <div class="space-y-3">
+                                <div class="bg-slate-800 border-2 border-emerald-500 rounded-lg p-3 w-56 shadow">
+                                    <div class="font-bold text-emerald-400 border-b border-slate-700 pb-1 mb-2 text-center">tbl_executives</div>
+                                    <div class="space-y-1 text-slate-300">
+                                        <div><span class="text-amber-400 font-bold">PK</span> exec_id</div>
+                                        <div>exec_title (ອະທິການບໍດີ...)</div>
+                                        <div>exec_name</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-800 border-2 border-burgundy-700 rounded-lg p-3 w-56 shadow">
+                                    <div class="font-bold text-rose-400 border-b border-slate-700 pb-1 mb-2 text-center">tbl_media_files</div>
+                                    <div class="space-y-1 text-slate-300">
+                                        <div><span class="text-amber-400 font-bold">PK</span> media_id</div>
+                                        <div><span class="text-cyan-400">FK</span> visit_id</div>
+                                        <div>file_path_pdf</div>
+                                        <div>file_path_photo</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Tables Specifications -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <!-- Table 1 -->
+                    <div class="border border-slate-200 rounded-lg p-4 bg-slate-50 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-navy-900 text-sm">1. ຕາຕະລາງ `tbl_visits` (ກິດຈະກຳການຕ້ອນຮັບ)</span>
+                            <span class="text-xs bg-navy-100 text-navy-800 px-2 py-0.5 rounded">Primary Table</span>
+                        </div>
+                        <ul class="text-xs text-slate-600 space-y-1 font-mono">
+                            <li>• <strong class="text-slate-800">id:</strong> VARCHAR(20) [PK] - ລະຫັດກິດຈະກຳ (VIS-2026-001)</li>
+                            <li>• <strong class="text-slate-800">date:</strong> DATE - ວັນທີຕ້ອນຮັບ (YYYY-MM-DD)</li>
+                            <li>• <strong class="text-slate-800">type:</strong> ENUM('ຕ່າງປະເທດ', 'ພາຍໃນ')</li>
+                            <li>• <strong class="text-slate-800">country:</strong> VARCHAR(100) - ຊື່ປະເທດ</li>
+                            <li>• <strong class="text-slate-800">topic:</strong> TEXT - ເນື້ອຫາ/ຫົວຂໍ້ການພົບປະ</li>
+                        </ul>
+                    </div>
+
+                    <!-- Table 2 -->
+                    <div class="border border-slate-200 rounded-lg p-4 bg-slate-50 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-navy-900 text-sm">2. ຕາຕະລາງ `tbl_mou_agreements` (ສັນຍາ MOU/MOA)</span>
+                            <span class="text-xs bg-burgundy-100 text-burgundy-800 px-2 py-0.5 rounded">Contract Module</span>
+                        </div>
+                        <ul class="text-xs text-slate-600 space-y-1 font-mono">
+                            <li>• <strong class="text-slate-800">agreement_id:</strong> INT AUTO_INCREMENT [PK]</li>
+                            <li>• <strong class="text-slate-800">visit_id:</strong> VARCHAR(20) [FK] -> tbl_visits.id</li>
+                            <li>• <strong class="text-slate-800">doc_type:</strong> ENUM('MOU', 'MOA', 'Extension', 'Minutes')</li>
+                            <li>• <strong class="text-slate-800">doc_path:</strong> VARCHAR(255) - ລິ້ງເອກະສານ PDF</li>
+                            <li>• <strong class="text-slate-800">photo_path:</strong> VARCHAR(255) - ລິ້ງໂຟເດີຮູບພາບ</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 5: FILE DIRECTORY & GENERATOR ================= -->
+        <div id="tab-files" class="tab-content hidden space-y-6">
+            
+            <!-- File Structure Guide -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                <div class="border-b border-slate-200 pb-3">
+                    <h3 class="font-bold text-navy-900 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-folder-tree text-gold-500"></i>
+                        <span>ລະບົບຈັດເກັມຟາຍ & ໂຄງສ້າງໂຟນເດີ (Directory Standard)</span>
+                    </h3>
+                    <p class="text-xs text-slate-500">ແນະນຳໂຄງສ້າງການຕັ້ງຊື່ຟາຍ ແລະ ການຈັດເກັບຟາຍ PDF / ຮູບພາບ ໃຫ້ເປັນລະບຽບ</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Directory Tree Box -->
+                    <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs space-y-1.5 shadow-inner">
+                        <div class="text-gold-400 font-bold"><i class="fa-solid fa-hard-drive"></i> /NUOL_Archives/</div>
+                        <div class="pl-4 text-slate-300">├── 📁 <span class="text-amber-300">2026/</span></div>
+                        <div class="pl-8 text-slate-400">├── 📁 <span class="text-sky-300">01_Jan/</span></div>
+                        <div class="pl-12 text-slate-400">├── 📁 <span class="text-emerald-300">Documents_PDF/</span> (MOU, MOA)</div>
+                        <div class="pl-12 text-slate-400">└── 📁 <span class="text-purple-300">Photos/</span> (ຮູບພາບ)</div>
+                        <div class="pl-8 text-slate-400">├── 📁 <span class="text-sky-300">02_Feb/</span></div>
+                        <div class="pl-8 text-slate-400">└── 📁 <span class="text-sky-300">03_Mar/</span></div>
+                        <div class="pl-4 text-slate-300">├── 📁 <span class="text-amber-300">2025/</span></div>
+                        <div class="pl-4 text-slate-300">└── 📄 <span class="text-rose-400">README_File_Naming_Rules.txt</span></div>
+                    </div>
+
+                    <!-- Rules Checklist -->
+                    <div class="space-y-3 text-xs text-slate-600">
+                        <h4 class="font-bold text-sm text-navy-900">ຫຼັກການຕັ້ງຊື່ຟາຍ (Standard File Naming Formula):</h4>
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 font-mono">
+                            YYYYMMDD_[TYPE]_[ORG_NAME]_[DOC_TYPE].[ext]
+                        </div>
+                        <p><strong class="text-slate-800">ຕົວຢ່າງການຕັ້ງຊື່:</strong></p>
+                        <ul class="list-disc pl-5 space-y-1 font-mono">
+                            <li><span class="text-emerald-700">20260310_INT_China_YunnanUniv_MOA.pdf</span> (ເອກະສານ MOA)</li>
+                            <li><span class="text-blue-700">20260215_INT_Japan_UTokyo_Photos</span> (ໂຟນເດີຮູບ)</li>
+                            <li><span class="text-purple-700">20260220_DOM_MOES_Minutes.pdf</span> (ບົດບັນທຶກ)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                <h3 class="font-bold text-navy-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-burgundy-700"></i>
+                    <span>ເຄື່ອງມືຊ່ວຍສ້າງຊື່ຟາຍອັດໂນມັດ (Interactive Filename Generator)</span>
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">1. ວັນທີ (Date)</label>
+                        <input type="date" id="gen-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">2. ປະເພດ (Category)</label>
+                        <select id="gen-type" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                            <option value="INT">ຕ່າງປະເທດ (INT)</option>
+                            <option value="DOM">ພາຍໃນ (DOM)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">3. ຊື່ປະເທດ/ອົງກອນ (Short Name)</label>
+                        <input type="text" id="gen-org" placeholder="ເຊັ່ນ: Japan_UTokyo" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">4. ປະເພດເອກະສານ</label>
+                        <select id="gen-doc" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                            <option value="MOU">MOU</option>
+                            <option value="MOA">MOA</option>
+                            <option value="CourtesyCall">CourtesyCall</option>
+                            <option value="Minutes">Minutes</option>
+                            <option value="Photos">Photos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 pt-2">
+                    <button onclick="generateFileName()" class="bg-navy-900 hover:bg-slate-800 text-white font-medium text-xs px-4 py-2.5 rounded-lg transition">
+                        <i class="fa-solid fa-gear mr-1"></i> ສ້າງຊື່ຟາຍ (Generate)
+                    </button>
+                </div>
+
+                <!-- Result Box -->
+                <div id="gen-result-box" class="hidden p-4 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500">ຊື່ຟາຍທີ່ໄດ້ຮັບ:</p>
+                        <p id="gen-result-text" class="font-mono text-sm font-bold text-navy-900 mt-0.5">20260315_INT_Org_MOU.pdf</p>
+                    </div>
+                    <button onclick="copyGeneratedFileName()" class="bg-gold-500 hover:bg-gold-600 text-navy-900 font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>ກັອບປີ້ຊື່ຟາຍ</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 6: SYSTEM BACKUP & DATA MANAGEMENT ================= -->
+        <div id="tab-backup" class="tab-content hidden space-y-6">
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
+                <div class="border-b border-slate-200 pb-3">
+                    <h3 class="font-bold text-navy-900 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-gold-500"></i>
+                        <span>ການຈັດການຂໍ້ມູນ & สำຮອງຖານຂໍ້ມູນ (Data Backup & Maintenance)</span>
+                    </h3>
+                    <p class="text-xs text-slate-500">ບັນທຶກຂໍ້ມູນໃນ LocalStorage ອັດໂນມັດ. ທ່ານສາມາດສົ່ງອອກ (Export) ຫຼື ນຳເຂົ້າ (Import) ຂໍ້ມູນໄດ້ຕະຫຼອດເວລາ</p>
+                </div>
+
+                <!-- Local Storage Status Card -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-hard-drive"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-navy-900">ສະຖານະ LocalStorage Device PC/Mobile</h4>
+                            <p id="storage-status-text" class="text-xs text-slate-500">ບັນທຶກແລ້ວ 10 ລາຍການ (ຂະໜາດ ~12 KB)</p>
+                        </div>
+                    </div>
+                    <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-circle-check"></i> ອັດໂນມັດ Auto-Saved
+                    </span>
+                </div>
+
+                <!-- Export / Import Operations -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Export Box -->
+                    <div class="p-5 border border-slate-200 rounded-xl space-y-3 bg-white">
+                        <h4 class="font-bold text-sm text-navy-900 flex items-center gap-2">
+                            <i class="fa-solid fa-file-export text-navy-900"></i>
+                            <span>ສົ່ງອອກຂໍ້ມູນ (Export Backup)</span>
+                        </h4>
+                        <p class="text-xs text-slate-500">ດາວໂຫຼດຟາຍສຳຮອງເພື່ອເກັບໄວ້ໃນເຄື່ອງ PC/Mobile ຫຼື ນຳໄປໃຊ້ໃນ Excel</p>
+
+                        <div class="flex flex-wrap gap-2 pt-2">
+                            <button onclick="exportDataJSON()" class="bg-navy-900 hover:bg-slate-800 text-white text-xs px-4 py-2.5 rounded-lg transition flex items-center gap-2">
+                                <i class="fa-solid fa-file-code"></i>
+                                <span>Export JSON Backup</span>
+                            </button>
+
+                            <button onclick="exportDataCSV()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2.5 rounded-lg transition flex items-center gap-2">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Export Excel (CSV)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Import Box -->
+                    <div class="p-5 border border-slate-200 rounded-xl space-y-3 bg-white">
+                        <h4 class="font-bold text-sm text-navy-900 flex items-center gap-2">
+                            <i class="fa-solid fa-file-import text-burgundy-700"></i>
+                            <span>ນຳເຂົ້າຂໍ້ມູນ (Import JSON Backup)</span>
+                        </h4>
+                        <p class="text-xs text-slate-500">ເລືອກຟາຍ JSON ທີ່ໄດ້ Export ໄວ້ເພື່ອຟື້ນຟູຂໍ້ມູນ</p>
+
+                        <div class="pt-2">
+                            <input type="file" id="import-file-input" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                            <button onclick="document.getElementById('import-file-input').click()" class="bg-gold-500 hover:bg-gold-600 text-navy-900 font-semibold text-xs px-4 py-2.5 rounded-lg transition flex items-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-upload"></i>
+                                <span>ເລືອກຟາຍ JSON ເພື່ອນຳເຂົ້າ</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danger Zone / Restore Sample -->
+                <div class="p-5 border border-rose-200 bg-rose-50/50 rounded-xl space-y-3">
+                    <h4 class="font-bold text-sm text-rose-800 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>ການຈັດການລະບົບຂັ້ນສູງ</span>
+                    </h4>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="loadSampleData()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs px-4 py-2 rounded-lg transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> ໂຫຼດຂໍ້ມູນຕົວຢ່າງຄືນໃໝ່ (Reset Sample)
+                        </button>
+                        <button onclick="confirmClearAllData()" class="bg-rose-700 hover:bg-rose-800 text-white text-xs px-4 py-2 rounded-lg transition">
+                            <i class="fa-solid fa-trash mr-1"></i> ລ້າງຂໍ້ມູນທັງໝົດໃນລະບົບ (Clear DB)
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-navy-900 text-slate-400 text-xs py-6 border-t border-slate-800 no-print mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p class="font-medium text-slate-300">
+                © 2026 ມະຫາວິທະຍາໄລແຫ່ງຊາດ - National University of Laos (NUOL)
+            </p>
+            <p class="text-slate-500">
+                ພັດທະນາລະບົບໂດຍ IT & Data Analyst Center | ຮອງຮັບ PC ແລະ Mobile Devices
+            </p>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS SECTION ================= -->
+
+    <!-- Modal 1: Add / Edit Record Modal -->
+    <div id="modal-record" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden my-8 transform transition-all">
+            
+            <!-- Modal Header -->
+            <div class="bg-navy-900 text-white px-6 py-4 flex items-center justify-between border-b border-gold-500">
+                <h3 id="modal-title" class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-gold-400"></i>
+                    <span>ເພີ່ມຂໍ້ມູນການຕ້ອນຮັບໃໝ່</span>
+                </h3>
+                <button onclick="closeRecordModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="form-record" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="form-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ວັນທີຕ້ອນຮັບ <span class="text-rose-500">*</span></label>
+                        <input type="date" id="form-date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                    </div>
+
+                    <!-- Delegation Type -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ປະເພດແຂກ <span class="text-rose-500">*</span></label>
+                        <select id="form-type" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                            <option value="ຕ່າງປະເທດ">ຕ່າງປະເທດ (International)</option>
+                            <option value="ພາຍໃນ">ພາຍໃນ (Domestic)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Country -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ຊື່ປະເທດ <span class="text-rose-500">*</span></label>
+                        <input type="text" id="form-country" required placeholder="ເຊັ່ນ: ຍີ່ປຸ່ນ, ຈີນ, ຫວຽດນາມ, ລາວ..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                    </div>
+
+                    <!-- Organization -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ອົງກອນ / ມະຫາວິທະຍາໄລ <span class="text-rose-500">*</span></label>
+                        <input type="text" id="form-org" required placeholder="ເຊັ່ນ: ມະຫາວິທະຍາໄລໂຕກຽວ" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                    </div>
+                </div>
+
+                <!-- Head of Delegation -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ຫົວໜ້າຄະນະຜູ້ແທນ / ຕຳແໜ່ງ <span class="text-rose-500">*</span></label>
+                    <input type="text" id="form-head" required placeholder="ເຊັ່ນ: Prof. Dr. Hiroshi Tanaka (ອະທິການບໍດີ)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                </div>
+
+                <!-- NUOL Host Executives (Multi Selector) -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ຜູ້ຕ້ອນຮັບຝ່າຍ ມຊ (ເລືອກໄດ້ຫຼາຍທ່ານ)</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 border border-slate-200 rounded-lg bg-slate-50 text-xs">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="form-host" value="ອະທິການບໍດີ" class="rounded text-navy-900 focus:ring-navy-900">
+                            <span>ອະທິການບໍດີ (President)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="form-host" value="ຮອງອະທິການບໍດີ ຝ່າຍຕ່າງປະເທດ" class="rounded text-navy-900 focus:ring-navy-900">
+                            <span>ຮອງອະທິການບໍດີ ຝ່າຍຕ່າງປະເທດ</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="form-host" value="ຮອງອະທິການບໍດີ ຝ່າຍວິຊາການ" class="rounded text-navy-900 focus:ring-navy-900">
+                            <span>ຮອງອະທິການບໍດີ ຝ່າຍວິຊາການ</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="form-host" value="ຮອງອະທິການບໍດີ ຝ່າຍວິໄຈ" class="rounded text-navy-900 focus:ring-navy-900">
+                            <span>ຮອງອະທິການບໍດີ ຝ່າຍວິໄຈ</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="form-host" value="ຮອງອະທິການບໍດີ ຝ່າຍບໍລິຫານ" class="rounded text-navy-900 focus:ring-navy-900">
+                            <span>ຮອງອະທິການບໍດີ ຝ່າຍບໍລິຫານ</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="form-host" value="ຫົວໜ້າຫ້ອງການວິເທດ" class="rounded text-navy-900 focus:ring-navy-900">
+                            <span>ຫົວໜ້າຫ້ອງການວິເທດສຳພັນ</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Topic & Content -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ຫົວຂໍ້/ເນື້ອຫາການພົບປະ <span class="text-rose-500">*</span></label>
+                    <textarea id="form-topic" rows="3" required placeholder="ອະທິບາຍຫົວຂໍ້ການພົບປະ ຫຼື ຈຸດປະສົງ..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Doc Type -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ປະເພດເອກະສານ</label>
+                        <select id="form-doctype" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                            <option value="MOU (ບົດບັນທຶກຄວາມເຂົ້າໃຈ)">MOU (ບົດບັນທຶກຄວາມເຂົ້າໃຈ)</option>
+                            <option value="MOA (ສັນຍາຮ່ວມມື)">MOA (ສັນຍາຮ່ວມມື)</option>
+                            <option value="MOU Extension (ຕໍ່ອາຍຸ)">MOU Extension (ຕໍ່ອາຍຸ)</option>
+                            <option value="Courtesy Call (ຢ້ຽມຄຳນັບ)">Courtesy Call (ຢ້ຽມຄຳນັບ)</option>
+                            <option value="Minutes of Meeting (ບົດບັນທຶກ)">Minutes of Meeting</option>
+                            <option value="Photo Record Only (ຮູບຢ່າງດຽວ)">Photo Record Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Doc Path -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ຊື່/ລິ້ງ ຟາຍເອກະສານ</label>
+                        <input type="text" id="form-docpath" placeholder="DOC_2026_MOU.pdf" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                    </div>
+
+                    <!-- Photo Path -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ຊື່/ລິ້ງ ໂຟນເດີຮູບພາບ</label>
+                        <input type="text" id="form-photopath" placeholder="IMG_2026_VisitFolder" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-navy-900">
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeRecordModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium text-xs px-4 py-2 rounded-lg transition">
+                        ຍົກເລີກ
+                    </button>
+                    <button type="submit" class="bg-navy-900 hover:bg-slate-800 text-white font-medium text-xs px-5 py-2 rounded-lg transition flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-floppy-disk text-gold-400"></i>
+                        <span>ບັນທຶກຂໍ້ມູນ</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Modal 2: Details Modal View -->
+    <div id="modal-view" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div class="bg-navy-900 text-white px-6 py-4 flex items-center justify-between border-b border-gold-500">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-gold-400"></i>
+                    <span>ລາຍລະອຽດການຕ້ອນຮັບ</span>
+                </h3>
+                <button onclick="closeViewModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="view-modal-content" class="p-6 space-y-3 text-xs sm:text-sm">
+                <!-- Content generated via JavaScript -->
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeViewModal()" class="bg-navy-900 text-white text-xs px-4 py-2 rounded-lg">ປິດ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-navy-900 text-white border-l-4 border-gold-500 px-4 py-3 rounded-xl shadow-2xl hidden flex items-center gap-3 text-xs transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-gold-400 text-base"></i>
+        <span id="toast-message">ດຳເນີນການ ສຳເລັດແລ້ວ</span>
+    </div>
+
+    <!-- ================= JAVASCRIPT APPLICATION LOGIC ================= -->
+    <script>
+
+        // Local Storage Key
+        const STORAGE_KEY = 'nuol_delegation_db';
+
+        // Sample Pre-populated Data
+        const SAMPLE_DATA = [
+            {
+                id: "VIS-2026-001",
+                date: "2026-03-10",
+                type: "ຕ່າງປະເທດ",
+                country: "ຈີນ (China)",
+                organization: "ມະຫາວິທະຍາໄລຢູນນານ (Yunnan University)",
+                headOfDelegation: "Prof. Zhang Wei (ຮອງອະທິການບໍດີ)",
+                hostExecutive: ["ອະທິການບໍດີ", "ຮອງອະທິການບໍດີ ຝ່າຍຕ່າງປະເທດ"],
+                topic: "ພົບປະແລກປ່ຽນວິຊາການ ແລະ ເຊັນສັນຍາ MOA ສ້າງສູນພາສາ ແລະ ວັດທະນະທຳ",
+                docType: "MOA (ສັນຍາຮ່ວມມື)",
+                docPath: "20260310_INT_China_Yunnan_MOA.pdf",
+                photoPath: "20260310_INT_Yunnan_Photos"
+            },
+            {
+                id: "VIS-2026-002",
+                date: "2026-03-02",
+                type: "ຕ່າງປະເທດ",
+                country: "ຫວຽດນາມ (Vietnam)",
+                organization: "ມະຫາວິທະຍາໄລແຫ່ງຊາດຮ່າໂນ້ຍ (VNU Hanoi)",
+                headOfDelegation: "Dr. Nguyen Van Nam (ອະທິການບໍດີ)",
+                hostExecutive: ["ອະທິການບໍດີ", "ຮອງອະທິການບໍດີ ຝ່າຍວິຊາການ"],
+                topic: "ເຊັນສັນຍາຕໍ່ອາຍຸ MOU ຮ່ວມມືດ້ານການຄົ້ນຄວ້າວິທະຍາສາດ ແລະ ແລກປ່ຽນຄູ-ອາຈານ",
+                docType: "MOU Extension (ຕໍ່ອາຍຸ)",
+                docPath: "20260302_INT_Vietnam_VNU_MOU.pdf",
+                photoPath: "20260302_INT_VNU_Photos"
+            },
+            {
+                id: "VIS-2026-003",
+                date: "2026-02-20",
+                type: "ພາຍໃນ",
+                country: "ລາວ (Laos)",
+                organization: "ກະຊວງສຶກສາທິການ ແລະ ກິລາ (MOES)",
+                headOfDelegation: "ທ່ານ ຮອ.ດຣ. ພຸດ ສິມມາລາວົງ (ລັດຖະມົນຕີ)",
+                hostExecutive: ["ອະທິການບໍດີ", "ຮອງອະທິການບໍດີ ຝ່າຍບໍລິຫານ"],
+                topic: "ກອງປະຊຸມປະເມີນຜົນ ແລະ ທິດທາງການພັດທະນາ ມຊ ໄລຍະປີ 2026-2030",
+                docType: "Minutes of Meeting (ບົດບັນທຶກ)",
+                docPath: "20260220_DOM_MOES_Minutes.pdf",
+                photoPath: "20260220_DOM_MOES_Photos"
+            },
+            {
+                id: "VIS-2026-004",
+                date: "2026-02-15",
+                type: "ຕ່າງປະເທດ",
+                country: "ຍີ່ປຸ່ນ (Japan)",
+                organization: "ມະຫາວິທະຍາໄລໂຕກຽວ (University of Tokyo)",
+                headOfDelegation: "Prof. Dr. Hiroshi Tanaka (ອະທິການບໍດີ)",
+                hostExecutive: ["ອະທິການບໍດີ", "ຮອງອະທິການບໍດີ ຝ່າຍຕ່າງປະເທດ"],
+                topic: "ປຶກສາຫາລືການແລກປ່ຽນນັກສຶກສາ ແລະ ທຶນວິໄຈຮ່ວມດ້ານເຕັກໂນໂລຊີ AI",
+                docType: "MOU (ບົດບັນທຶກຄວາມເຂົ້າໃຈ)",
+                docPath: "20260215_INT_Japan_UTokyo_MOU.pdf",
+                photoPath: "20260215_INT_UTokyo_Photos"
+            },
+            {
+                id: "VIS-2026-005",
+                date: "2026-01-28",
+                type: "ຕ່າງປະເທດ",
+                country: "ຝຣັ່ງ (France)",
+                organization: "ມະຫາວິທະຍາໄລ Sorbonne University",
+                headOfDelegation: "Prof. Jean Dupont (ຄະນະບໍດີ)",
+                hostExecutive: ["ຮອງອະທິການບໍດີ ຝ່າຍຕ່າງປະເທດ", "ຫົວໜ້າຫ້ອງການວິເທດ"],
+                topic: "ເຂົ້າຢ້ຽມຄຳນັບ ແລະ ເສີມສ້າງຄວາມຮ່ວມມືດ້ານການຮຽນ-ການສອນພາສາຝຣັ່ງ",
+                docType: "Courtesy Call (ຢ້ຽມຄຳນັບ)",
+                docPath: "20260128_INT_France_Sorbonne_VIS.pdf",
+                photoPath: "20260128_INT_Sorbonne_Photos"
+            },
+            {
+                id: "VIS-2026-006",
+                date: "2026-01-15",
+                type: "ຕ່າງປະເທດ",
+                country: "ໄທ (Thailand)",
+                organization: "ມະຫາວິທະຍາໄລຈຸລາລົງກອນ (Chulalongkorn University)",
+                headOfDelegation: "ຣສ.ດຣ. ບັນທິດ ເອື້ອອາພອນ (ອະທິການບໍດີ)",
+                hostExecutive: ["ອະທິການບໍດີ", "ຮອງອະທິການບໍດີ ຝ່າຍວິໄຈ"],
+                topic: "ເຊັນ MOU ຄວາມຮ່ວມມືດ້ານການແພດ, ເພຊັດຊາສາດ ແລະ ວິທະຍາສາດສຸຂະພາບ",
+                docType: "MOU (ບົດບັນທຶກຄວາມເຂົ້າໃຈ)",
+                docPath: "20260115_INT_Thailand_Chula_MOU.pdf",
+                photoPath: "20260115_INT_Chula_Photos"
+            },
+            {
+                id: "VIS-2025-007",
+                date: "2025-12-18",
+                type: "ຕ່າງປະເທດ",
+                country: "ສະຫະລັດອາເມລິກາ (USA)",
+                organization: "ອົງການ USAID & US Embassy",
+                headOfDelegation: "Ms. Sarah Jenkins (ຜູ້ອຳນວຍການ)",
+                hostExecutive: ["ຮອງອະທິການບໍດີ ຝ່າຍຕ່າງປະເທດ"],
+                topic: "ມອບ-ຮັບ ອຸປະກອນການສຶກສາ ແລະ ທຶນການສຶກສາສຳລັບນັກສຶກສາຮຽນດີ",
+                docType: "Photo Record Only (ຮູບຢ່າງດຽວ)",
+                docPath: "20251218_INT_USAID_Donation.pdf",
+                photoPath: "20251218_INT_USAID_Photos"
+            },
+            {
+                id: "VIS-2025-008",
+                date: "2025-11-22",
+                type: "ຕ່າງປະເທດ",
+                country: "ເກົາຫຼີໃຕ້ (South Korea)",
+                organization: "ອົງການ KOICA (Korea International Cooperation Agency)",
+                headOfDelegation: "Mr. Kim Min-Soo (ຜູ້ອຳນວຍການ)",
+                hostExecutive: ["ອະທິການບໍດີ", "ຮອງອະທິການບໍດີ ຝ່າຍບໍລິຫານ"],
+                topic: "ຕິດຕາມຄວາມຄືບໜ້າໂຄງການສ້າງສູນ ICT Digital Excellence Center ຢູ່ ມຊ",
+                docType: "Minutes of Meeting (ບົດບັນທຶກ)",
+                docPath: "20251122_INT_Korea_KOICA_Minutes.pdf",
+                photoPath: "20251122_INT_KOICA_Photos"
+            },
+            {
+                id: "VIS-2025-009",
+                date: "2025-10-10",
+                type: "ພາຍໃນ",
+                country: "ລາວ (Laos)",
+                organization: "ທະນາຄານການຄ້າຕ່າງປະເທດລາວ (BCEL)",
+                headOfDelegation: "ທ່ານ ຜູ້ອຳນວຍການໃຫຍ່ BCEL",
+                hostExecutive: ["ອະທິການບໍດີ"],
+                topic: "ເຊັນ MOA ຮ່ວມມືລະບົບຊຳລະຄ່າທຳນຽມການສຶກສາດິຈິທັລ Smart Campus",
+                docType: "MOA (ສັນຍາຮ່ວມມື)",
+                docPath: "20251010_DOM_BCEL_MOA.pdf",
+                photoPath: "20251010_DOM_BCEL_Photos"
+            },
+            {
+                id: "VIS-2025-010",
+                date: "2025-09-05",
+                type: "ຕ່າງປະເທດ",
+                country: "ອົດສະຕຣາລີ (Australia)",
+                organization: "ມະຫາວິທະຍາໄລ ANU (Australian National University)",
+                headOfDelegation: "Prof. Michael Smith",
+                hostExecutive: ["ຮອງອະທິການບໍດີ ຝ່າຍວິຊາການ"],
+                topic: "ປຶກສາໂຄງການທຶນການສຶກສາ Australia Awards ແລະ ການຄົ້ນຄວ້າສິ່ງແວດລ້ອມ",
+                docType: "Courtesy Call (ຢ້ຽມຄຳນັບ)",
+                docPath: "20250905_INT_Australia_ANU_VIS.pdf",
+                photoPath: "20250905_INT_ANU_Photos"
+            }
+        ];
+
+        // Global Chart Instances
+        let chartMonthlyInst = null;
+        let chartCountryInst = null;
+        let chartHostInst = null;
+        let chartDocTypeInst = null;
+
+        window.onload = function() {
+            initStorage();
+            renderDashboard();
+            renderDataTable();
+            updateReportView();
+            updateStorageStatus();
+        };
+
+        // Initialize LocalStorage with default data if empty
+        function initStorage() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_DATA));
+            }
+        }
+
+        // Fetch Data Array
+        function getData() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // Save Data Array
+        function saveData(dataArray) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataArray));
+            updateStorageStatus();
+            renderDashboard();
+            renderDataTable();
+            updateReportView();
+        }
+
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Show selected
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
+
+            // Reset tab button states
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('bg-gold-500', 'text-navy-900', 'font-semibold', 'shadow');
+                btn.classList.add('hover:bg-navy-900', 'hover:text-white');
+            });
+
+            // Highlight active button
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-gold-500', 'text-navy-900', 'font-semibold', 'shadow');
+                activeBtn.classList.remove('hover:bg-navy-900', 'hover:text-white');
+            }
+
+            // Trigger specific re-renders if needed
+            if (tabId === 'tab-dashboard') {
+                renderDashboard();
+            } else if (tabId === 'tab-reports') {
+                updateReportView();
+            }
+        }
+
+        function renderDashboard() {
+            const data = getData();
+
+            // Calculate KPIs
+            const total = data.length;
+            const intCount = data.filter(d => d.type === 'ຕ່າງປະເທດ').length;
+            const domCount = data.filter(d => d.type === 'ພາຍໃນ').length;
+            
+            // Agreements count (MOU, MOA, MOU Extension)
+            const agreementCount = data.filter(d => 
+                d.docType.includes('MOU') || d.docType.includes('MOA')
+            ).length;
+
+            // Top Country Partner
+            const countryCounts = {};
+            data.forEach(d => {
+                if (d.type === 'ຕ່າງປະເທດ') {
+                    countryCounts[d.country] = (countryCounts[d.country] || 0) + 1;
+                }
+            });
+
+            let topCountry = "-";
+            let maxCount = 0;
+            for (const [c, cnt] of Object.entries(countryCounts)) {
+                if (cnt > maxCount) {
+                    maxCount = cnt;
+                    topCountry = c;
+                }
+            }
+
+            // Update KPI DOM
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-int').innerText = intCount;
+            document.getElementById('stat-dom').innerText = domCount;
+            document.getElementById('stat-agreements').innerText = agreementCount;
+            document.getElementById('stat-top-country').innerText = topCountry;
+            document.getElementById('stat-top-country-count').innerText = `${maxCount} ຄັ້ງ`;
+
+            // Recent Visits Table
+            const recentBody = document.getElementById('dashboard-recent-body');
+            recentBody.innerHTML = '';
+            
+            const sortedRecent = [...data].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            sortedRecent.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-700">${formatLaoDate(item.date)}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${item.type === 'ຕ່າງປະເທດ' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">
+                            ${item.type}
+                        </span>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-bold text-navy-900">${item.country}</div>
+                        <div class="text-slate-500 text-xs">${item.organization}</div>
+                    </td>
+                    <td class="p-3 text-slate-600">${item.headOfDelegation}</td>
+                    <td class="p-3">
+                        <div class="flex flex-wrap gap-1">
+                            ${(item.hostExecutive || []).map(h => `<span class="bg-slate-100 border border-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[10px]">${h}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td class="p-3 font-medium text-burgundy-700">${item.docType}</td>
+                `;
+                recentBody.appendChild(tr);
+            });
+
+            // Render Chart.js Dynamic Graphics
+            renderCharts(data);
+        }
+
+        function renderCharts(data) {
+            // Destroy previous chart instances
+            if (chartMonthlyInst) chartMonthlyInst.destroy();
+            if (chartCountryInst) chartCountryInst.destroy();
+            if (chartHostInst) chartHostInst.destroy();
+            if (chartDocTypeInst) chartDocTypeInst.destroy();
+
+            // 1. Monthly Visit Trends
+            const months = ['ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ', 'ພຶດສະພາ', 'ມິຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ', 'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'];
+            const monthlyCounts = new Array(12).fill(0);
+            data.forEach(item => {
+                const d = new Date(item.date);
+                if (!isNaN(d.getMonth())) {
+                    monthlyCounts[d.getMonth()]++;
+                }
+            });
+
+            const ctxMonthly = document.getElementById('chartMonthly').getContext('2d');
+            chartMonthlyInst = new Chart(ctxMonthly, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'ຈຳນວນການຕ້ອນຮັບ (ຄັ້ງ)',
+                        data: monthlyCounts,
+                        backgroundColor: '#0F2942',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 2. Country Breakdown
+            const countries = {};
+            data.forEach(item => {
+                countries[item.country] = (countries[item.country] || 0) + 1;
+            });
+
+            const ctxCountry = document.getElementById('chartCountry').getContext('2d');
+            chartCountryInst = new Chart(ctxCountry, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(countries),
+                    datasets: [{
+                        data: Object.values(countries),
+                        backgroundColor: ['#0F2942', '#D4AF37', '#800020', '#2563EB', '#059669', '#D97706', '#6B7280']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 3. NUOL Host Executive Breakdown
+            const hostCounts = {};
+            data.forEach(item => {
+                (item.hostExecutive || []).forEach(h => {
+                    hostCounts[h] = (hostCounts[h] || 0) + 1;
+                });
+            });
+
+            const ctxHost = document.getElementById('chartHost').getContext('2d');
+            chartHostInst = new Chart(ctxHost, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(hostCounts),
+                    datasets: [{
+                        label: 'ຈຳນວນຄັ້ງທີ່ຕ້ອນຮັບ',
+                        data: Object.values(hostCounts),
+                        backgroundColor: '#D4AF37',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 4. Document Types Breakdown
+            const docTypes = {};
+            data.forEach(item => {
+                const dt = item.docType.split(' ')[0]; // simplify key
+                docTypes[dt] = (docTypes[dt] || 0) + 1;
+            });
+
+            const ctxDoc = document.getElementById('chartDocType').getContext('2d');
+            chartDocTypeInst = new Chart(ctxDoc, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(docTypes),
+                    datasets: [{
+                        data: Object.values(docTypes),
+                        backgroundColor: ['#800020', '#0F2942', '#059669', '#D97706', '#9333EA']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function renderDataTable() {
+            const data = getData();
+            const searchVal = document.getElementById('filter-search').value.toLowerCase();
+            const typeVal = document.getElementById('filter-type').value;
+            const yearVal = document.getElementById('filter-year').value;
+
+            const filtered = data.filter(item => {
+                const matchSearch = item.country.toLowerCase().includes(searchVal) ||
+                                    item.organization.toLowerCase().includes(searchVal) ||
+                                    item.topic.toLowerCase().includes(searchVal) ||
+                                    item.headOfDelegation.toLowerCase().includes(searchVal);
+                
+                const matchType = (typeVal === 'ALL') || (item.type === typeVal);
+                
+                const itemYear = new Date(item.date).getFullYear().toString();
+                const matchYear = (yearVal === 'ALL') || (itemYear === yearVal);
+
+                return matchSearch && matchType && matchYear;
+            });
+
+            // Sort by Date Descending
+            filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            const tableBody = document.getElementById('crud-table-body');
+            tableBody.innerHTML = '';
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-700 whitespace-nowrap">${formatLaoDate(item.date)}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${item.type === 'ຕ່າງປະເທດ' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">
+                            ${item.type}
+                        </span>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-bold text-navy-900">${item.country}</div>
+                        <div class="text-slate-500 text-xs">${item.organization}</div>
+                    </td>
+                    <td class="p-3 text-slate-700">${item.headOfDelegation}</td>
+                    <td class="p-3">
+                        <div class="flex flex-wrap gap-1 max-w-xs">
+                            ${(item.hostExecutive || []).map(h => `<span class="bg-slate-100 border border-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[10px]">${h}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td class="p-3 font-medium text-burgundy-700">${item.docType}</td>
+                    <td class="p-3 font-mono text-[11px] text-slate-500">
+                        <div><i class="fa-solid fa-file-pdf text-rose-600 mr-1"></i>${item.docPath || '-'}</div>
+                        <div><i class="fa-solid fa-folder text-amber-500 mr-1"></i>${item.photoPath || '-'}</div>
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center space-x-1">
+                            <button onclick="viewRecordDetails('${item.id}')" class="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition" title="ເບິ່ງລາຍລະອຽດ">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button onclick="openRecordModal('${item.id}')" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition" title="ແກ້ໄຂ">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteRecord('${item.id}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg transition" title="ລຶບ">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            document.getElementById('table-count-info').innerText = `ສະແດງ ${filtered.length} ຈາກ ${data.length} ລາຍການ`;
+        }
+
+        function openRecordModal(id = null) {
+            const modal = document.getElementById('modal-record');
+            const form = document.getElementById('form-record');
+            form.reset();
+
+            // Uncheck all checkboxes
+            document.querySelectorAll('input[name="form-host"]').forEach(cb => cb.checked = false);
+
+            if (id) {
+                // Edit mode
+                const data = getData();
+                const item = data.find(d => d.id === id);
+                if (item) {
+                    document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-gold-400"></i> <span>ແກ້ໄຂຂໍ້ມູນຄະນະຜູ້ແທນ</span>`;
+                    document.getElementById('form-id').value = item.id;
+                    document.getElementById('form-date').value = item.date;
+                    document.getElementById('form-type').value = item.type;
+                    document.getElementById('form-country').value = item.country;
+                    document.getElementById('form-org').value = item.organization;
+                    document.getElementById('form-head').value = item.headOfDelegation;
+                    document.getElementById('form-topic').value = item.topic;
+                    document.getElementById('form-doctype').value = item.docType;
+                    document.getElementById('form-docpath').value = item.docPath || '';
+                    document.getElementById('form-photopath').value = item.photoPath || '';
+
+                    // Check hosts
+                    (item.hostExecutive || []).forEach(h => {
+                        const cb = document.querySelector(`input[name="form-host"][value="${h}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+            } else {
+                // Add Mode
+                document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-plus-circle text-gold-400"></i> <span>ເພີ່ມຂໍ້ມູນຄະນະຜູ້ແທນໃໝ່</span>`;
+                document.getElementById('form-id').value = '';
+                document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeRecordModal() {
+            document.getElementById('modal-record').classList.add('hidden');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('form-id').value;
+            const data = getData();
+
+            // Selected hosts
+            const selectedHosts = [];
+            document.querySelectorAll('input[name="form-host"]:checked').forEach(cb => {
+                selectedHosts.push(cb.value);
+            });
+
+            const recordObj = {
+                id: id || `VIS-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
+                date: document.getElementById('form-date').value,
+                type: document.getElementById('form-type').value,
+                country: document.getElementById('form-country').value,
+                organization: document.getElementById('form-org').value,
+                headOfDelegation: document.getElementById('form-head').value,
+                hostExecutive: selectedHosts.length > 0 ? selectedHosts : ["ອະທິການບໍດີ"],
+                topic: document.getElementById('form-topic').value,
+                docType: document.getElementById('form-doctype').value,
+                docPath: document.getElementById('form-docpath').value,
+                photoPath: document.getElementById('form-photopath').value
+            };
+
+            if (id) {
+                // Update
+                const idx = data.findIndex(d => d.id === id);
+                if (idx !== -1) data[idx] = recordObj;
+            } else {
+                // Insert
+                data.push(recordObj);
+            }
+
+            saveData(data);
+            closeRecordModal();
+            showToast('ບັນທຶກຂໍ້ມູນສຳເລັດແລ້ວ!');
+        }
+
+        function deleteRecord(id) {
+            if (confirm('ທ່ານຕັ້ງໃຈຈະລຶບຂໍ້ມູນລາຍການນີ້ແທ້ບໍ?')) {
+                const data = getData().filter(d => d.id !== id);
+                saveData(data);
+                showToast('ລຶບຂໍ້ມູນສຳເລັດແລ້ວ');
+            }
+        }
+
+        function viewRecordDetails(id) {
+            const item = getData().find(d => d.id === id);
+            if (!item) return;
+
+            const content = document.getElementById('view-modal-content');
+            content.innerHTML = `
+                <div class="space-y-3">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${item.type === 'ຕ່າງປະເທດ' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}">${item.type}</span>
+                        <h4 class="font-bold text-base text-navy-900 mt-1">${item.country} - ${item.organization}</h4>
+                        <p class="text-xs text-slate-500">ວັນທີຕ້ອນຮັບ: ${formatLaoDate(item.date)}</p>
+                    </div>
+
+                    <div>
+                        <p class="font-semibold text-slate-700">ຫົວໜ້າຄະນະຜູ້ແທນ:</p>
+                        <p class="text-slate-900">${item.headOfDelegation}</p>
+                    </div>
+
+                    <div>
+                        <p class="font-semibold text-slate-700">ຜູ້ຕ້ອນຮັບຝ່າຍ ມຊ:</p>
+                        <p class="text-slate-900">${(item.hostExecutive || []).join(', ')}</p>
+                    </div>
+
+                    <div>
+                        <p class="font-semibold text-slate-700">ຫົວຂໍ້/ເນື້ອຫາການພົບປະ:</p>
+                        <p class="text-slate-900 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-200">${item.topic}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+                        <div>
+                            <p class="font-semibold text-slate-700">ປະເພດເອກະສານ:</p>
+                            <p class="text-burgundy-700 font-bold">${item.docType}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-700">ຊື່ຟາຍ PDF:</p>
+                            <p class="font-mono text-xs text-slate-600 truncate">${item.docPath || '-'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modal-view').classList.remove('hidden');
+        }
+
+        function closeViewModal() {
+            document.getElementById('modal-view').classList.add('hidden');
+        }
+
+        function updateReportView() {
+            const data = getData();
+            const period = document.getElementById('report-period').value;
+            const year = document.getElementById('report-year').value;
+            const month = document.getElementById('report-month').value;
+
+            // Toggle filter containers
+            document.getElementById('report-year-container').classList.toggle('hidden', period === 'CUSTOM');
+            document.getElementById('report-month-container').classList.toggle('hidden', period !== 'MONTHLY');
+            document.getElementById('report-custom-container').classList.toggle('hidden', period !== 'CUSTOM');
+
+            let filtered = [...data];
+
+            if (period === 'YEARLY') {
+                filtered = filtered.filter(d => new Date(d.date).getFullYear().toString() === year);
+                document.getElementById('report-period-label').innerText = `ສະຫຼຸບປະຈຳປີ ${year}`;
+            } else if (period === 'MONTHLY') {
+                filtered = filtered.filter(d => {
+                    const dt = new Date(d.date);
+                    const yMatch = dt.getFullYear().toString() === year;
+                    const mMatch = month === 'ALL' || (dt.getMonth() + 1).toString().padStart(2, '0') === month;
+                    return yMatch && mMatch;
+                });
+                document.getElementById('report-period-label').innerText = `ສະຫຼຸບປະຈຳເດືອນ ${month === 'ALL' ? 'ທຸກເດືອນ' : month} ປີ ${year}`;
+            } else if (period === 'WEEKLY') {
+                document.getElementById('report-period-label').innerText = `ສະຫຼຸບປະຈຳອາທິດ (ລ່າສຸດ)`;
+                filtered = filtered.slice(0, 7);
+            } else if (period === 'CUSTOM') {
+                const start = document.getElementById('report-start-date').value;
+                const end = document.getElementById('report-end-date').value;
+                if (start && end) {
+                    filtered = filtered.filter(d => d.date >= start && d.date <= end);
+                    document.getElementById('report-period-label').innerText = `ສະຫຼຸບລະຫວ່າງວັນທີ ${formatLaoDate(start)} ຫາ ${formatLaoDate(end)}`;
+                }
+            }
+
+            // Report Metrics Calculation
+            const total = filtered.length;
+            const intCnt = filtered.filter(d => d.type === 'ຕ່າງປະເທດ').length;
+            const domCnt = filtered.filter(d => d.type === 'ພາຍໃນ').length;
+            const mouCnt = filtered.filter(d => d.docType.includes('MOU') || d.docType.includes('MOA')).length;
+
+            const countries = {};
+            filtered.forEach(d => { if (d.type === 'ຕ່າງປະເທດ') countries[d.country] = (countries[d.country] || 0) + 1; });
+            let topC = '-'; let maxC = 0;
+            for (const [c, cnt] of Object.entries(countries)) { if (cnt > maxC) { maxC = cnt; topC = c; } }
+
+            document.getElementById('rep-stat-total').innerText = `${total} ຄັ້ງ`;
+            document.getElementById('rep-stat-ratio').innerText = `${intCnt} / ${domCnt}`;
+            document.getElementById('rep-stat-mou').innerText = `${mouCnt} ສະບັບ`;
+            document.getElementById('rep-stat-top-country').innerText = topC;
+
+            // Report Table Body
+            const repBody = document.getElementById('report-table-body');
+            repBody.innerHTML = '';
+
+            filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            filtered.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2 border border-slate-300 text-center">${idx + 1}</td>
+                    <td class="p-2 border border-slate-300 whitespace-nowrap">${formatLaoDate(item.date)}</td>
+                    <td class="p-2 border border-slate-300">${item.type}</td>
+                    <td class="p-2 border border-slate-300 font-bold">${item.country} (${item.organization})</td>
+                    <td class="p-2 border border-slate-300">${item.headOfDelegation}</td>
+                    <td class="p-2 border border-slate-300">${(item.hostExecutive || []).join(', ')}</td>
+                    <td class="p-2 border border-slate-300">${item.topic} <br><span class="text-burgundy-700 font-bold">[${item.docType}]</span></td>
+                `;
+                repBody.appendChild(tr);
+            });
+        }
+
+        function generateFileName() {
+            const date = document.getElementById('gen-date').value;
+            const type = document.getElementById('gen-type').value;
+            const org = document.getElementById('gen-org').value.trim().replace(/\s+/g, '_') || 'OrgName';
+            const doc = document.getElementById('gen-doc').value;
+
+            const formattedDate = date ? date.replace(/-/g, '') : new Date().toISOString().split('T')[0].replace(/-/g, '');
+            const filename = `${formattedDate}_${type}_${org}_${doc}.${doc === 'Photos' ? 'zip' : 'pdf'}`;
+
+            document.getElementById('gen-result-text').innerText = filename;
+            document.getElementById('gen-result-box').classList.remove('hidden');
+        }
+
+        function copyGeneratedFileName() {
+            const text = document.getElementById('gen-result-text').innerText;
+            
+            // Clipboard fallback logic
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+
+            showToast('ກັອບປີ້ຊື່ຟາຍສຳເລັດແລ້ວ!');
+        }
+
+        function exportDataJSON() {
+            const data = getData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `NUOL_Delegation_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('Export JSON ສຳເລັດແລ້ວ');
+        }
+
+        function exportDataCSV() {
+            const data = getData();
+            if (data.length === 0) return alert('ບໍ່ມີຂໍ້ມູນ');
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Lao text Excel compatibility
+            csvContent += "ID,Date,Type,Country,Organization,HeadOfDelegation,Hosts,Topic,DocType,DocPath,PhotoPath\n";
+
+            data.forEach(d => {
+                const row = [
+                    d.id,
+                    d.date,
+                    `"${d.type}"`,
+                    `"${d.country}"`,
+                    `"${d.organization}"`,
+                    `"${d.headOfDelegation}"`,
+                    `"${(d.hostExecutive || []).join('; ')}"`,
+                    `"${d.topic.replace(/"/g, '""')}"`,
+                    `"${d.docType}"`,
+                    `"${d.docPath || ''}"`,
+                    `"${d.photoPath || ''}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `NUOL_Delegation_Export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showToast('Export CSV/Excel ສຳເລັດແລ້ວ');
+        }
+
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        saveData(imported);
+                        showToast('ນຳເຂົ້າຂໍ້ມູນ JSON ສຳເລັດແລ້ວ!');
+                    } else {
+                        alert('ຮູບແບບຟາຍ JSON ບໍ່ຖືກຕ້ອງ');
+                    }
+                } catch (err) {
+                    alert('ເກີດຂໍ້ຜິດພາດໃນການອ່ານຟາຍ JSON');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function loadSampleData() {
+            if (confirm('ທ່ານຕ້ອງການໂຫຼດຂໍ້ມູນຕົວຢ່າງມາທັບຊ້ອນບໍ?')) {
+                saveData(SAMPLE_DATA);
+                showToast('ໂຫຼດຂໍ້ມູນຕົວຢ່າງ 10+ ລາຍການສຳເລັດແລ້ວ');
+            }
+        }
+
+        function confirmClearAllData() {
+            if (confirm('⚠️ ເຕືອນ: ທ່ານແນ່ໃຈບໍທີ່ຈະລຶບຂໍ້ມູນທັງໝົດໃນລະບົບ? ເມື່ອລຶບແລ້ວຈະບໍ່ສາມາດຟື້ນຟູໄດ້!')) {
+                saveData([]);
+                showToast('ລ້າງຂໍ້ມູນທັງໝົດແລ້ວ');
+            }
+        }
+
+        function formatLaoDate(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        function updateStorageStatus() {
+            const raw = localStorage.getItem(STORAGE_KEY) || '[]';
+            const count = getData().length;
+            const kb = (new Blob([raw]).size / 1024).toFixed(2);
+            document.getElementById('storage-status-text').innerText = `ບັນທຶກແລ້ວ ${count} ລາຍການ (ຂະໜາດ ~${kb} KB)`;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
