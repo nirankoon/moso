@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einstein's General Relativity & Gravitational Waves 3D</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Google Font for Lao & English readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow: hidden;
+            user-select: none;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Custom scrollbar for info panel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.8);
+        }
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+        .glass-panel-interactive:hover {
+            border-color: rgba(96, 165, 250, 0.6);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        /* Glow effects */
+        .glow-text-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.7);
+        }
+        .glow-text-gold {
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
+        }
+    </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ALBERT">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="w-screen h-screen relative overflow-hidden">
+
+    <!-- 3D WebGL Canvas Container -->
+    <div id="canvas-container" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"></div>
+
+    <!-- UI Overlay Header -->
+    <header class="absolute top-4 left-4 right-4 z-10 flex flex-wrap justify-between items-center gap-4 pointer-events-none">
+        <div class="glass-panel px-5 py-3 rounded-2xl pointer-events-auto flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-500 via-amber-400 to-orange-500 flex items-center justify-center font-bold text-slate-950 font-orbitron text-xl shadow-lg shadow-amber-500/30">
+                E
+            </div>
+            <div>
+                <h1 class="font-orbitron font-bold text-lg md:text-xl text-amber-400 tracking-wider">ALBERT EINSTEIN</h1>
+                <p class="text-xs text-cyan-300 font-medium">ທິດສະດີສໍາພັນທະພາບ & ຄື້ນຄວາມໂນ້ມຖ່ວງ (General Relativity & Gravitational Waves)</p>
+            </div>
+        </div>
+
+        <!-- Camera / Scene Speed Quick Toggles -->
+        <div class="glass-panel px-3 py-2 rounded-xl pointer-events-auto flex items-center gap-2 text-xs md:text-sm">
+            <button id="btn-slow" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition duration-200">
+                🐢 Slow View (ຊ້າ)
+            </button>
+            <button id="btn-normal" class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold transition duration-200">
+                ▶ Normal Speed
+            </button>
+            <button id="btn-pause" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/30 transition duration-200">
+                ⏸ Pause
+            </button>
+            <button id="btn-reset-cam" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-yellow-300 border border-yellow-500/30 transition duration-200">
+                🔄 Reset View
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Sidebar / Control & Info Panel -->
+    <aside class="absolute left-4 top-24 bottom-6 w-80 md:w-96 z-10 glass-panel rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto pointer-events-auto">
+        
+        <!-- Tab Controls for Info & Physics Tuning -->
+        <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700/50 text-xs font-semibold">
+            <button id="tab-btn-info" class="flex-1 py-2 rounded-lg bg-blue-600 text-white transition">📖 ຄວາມຮູ້ (Theory)</button>
+            <button id="tab-btn-controls" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition">⚙️ ປັບແຕ່ງ (Controls)</button>
+        </div>
+
+        <!-- TAB CONTENT 1: Einstein Physics Info (Lao + English) -->
+        <div id="tab-content-info" class="flex-1 flex flex-col gap-4">
+            <!-- Dynamic Selected Object Info -->
+            <div id="selection-card" class="bg-gradient-to-br from-indigo-950/60 to-purple-950/60 border border-indigo-500/40 p-4 rounded-xl">
+                <span class="text-xs font-orbitron text-cyan-400 uppercase tracking-widest block mb-1">Target Object</span>
+                <h3 id="obj-title" class="text-lg font-bold text-amber-300">ດວງອາທິດ (The Sun)</h3>
+                <p id="obj-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">
+                    ດວງອາທິດມີມວນສານມະຫາສານ ເຮັດໃຫ້ກາລະ-ອະວະກາດ (Space-Time) ໂຄ້ງງໍຢ່າງຮຸນແຮງ ສ້າງເປັນແຮງດຶງດູດທີ່ດຶງດາວເຄາະໃຫ້ໝູນອ້ອມ.
+                </p>
+            </div>
+
+            <!-- Core Theory 1: Space-time Grid -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 hover:border-cyan-500/30 transition">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+                    <h4 class="font-bold text-sm text-cyan-300">1. ການໂຄ້ງງໍຂອງກາລະ-ອະວະກາດ</h4>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    <strong>Space-Time Curvature:</strong> ອາຍສະໄຕນ໌ອະທິບາຍວ່າ ແຮງໂນ້ມຖ່ວງບໍ່ແມ່ນແຮງດຶງດູດທາງໄກ ແຕ່ແມ່ນການທີ່ມວນສານ (Mass) ເຮັດໃຫ້ແຜ່ນຜ້າກາລະ-ອະວະກາດ "ໂຄ້ງງໍ" ຄືກັບລູກເຫຼັກໜັກທີ່ວາງເທິງຜ້າຢືດ.
+                </p>
+            </div>
+
+            <!-- Core Theory 2: Gravitational Waves -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 hover:border-indigo-500/30 transition">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-3 h-3 rounded-full bg-indigo-400 animate-ping"></div>
+                    <h4 class="font-bold text-sm text-indigo-300">2. ຄື້ນຄວາມໂນ້ມຖ່ວງ (Gravitational Waves)</h4>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    ເມື່ອມວນສານເຄື່ອນທີ່ ຫຼື ໝູນອ້ອມກັນ (ເຊັ່ນ ດາວເຄາະໝູນອ້ອມດວງອາທິດ ຫຼື ຮູດຳຊົນກັນ), ມັນຈະສົ່ງແຮງສັ່ນສະເທືອນເປັນລະລອກຄື້ນແຜ່ອອກໄປໃນອະວະກາດ ດ້ວຍຄວາມໄວເທົ່າແສງ ($c$).
+                </p>
+            </div>
+
+            <!-- Core Formula Card -->
+            <div class="bg-amber-950/20 border border-amber-500/30 p-4 rounded-xl text-center">
+                <span class="text-xs text-amber-400 font-orbitron block mb-1">EINSTEIN'S FIELD EQUATION</span>
+                <div class="text-xl font-orbitron font-black text-amber-300 tracking-wider glow-text-gold my-1">
+                    G<sub>μν</sub> = 8πG / c<sup>4</sup> T<sub>μν</sub>
+                </div>
+                <p class="text-[11px] text-amber-200/80 italic mt-1">
+                    "Space-time tells matter how to move; matter tells space-time how to curve." — John Wheeler
+                </p>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT 2: Visual Tuning Controls -->
+        <div id="tab-content-controls" class="hidden flex-1 flex flex-col gap-4 text-xs">
+            
+            <!-- Orbit / Simulation Speed Slider -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex justify-between items-center text-slate-300">
+                    <label for="slider-sim-speed" class="font-semibold">ຄວາມໄວການໝູນດາວ (Simulation Speed)</label>
+                    <span id="val-sim-speed" class="text-cyan-400 font-orbitron">1.0x</span>
+                </div>
+                <input id="slider-sim-speed" type="range" min="0" max="3" step="0.1" value="1" class="w-full accent-cyan-500 cursor-pointer">
+            </div>
+
+            <!-- Gravitational Wave Amplitude Slider -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex justify-between items-center text-slate-300">
+                    <label for="slider-wave-amp" class="font-semibold">ຄວາມແຮງຄື້ນໂນ້ມຖ່ວງ (Wave Amplitude)</label>
+                    <span id="val-wave-amp" class="text-indigo-400 font-orbitron">1.5</span>
+                </div>
+                <input id="slider-wave-amp" type="range" min="0" max="4" step="0.2" value="1.5" class="w-full accent-indigo-500 cursor-pointer">
+            </div>
+
+            <!-- Space Warp Depth Slider -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex justify-between items-center text-slate-300">
+                    <label for="slider-warp-depth" class="font-semibold">ຄວາມເລິກການໂຄ້ງງໍ (Space Warp Depth)</label>
+                    <span id="val-warp-depth" class="text-amber-400 font-orbitron">3.5</span>
+                </div>
+                <input id="slider-warp-depth" type="range" min="0.5" max="8" step="0.5" value="3.5" class="w-full accent-amber-500 cursor-pointer">
+            </div>
+
+            <!-- Auto Rotate View Toggle -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span class="font-semibold text-slate-300">ໝູນມຸມມອງອັດໂຕໂນມັດ (Auto Rotate Cam)</span>
+                <button id="toggle-autorotate" class="px-4 py-1.5 rounded-lg bg-cyan-600 text-white font-bold transition">ON</button>
+            </div>
+
+            <!-- Show Orbit Trails Toggle -->
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span class="font-semibold text-slate-300">ສະແດງເສັ້ນທາງໝູນ (Orbit Lines)</span>
+                <button id="toggle-orbits" class="px-4 py-1.5 rounded-lg bg-cyan-600 text-white font-bold transition">ON</button>
+            </div>
+        </div>
+
+        <div class="text-[10px] text-center text-slate-500 border-t border-slate-800 pt-3">
+            Interactive 3D Relativity Physics Engine • Created with Three.js & Tailwind
+        </div>
+    </aside>
+
+    <!-- Bottom Instruction Toast -->
+    <div class="absolute bottom-4 right-4 z-10 glass-panel px-4 py-2 rounded-xl text-xs text-slate-300 pointer-events-none hidden md:flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        <span>💡 Click objects in 3D scene to inspect details • Left-click + Drag to rotate view</span>
+    </div>
+
+    <!-- Main 3D Simulation Engine Script -->
+    <script>
+        // Global Simulation Configuration & State Variables
+        const config = {
+            simSpeed: 1.0,
+            waveAmplitude: 1.5,
+            waveFrequency: 2.5,
+            warpDepth: 3.5,
+            autoRotateCam: true,
+            showOrbits: true
+        };
+
+        let scene, camera, renderer, controls;
+        let spaceGridMesh, spaceGridGeometry;
+        let sunMesh, sunGlowMesh;
+        let planets = [];
+        let raycaster, mouse;
+        let selectedObject = null;
+        let clock = new THREE.Clock();
+
+        // Preset objects info dictionary (Lao & English descriptions)
+        const objectDetails = {
+            'Sun': {
+                titleLao: 'ດວງອາທິດ (The Sun / Mass Source)',
+                descLao: 'ມີມວນສານ 99.8% ຂອງລະບົບສຸລິຍະ ເຮັດໃຫ້ກາລະ-ອະວະກາດ ໂຄ້ງງໍລົງຢ່າງເລິກ ປຽບເໝືອນລູກຕຸ້ມເຫຼັກໜັກເທິງແຜ່ນຢືດ ເກີດເປັນແຮງດຶງດູດມະຫາສານ.'
+            },
+            'Earth': {
+                titleLao: 'ໂລກ (Planet Earth)',
+                descLao: 'ເຄື່ອນທີ່ຕາມເສັ້ນໂຄ້ງຂອງກາລະ-ອະວະກາດ (Geodesic path) ທີ່ສ້າງໂດຍດວງອາທິດ ພ້ອມທັງສ້າງຄື້ນໂນ້ມຖ່ວງຂະໜາດນ້ອຍແຜ່ອອກໄປ.'
+            },
+            'MassiveCompanion': {
+                titleLao: 'ດາວບໍລິວານມວນສານສູງ (Massive Companion Planet)',
+                descLao: 'ດາວທີ່ມີມວນສານສູງເຄື່ອນທີ່ລົບກວນກາລະ-ອະວະກາດ ສ້າງລະລອກຄື້ນຄວາມໂນ້ມຖ່ວງ (Gravitational Ripple) ຢ່າງຈະແຈ້ງ.'
+            },
+            'SpaceTimeGrid': {
+                titleLao: 'ຕາໜ່າງກາລະ-ອະວະກາດ (Space-Time Grid)',
+                descLao: 'ໂຄງສ້າງ 4 ມິຕິ (3 ມິຕິອະວະກາດ + 1 ມິຕິເວລາ) ທີ່ບິດເບ້ຍ ແລະ ສັ່ນໄຫວເປັນລະລອກຄື້ນເມື່ອມວນສານເຄື່ອນທີ່.'
+            }
+        };
+
+        // Window load initialization
+        window.onload = function() {
+            initScene();
+            initSpaceGrid();
+            initCelestialBodies();
+            initLighting();
+            initRaycaster();
+            initUIListeners();
+            animate();
+        };
+
+        // Initialize Three.js Scene, Camera, and Renderer
+        function initScene() {
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x030712, 0.008);
+
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 35, 55);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Setup Orbit Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't go too far below grid
+            controls.minDistance = 10;
+            controls.maxDistance = 150;
+            controls.autoRotate = config.autoRotateCam;
+            controls.autoRotateSpeed = 0.8;
+
+            // Starfield Background Construction
+            createStarfield();
+
+            // Handle window resizing dynamically
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // Generate dynamic Starfield Background
+        function createStarfield() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const count = 3000;
+            const positions = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+
+            for (let i = 0; i < count * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 400;
+                positions[i + 1] = (Math.random() - 0.5) * 400;
+                positions[i + 2] = (Math.random() - 0.5) * 400;
+
+                // Subtle white, cyan, and gold star colors
+                const c = Math.random();
+                if (c > 0.8) {
+                    colors[i] = 0.9; colors[i + 1] = 0.8; colors[i + 2] = 0.4;
+                } else if (c > 0.5) {
+                    colors[i] = 0.4; colors[i + 1] = 0.8; colors[i + 2] = 1.0;
+                } else {
+                    colors[i] = 1.0; colors[i + 1] = 1.0; colors[i + 2] = 1.0;
+                }
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starsGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const starsMaterial = new THREE.PointsMaterial({
+                size: 0.8,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const starField = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(starField);
+        }
+
+        // Construct 3D Deformable Space-Time Grid Mesh
+        function initSpaceGrid() {
+            const gridSize = 100;
+            const gridSegments = 120;
+
+            spaceGridGeometry = new THREE.PlaneGeometry(gridSize, gridSize, gridSegments, gridSegments);
+            spaceGridGeometry.rotateX(-Math.PI / 2); // Orient horizontally
+
+            // Wireframe Shader / Custom Wireframe Styling
+            const gridMaterial = new THREE.MeshBasicMaterial({
+                color: 0x3b82f6,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.45
+            });
+
+            spaceGridMesh = new THREE.Mesh(spaceGridGeometry, gridMaterial);
+            spaceGridMesh.name = "SpaceTimeGrid";
+            scene.add(spaceGridMesh);
+        }
+
+        // Construct Sun and Orbiting Planets
+        function initCelestialBodies() {
+            // 1. Central Sun (Mass Center)
+            const sunGeo = new THREE.SphereGeometry(4.5, 32, 32);
+            const sunMat = new THREE.MeshBasicMaterial({
+                color: 0xfcb316
+            });
+            sunMesh = new THREE.Mesh(sunGeo, sunMat);
+            sunMesh.name = "Sun";
+            scene.add(sunMesh);
+
+            // Sun Outer Glow Mesh
+            const glowGeo = new THREE.SphereGeometry(5.4, 32, 32);
+            const glowMat = new THREE.MeshBasicMaterial({
+                color: 0xf59e0b,
+                transparent: true,
+                opacity: 0.35,
+                side: THREE.BackSide
+            });
+            sunGlowMesh = new THREE.Mesh(glowGeo, glowMat);
+            sunMesh.add(sunGlowMesh);
+
+            // 2. Planets Definition
+            const planetData = [
+                { name: 'Earth', radius: 1.2, distance: 16, speed: 0.8, color: 0x38bdf8, trailColor: 0x0284c7 },
+                { name: 'MassiveCompanion', radius: 2.2, distance: 28, speed: 0.4, color: 0xa855f7, trailColor: 0x7e22ce }
+            ];
+
+            planets = planetData.map(data => {
+                // Planet Mesh
+                const pGeo = new THREE.SphereGeometry(data.radius, 24, 24);
+                const pMat = new THREE.MeshStandardMaterial({
+                    color: data.color,
+                    roughness: 0.4,
+                    metalness: 0.2
+                });
+                const mesh = new THREE.Mesh(pGeo, pMat);
+                mesh.name = data.name;
+                mesh.castShadow = true;
+                scene.add(mesh);
+
+                // Orbit Trail Line
+                const curve = new THREE.EllipseCurve(
+                    0, 0,            // ax, aY
+                    data.distance, data.distance, // xRadius, yRadius
+                    0, 2 * Math.PI,  // aStartAngle, aEndAngle
+                    false,           // aClockwise
+                    0                // aRotation
+                );
+
+                const points = curve.getPoints(100);
+                const trailGeo = new THREE.BufferGeometry().setFromPoints(
+                    points.map(p => new THREE.Vector3(p.x, 0, p.y))
+                );
+                const trailMat = new THREE.LineBasicMaterial({
+                    color: data.trailColor,
+                    transparent: true,
+                    opacity: 0.35
+                });
+                const orbitLine = new THREE.LineLoop(trailGeo, trailMat);
+                scene.add(orbitLine);
+
+                return {
+                    mesh: mesh,
+                    orbitLine: orbitLine,
+                    distance: data.distance,
+                    speed: data.speed,
+                    radius: data.radius,
+                    angle: Math.random() * Math.PI * 2
+                };
+            });
+        }
+
+        // Lighting System setup
+        function initLighting() {
+            const ambientLight = new THREE.AmbientLight(0x1e293b, 1.5);
+            scene.add(ambientLight);
+
+            // Sun PointLight emitting from center
+            const sunPointLight = new THREE.PointLight(0xfff7ed, 3, 120);
+            sunPointLight.position.set(0, 0, 0);
+            scene.add(sunPointLight);
+        }
+
+        // Raycasting for User Interaction with 3D Objects
+        function initRaycaster() {
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            window.addEventListener('pointerdown', (event) => {
+                // Ignore click if clicking on HTML UI panels
+                if (event.target.closest('aside') || event.target.closest('header')) return;
+
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const interactables = [sunMesh, spaceGridMesh, ...planets.map(p => p.mesh)];
+                const intersects = raycaster.intersectObjects(interactables);
+
+                if (intersects.length > 0) {
+                    const obj = intersects[0].object;
+                    highlightObject(obj.name);
+                }
+            });
+        }
+
+        // Highlight and Update Info Box when Object Selected
+        function highlightObject(objName) {
+            const info = objectDetails[objName] || objectDetails['SpaceTimeGrid'];
+            
+            const titleElem = document.getElementById('obj-title');
+            const descElem = document.getElementById('obj-desc');
+            const cardElem = document.getElementById('selection-card');
+
+            titleElem.textContent = info.titleLao;
+            descElem.textContent = info.descLao;
+
+            // Flash selection card effect
+            cardElem.classList.add('ring-2', 'ring-amber-400');
+            setTimeout(() => cardElem.classList.remove('ring-2', 'ring-amber-400'), 600);
+        }
+
+        // Dynamic Physics Deformation of Space-Time Grid (Einstein Gravity & Waves)
+        function updateSpaceTimeMesh(time) {
+            const posAttr = spaceGridGeometry.attributes.position;
+            const vertexCount = posAttr.count;
+
+            // Get current positions of planets for dynamic warping
+            const planetPositions = planets.map(p => ({
+                x: p.mesh.position.x,
+                z: p.mesh.position.z,
+                massRadius: p.radius
+            }));
+
+            for (let i = 0; i < vertexCount; i++) {
+                const x = posAttr.getX(i);
+                const z = posAttr.getZ(i);
+
+                // Distance from Central Sun (0, 0)
+                const distToSun = Math.sqrt(x * x + z * z);
+
+                // 1. Static Gravitational Well caused by Sun (Inverse square gravity curvature)
+                let y = -config.warpDepth * (10 / (distToSun + 4));
+
+                // 2. Gravitational Wells caused by orbiting planets
+                planetPositions.forEach(pPos => {
+                    const dx = x - pPos.x;
+                    const dz = z - pPos.z;
+                    const distToPlanet = Math.sqrt(dx * dx + dz * dz);
+                    y -= (config.warpDepth * 0.4) * (pPos.massRadius / (distToPlanet + 2.5));
+                });
+
+                // 3. Gravitational Wave Propagation (Einstein Ripples)
+                // Waves emanate from moving massive bodies across space-time grid
+                let waveEffect = 0;
+                planetPositions.forEach(pPos => {
+                    const dx = x - pPos.x;
+                    const dz = z - pPos.z;
+                    const distToPlanet = Math.sqrt(dx * dx + dz * dz);
+
+                    // Sinusoidal wave propagation outwards
+                    const wave = Math.sin(distToPlanet * 0.6 - time * config.waveFrequency) * 
+                                 Math.exp(-distToPlanet * 0.08); // Dampening over distance
+                    
+                    waveEffect += wave * config.waveAmplitude;
+                });
+
+                // Apply total Y displacement (Curvature + Waves)
+                posAttr.setY(i, y + waveEffect);
+            }
+
+            spaceGridGeometry.computeVertexNormals();
+            posAttr.needsUpdate = true;
+        }
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            const elapsedTime = clock.getElapsedTime() * config.simSpeed;
+
+            // 1. Update Planets Positions along orbits
+            planets.forEach(p => {
+                p.angle += p.speed * delta * config.simSpeed;
+                p.mesh.position.x = Math.cos(p.angle) * p.distance;
+                p.mesh.position.z = Math.sin(p.angle) * p.distance;
+
+                // Match planet Y position to grid curvature at its coordinate
+                const distToSun = p.distance;
+                const sunDepression = -config.warpDepth * (10 / (distToSun + 4));
+                p.mesh.position.y = sunDepression + (p.radius * 0.3);
+
+                // Planet self-rotation
+                p.mesh.rotation.y += 0.02;
+            });
+
+            // 2. Pulsate Sun Glow
+            if (sunGlowMesh) {
+                const scale = 1 + Math.sin(elapsedTime * 2) * 0.05;
+                sunGlowMesh.scale.set(scale, scale, scale);
+            }
+
+            // 3. Deform Space-Time Mesh Grid
+            updateSpaceTimeMesh(elapsedTime);
+
+            // 4. Update Orbit Controls
+            controls.update();
+
+            // Render Frame
+            renderer.render(scene, camera);
+        }
+
+        // UI Listeners & Interactions
+        function initUIListeners() {
+            // Tab switching
+            const tabBtnInfo = document.getElementById('tab-btn-info');
+            const tabBtnControls = document.getElementById('tab-btn-controls');
+            const tabContentInfo = document.getElementById('tab-content-info');
+            const tabContentControls = document.getElementById('tab-content-controls');
+
+            tabBtnInfo.addEventListener('click', () => {
+                tabBtnInfo.className = "flex-1 py-2 rounded-lg bg-blue-600 text-white transition";
+                tabBtnControls.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
+                tabContentInfo.classList.remove('hidden');
+                tabContentControls.classList.add('hidden');
+            });
+
+            tabBtnControls.addEventListener('click', () => {
+                tabBtnControls.className = "flex-1 py-2 rounded-lg bg-blue-600 text-white transition";
+                tabBtnInfo.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
+                tabContentControls.classList.remove('hidden');
+                tabContentInfo.classList.add('hidden');
+            });
+
+            // Speed Toggles
+            document.getElementById('btn-slow').addEventListener('click', () => {
+                config.simSpeed = 0.2;
+                document.getElementById('slider-sim-speed').value = 0.2;
+                document.getElementById('val-sim-speed').textContent = '0.2x';
+            });
+            document.getElementById('btn-normal').addEventListener('click', () => {
+                config.simSpeed = 1.0;
+                document.getElementById('slider-sim-speed').value = 1.0;
+                document.getElementById('val-sim-speed').textContent = '1.0x';
+            });
+            document.getElementById('btn-pause').addEventListener('click', () => {
+                config.simSpeed = 0.0;
+                document.getElementById('slider-sim-speed').value = 0.0;
+                document.getElementById('val-sim-speed').textContent = '0.0x';
+            });
+
+            // Camera Reset Button
+            document.getElementById('btn-reset-cam').addEventListener('click', () => {
+                camera.position.set(0, 35, 55);
+                controls.target.set(0, 0, 0);
+            });
+
+            // Sliders Binding
+            const simSpeedSlider = document.getElementById('slider-sim-speed');
+            simSpeedSlider.addEventListener('input', (e) => {
+                config.simSpeed = parseFloat(e.target.value);
+                document.getElementById('val-sim-speed').textContent = `${config.simSpeed.toFixed(1)}x`;
+            });
+
+            const waveAmpSlider = document.getElementById('slider-wave-amp');
+            waveAmpSlider.addEventListener('input', (e) => {
+                config.waveAmplitude = parseFloat(e.target.value);
+                document.getElementById('val-wave-amp').textContent = config.waveAmplitude.toFixed(1);
+            });
+
+            const warpDepthSlider = document.getElementById('slider-warp-depth');
+            warpDepthSlider.addEventListener('input', (e) => {
+                config.warpDepth = parseFloat(e.target.value);
+                document.getElementById('val-warp-depth').textContent = config.warpDepth.toFixed(1);
+            });
+
+            // Auto Rotate Cam Toggle
+            const autoRotBtn = document.getElementById('toggle-autorotate');
+            autoRotBtn.addEventListener('click', () => {
+                config.autoRotateCam = !config.autoRotateCam;
+                controls.autoRotate = config.autoRotateCam;
+                autoRotBtn.textContent = config.autoRotateCam ? 'ON' : 'OFF';
+                autoRotBtn.className = config.autoRotateCam 
+                    ? 'px-4 py-1.5 rounded-lg bg-cyan-600 text-white font-bold transition'
+                    : 'px-4 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition';
+            });
+
+            // Orbit Lines Toggle
+            const orbitBtn = document.getElementById('toggle-orbits');
+            orbitBtn.addEventListener('click', () => {
+                config.showOrbits = !config.showOrbits;
+                planets.forEach(p => p.orbitLine.visible = config.showOrbits);
+                orbitBtn.textContent = config.showOrbits ? 'ON' : 'OFF';
+                orbitBtn.className = config.showOrbits 
+                    ? 'px-4 py-1.5 rounded-lg bg-cyan-600 text-white font-bold transition'
+                    : 'px-4 py-1.5 rounded-lg bg-slate-700 text-slate-300 font-bold transition';
+            });
+        }
+
+        // Handle Responsive Resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>
