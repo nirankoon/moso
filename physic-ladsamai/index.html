@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="lo" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ທິດສະດີສຳພັນທະພາບທົ່ວໄປ - 3D Interactive Spacetime</title>
+
+  <!-- Google Fonts: Noto Sans Lao & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            lao: ['"Noto Sans Lao"', '"Plus Jakarta Sans"', 'sans-serif'],
+            sans: ['"Noto Sans Lao"', '"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Three.js & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- MathJax for Math & Physics Formulas -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans Lao', 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+    
+    /* Scrollbar styling for side panel */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.3);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(56, 189, 248, 0.6);
+    }
+
+    /* Glassmorphism utility */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .glass-button {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+    }
+    .glass-button:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+    .glass-button.active {
+      background: rgba(14, 165, 233, 0.3);
+      border-color: rgba(56, 189, 248, 0.8);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+  </style>
+
+  <!-- AUTO-GENERATED PWA METADATA BY MOSO -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PHYSIC-LADSAMAI">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/rocket.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        var swCode = "self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));\n" +
+                     "self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));\n" +
+                     "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));";
+        var blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(function(e){ console.log(e); });
+      });
+    }
+  </script>
+  <!-- END PWA INJECTION -->
+  
+</head>
+<body class="h-full w-full bg-slate-950 text-slate-100 flex flex-col relative">
+
+  <!-- 3D VIEWPORT CANVAS -->
+  <div id="canvas-container" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"></div>
+
+  <!-- HEADER / NAVBAR -->
+  <header class="relative z-10 w-full p-4 pointer-events-none">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- App Title -->
+      <div class="glass-panel px-4 py-2.5 rounded-2xl pointer-events-auto flex items-center space-x-3 shadow-2xl">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold text-white leading-tight">
+            ທິດສະດີສຳພັນທະພາບທົ່ວໄປ (General Relativity)
+          </h1>
+          <p class="text-[11px] text-sky-400 font-medium">
+            3D Simulation • ຄວາມໂຄ້ງງໍຂອງຜືນອາວະກາດ-ເວລາ (Spacetime Curvature)
+          </p>
+        </div>
+      </div>
+
+      <!-- Header Quick Actions -->
+      <div class="flex items-center space-x-2 pointer-events-auto">
+        <!-- Panel Toggle Button (Mobile & Desktop) -->
+        <button id="togglePanelBtn" onclick="toggleSidePanel()" class="glass-button px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 text-slate-200">
+          <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          <span class="hidden sm:inline">ບົດຮຽນ & ຂໍ້ມູນ</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- BOTTOM / SIDE INTERACTIVE CONTROL TOOLBAR -->
+  <div class="absolute bottom-4 left-4 right-4 md:right-auto z-10 pointer-events-none flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+    
+    <!-- Simulation Speed Controls -->
+    <div class="glass-panel p-2 rounded-2xl pointer-events-auto flex items-center justify-between sm:justify-start space-x-1 shadow-2xl">
+      <span class="text-[11px] font-bold text-slate-400 px-2 uppercase tracking-wider hidden sm:inline">ຄວາມໄວ:</span>
+      
+      <button onclick="setSimSpeed(0)" id="speed-0" class="glass-button px-2.5 py-1.5 rounded-xl text-xs font-bold">
+        ⏸ ຢຸດ
+      </button>
+      <button onclick="setSimSpeed(0.25)" id="speed-025" class="glass-button px-2.5 py-1.5 rounded-xl text-xs font-bold">
+        0.25x
+      </button>
+      <button onclick="setSimSpeed(1.0)" id="speed-1" class="glass-button active px-2.5 py-1.5 rounded-xl text-xs font-bold">
+        1.0x
+      </button>
+      <button onclick="setSimSpeed(2.0)" id="speed-2" class="glass-button px-2.5 py-1.5 rounded-xl text-xs font-bold">
+        2.0x
+      </button>
+    </div>
+
+    <!-- Camera View Presets -->
+    <div class="glass-panel p-2 rounded-2xl pointer-events-auto flex items-center justify-between sm:justify-start space-x-1 shadow-2xl">
+      <span class="text-[11px] font-bold text-slate-400 px-2 uppercase tracking-wider hidden sm:inline">ມຸມມອງ:</span>
+      
+      <button onclick="setCameraPreset('orbit')" id="cam-orbit" class="glass-button active px-2.5 py-1.5 rounded-xl text-xs font-bold">
+        ໝຸນໄດ້ (Free)
+      </button>
+      <button onclick="setCameraPreset('top')" id="cam-top" class="glass-button px-2.5 py-1.5 rounded-xl text-xs font-bold">
+        ດ້ານເທິງ (Top)
+      </button>
+      <button onclick="setCameraPreset('side')" id="cam-side" class="glass-button px-2.5 py-1.5 rounded-xl text-xs font-bold">
+        ດ້ານຂ້າງ (Side)
+      </button>
+    </div>
+
+    <!-- Physics Feature Toggles -->
+    <div class="glass-panel p-2 rounded-2xl pointer-events-auto flex items-center justify-around sm:justify-start space-x-1 shadow-2xl">
+      <button onclick="toggleGridWireframe()" id="toggle-grid" class="glass-button active px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1">
+        <span>ຕາໜ່າງ 3D</span>
+      </button>
+      <button onclick="toggleVectors()" id="toggle-vectors" class="glass-button active px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1">
+        <span>Vector ແຮງ</span>
+      </button>
+      <button onclick="toggleWaves()" id="toggle-waves" class="glass-button px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1">
+        <span>ຄື້ນຄວາມໂນ້ມຖ່ວງ</span>
+      </button>
+      <button onclick="toggleLightBending()" id="toggle-light" class="glass-button active px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1">
+        <span>ເສັ້ນທາງແສງໂຄ້ງ</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE COLLAPSIBLE CONTENT PANEL -->
+  <aside id="sidePanel" class="fixed top-20 right-4 bottom-20 z-20 w-full sm:w-96 max-w-[calc(100vw-2rem)] glass-panel rounded-3xl p-5 shadow-2xl flex flex-col transition-all duration-300 transform translate-x-0">
+    
+    <!-- Panel Header & Tabs -->
+    <div class="flex items-center justify-between pb-3 border-b border-slate-700/60 flex-shrink-0">
+      <div class="flex space-x-2">
+        <button onclick="switchPanelTab('lessons')" id="tab-btn-lessons" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/40">
+          ເນື້ອໃນບົດຮຽນ
+        </button>
+        <button onclick="switchPanelTab('telemetry')" id="tab-btn-telemetry" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200">
+          ຄ່າຟີຊິກ Real-time
+        </button>
+      </div>
+
+      <button onclick="toggleSidePanel()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- TAB 1: PHYSICS LESSON CONTENT -->
+    <div id="panel-tab-lessons" class="flex-1 overflow-y-auto custom-scrollbar pr-1 pt-4 space-y-5">
+      
+      <!-- Section 1 -->
+      <div class="space-y-2">
+        <div class="text-xs font-bold text-sky-400 uppercase tracking-wide">1. ຜືນອາວະກາດ-ເວລາ (Spacetime Fabric)</div>
+        <h3 class="text-base font-bold text-white">ອາວະກາດ 4 ມິຕິ (4D Spacetime)</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          ອາລເບີດ ໄອນສະໄຕນ (Albert Einstein) ໄດ້ສະເໜີໃນປີ 1915 ວ່າ ອາວະກາດ 3 ມິຕິ (ກວ້າງ, ຍາວ, ສູງ) ແລະ ເວລາ 1 ມິຕິ ບໍ່ໄດ້ແຍກຈາກກັນ ແຕ່ຖືກເຫຼົ່າໂຮມກັນເປັນ <b>"ຜືນອາວະກາດ-ເວລາ" (Spacetime Fabric)</b>.
+        </p>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="space-y-2 p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <div class="text-xs font-bold text-amber-400 uppercase tracking-wide">2. ຄວາມໂຄ້ງງໍ ແລະ ແຮງໂນ້ມຖ່ວງ</div>
+        <h3 class="text-sm font-bold text-white">ແຮງໂນ້ມຖ່ວງແມ່ນຄວາມໂຄ້ງຂອງອາວະກາດ</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          ແຮງໂນ້ມຖ່ວງ ບໍ່ແມ່ນແຮງດຶງດູດທີ່ລຶກລັບຂ້າມປະຕິບັດການ, ແຕ່ແມ່ນ <b>"ການໂຄ້ງງໍ"</b> ຂອງຜືນອາວະກາດ-ເວລາ ທີ່ເກີດຈາກມວນສານ ($M$).
+        </p>
+        <div class="p-2 rounded-xl bg-slate-950 font-mono text-[11px] text-sky-300 text-center my-2">
+          $$G_{\mu\nu} + \Lambda g_{\mu\nu} = \frac{8\pi G}{c^4} T_{\mu\nu}$$
+        </div>
+        <p class="text-[11px] text-slate-400">
+          <i>"ມວນສານ ບອກໃຫ້ອາວະກາດ ໂຄ້ງງໍ, ແລະ ອາວະກາດ ບອກໃຫ້ມວນສານ ເຄື່ອນທີ່."</i> — John Wheeler
+        </p>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="space-y-2">
+        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wide">3. ຄື້ນຄວາມໂນ້ມຖ່ວງ (Gravitational Waves)</div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          ເມື່ອວັດຖຸທີ່ມີມວນສານມະຫາສານ (ເຊັ່ນ: ຫຼຸມດຳ ຫຼື ດາວນິວຕຣອນ) ເຄື່ອນທີ່ດ້ວຍຄວາມເລັ່ງ, ມັນຈະສ້າງ <b>"ຄື້ນສັ່ນສະເທືອນ"</b> ແຜ່ກະຈາຍອອກໄປໃນຜືນອາວະກາດ-ເວລາ ດ້ວຍຄວາມໄວເທົ່າຄວາມໄວແສງ ($c$).
+        </p>
+      </div>
+
+      <!-- Section 4 -->
+      <div class="space-y-2 p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <div class="text-xs font-bold text-indigo-400 uppercase tracking-wide">4. ການໂຄ້ງຂອງເສັ້ນທາງແສງ (Gravitational Lensing)</div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          ແສງ ເຄື່ອນທີ່ເປັນເສັ້ນຊື່ສະເໝີໃນອາວະກາດ, ແຕ່ເມື່ອເດັດຜ່ານບໍລິເວນທີ່ມີມວນສານສູງ (ເຊັ່ນ: ດວງອາທິດ), ເສັ້ນທາງຂອງແສງຈະ <b>"ໂຄ້ງງໍ"</b> ໄປຕາມຄວາມໂຄ້ງຂອງອາວະກາດບໍລິເວນນັ້ນ.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: REAL-TIME TELEMETRY -->
+    <div id="panel-tab-telemetry" class="hidden flex-1 overflow-y-auto custom-scrollbar pr-1 pt-4 space-y-4">
+      
+      <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">ຂໍ້ມູນການຈຳລອງທາງຟີຊິກ</div>
+
+      <!-- Sun Mass & Depth Readout -->
+      <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+        <div class="text-[11px] text-slate-400 font-semibold">ມວນສານດວງອາທິດ ($M_{\odot}$):</div>
+        <div class="text-lg font-mono font-bold text-amber-400">1.989 × 10³⁰ kg</div>
+        <div class="text-[11px] text-slate-400 pt-1">ຄວາມເລິກຂອງຄວາມໂຄ້ງ ($y_{\text{depth}}$):</div>
+        <div id="telemetryDepth" class="text-sm font-mono font-bold text-sky-400">-12.45 units</div>
+      </div>
+
+      <!-- Earth Orbital Velocity -->
+      <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+        <div class="text-[11px] text-slate-400 font-semibold">ຄວາມໄວການໂຄຈອນຂອງໂລກ ($v_{\text{orbit}}$):</div>
+        <div id="telemetrySpeed" class="text-lg font-mono font-bold text-emerald-400">29.78 km/s</div>
+        <div class="text-[11px] text-slate-400 pt-1">ໄລຍະຫ່າງຈາກດວງອາທິດ ($r$):</div>
+        <div id="telemetryRadius" class="text-sm font-mono font-bold text-slate-200">1.496 × 10⁸ km (1 AU)</div>
+      </div>
+
+      <!-- Light Deflection Angle -->
+      <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+        <div class="text-[11px] text-slate-400 font-semibold">ມຸມການເບັງຂອງແສງ ($\theta_{\text{deflection}}$):</div>
+        <div class="text-lg font-mono font-bold text-indigo-400">1.75 Arcseconds</div>
+        <p class="text-[10px] text-slate-400">ຕາມການພິສູດຂອງ Sir Arthur Eddington ໃນປີ 1919.</p>
+      </div>
+
+      <!-- Gravitational Wave State -->
+      <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+        <div class="text-[11px] text-slate-400 font-semibold">ສະຖານະຄື້ນຄວາມໂນ້ມຖ່ວງ:</div>
+        <div id="telemetryWaveState" class="text-sm font-mono font-bold text-slate-400">ປິດຢູ່ (Disabled)</div>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- THREE.JS 3D PHYSICS SIMULATION LOGIC -->
+  <script>
+    // Global Physics & Simulation State
+    let scene, camera, renderer, controls;
+    let spacetimeGrid, sunMesh, earthMesh, moonMesh, orbitRing;
+    let forceVectorArrow, velocityVectorArrow, lightBeamLine;
+    let gridGeometry;
+
+    let simSpeed = 1.0;
+    let isWireframe = true;
+    let showVectors = true;
+    let showWaves = false;
+    let showLightBending = true;
+
+    // Orbital constants
+    let orbitAngle = 0;
+    const orbitRadius = 18;
+    const sunMass = 22.0;
+    const earthMass = 2.5;
+
+    // Grid Dimensions
+    const GRID_SIZE = 75;
+    const GRID_SEGMENTS = 90;
+    let originalVertices = [];
+
+    // Initialize 3D Scene
+    function init3D() {
+      const container = document.getElementById('canvas-container');
+
+      // 1. Scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x070a12);
+      scene.fog = new THREE.FogExp2(0x070a12, 0.012);
+
+      // 2. Camera
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 25, 45);
+
+      // 3. Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(renderer.domElement);
+
+      // 4. Orbit Controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't clip too far below grid
+      controls.minDistance = 10;
+      controls.maxDistance = 120;
+
+      // 5. Ambient & Point Lighting
+      const ambientLight = new THREE.AmbientLight(0x1e293b, 1.5);
+      scene.add(ambientLight);
+
+      // Sun Light Source (PointLight glowing at origin)
+      const sunLight = new THREE.PointLight(0xffaa00, 3.0, 100);
+      sunLight.position.set(0, 0, 0);
+      sunLight.castShadow = true;
+      scene.add(sunLight);
+
+      // Soft directional light for background depth
+      const dirLight = new THREE.DirectionalLight(0x38bdf8, 0.5);
+      dirLight.position.set(30, 50, 20);
+      scene.add(dirLight);
+
+      // 6. Create Spacetime Mesh Grid
+      createSpacetimeGrid();
+
+      // 7. Create Celestial Bodies (Sun & Earth)
+      createCelestialBodies();
+
+      // 8. Create Force Vectors & Light Beam Path
+      createPhysicsVisualizers();
+
+      // 9. Resize Listener
+      window.addEventListener('resize', onWindowResize);
+
+      // 10. Start Animation Loop
+      animate();
+    }
+
+    // CREATE DEFORMABLE SPACETIME MESH
+    function createSpacetimeGrid() {
+      gridGeometry = new THREE.PlaneGeometry(GRID_SIZE, GRID_SIZE, GRID_SEGMENTS, GRID_SEGMENTS);
+      gridGeometry.rotateX(-Math.PI / 2); // Orient horizontally on XZ plane
+
+      // Store initial un-deformed vertex coordinates
+      const pos = gridGeometry.attributes.position;
+      originalVertices = [];
+      for (let i = 0; i < pos.count; i++) {
+        originalVertices.push(new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i)));
+      }
+
+      // Neon Cyan Cyber Grid Material
+      const gridMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0284c7,
+        emissive: 0x0369a1,
+        emissiveIntensity: 0.3,
+        wireframe: isWireframe,
+        roughness: 0.4,
+        metalness: 0.8
+      });
+
+      spacetimeGrid = new THREE.Mesh(gridGeometry, gridMaterial);
+      spacetimeGrid.position.y = 0;
+      scene.add(spacetimeGrid);
+    }
+
+    // CREATE CELESTIAL BODIES (SUN & EARTH)
+    function createCelestialBodies() {
+      // SUN
+      const sunGeo = new THREE.SphereGeometry(3.2, 32, 32);
+      const sunMat = new THREE.MeshBasicMaterial({
+        color: 0xffb703
+      });
+      sunMesh = new THREE.Mesh(sunGeo, sunMat);
+      scene.add(sunMesh);
+
+      // Sun Outer Glowing Corona Glow
+      const glowGeo = new THREE.SphereGeometry(3.8, 32, 32);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: 0xf59e0b,
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.BackSide
+      });
+      const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+      sunMesh.add(glowMesh);
+
+      // EARTH
+      const earthGeo = new THREE.SphereGeometry(1.1, 24, 24);
+      const earthMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7,
+        roughness: 0.5,
+        metalness: 0.1
+      });
+      earthMesh = new THREE.Mesh(earthGeo, earthMat);
+      earthMesh.castShadow = true;
+      scene.add(earthMesh);
+
+      // MOON
+      const moonGeo = new THREE.SphereGeometry(0.35, 16, 16);
+      const moonMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8 });
+      moonMesh = new THREE.Mesh(moonGeo, moonMat);
+      earthMesh.add(moonMesh);
+      moonMesh.position.set(2.2, 0, 0);
+
+      // ORBIT PATH RING
+      const ringGeo = new THREE.BufferGeometry();
+      const ringPoints = [];
+      for (let i = 0; i <= 128; i++) {
+        const theta = (i / 128) * Math.PI * 2;
+        ringPoints.push(new THREE.Vector3(Math.cos(theta) * orbitRadius, 0, Math.sin(theta) * orbitRadius));
+      }
+      ringGeo.setFromPoints(ringPoints);
+      const ringMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
+      orbitRing = new THREE.Line(ringGeo, ringMat);
+      scene.add(orbitRing);
+    }
+
+    // VISUALIZERS: FORCE VECTORS & LIGHT BENDING LINE
+    function createPhysicsVisualizers() {
+      // 1. Force Vector Arrow (Gravitational Pull to Sun)
+      const dir = new THREE.Vector3(-1, 0, 0);
+      const origin = new THREE.Vector3(0, 0, 0);
+      forceVectorArrow = new THREE.ArrowHelper(dir, origin, 4, 0xef4444, 1.0, 0.6);
+      scene.add(forceVectorArrow);
+
+      // 2. Velocity Vector Arrow (Tangential)
+      velocityVectorArrow = new THREE.ArrowHelper(dir, origin, 3.5, 0x10b981, 0.8, 0.5);
+      scene.add(velocityVectorArrow);
+
+      // 3. Curved Light Beam Line (Gravitational Lensing)
+      const lightGeo = new THREE.BufferGeometry();
+      const lightMat = new THREE.LineBasicMaterial({
+        color: 0xa855f7,
+        linewidth: 3,
+        transparent: true,
+        opacity: 0.85
+      });
+      lightBeamLine = new THREE.Line(lightGeo, lightMat);
+      scene.add(lightBeamLine);
+    }
+
+    // MAIN PHYSICS MATH DEFORMATION & ANIMATION LOOP
+    function animate(time) {
+      requestAnimationFrame(animate);
+
+      const dt = 0.015 * simSpeed;
+      orbitAngle += dt;
+
+      // 1. Update Earth Position in 3D Space
+      const ex = Math.cos(orbitAngle) * orbitRadius;
+      const ez = Math.sin(orbitAngle) * orbitRadius;
+      
+      // Calculate depth deformation at Sun & Earth center
+      const sunDepth = calculateDeformation(0, 0, orbitAngle);
+      const earthDepth = calculateDeformation(ex, ez, orbitAngle);
+
+      sunMesh.position.set(0, sunDepth + 1.2, 0);
+      earthMesh.position.set(ex, earthDepth + 0.6, ez);
+      moonMesh.rotation.y += 0.03;
+
+      // 2. Deform Spacetime Mesh Vertices
+      const posAttr = gridGeometry.attributes.position;
+      for (let i = 0; i < posAttr.count; i++) {
+        const orig = originalVertices[i];
+        const depth = calculateDeformation(orig.x, orig.z, orbitAngle, time * 0.003);
+        posAttr.setY(i, depth);
+      }
+      posAttr.needsUpdate = true;
+      gridGeometry.computeVertexNormals();
+
+      // 3. Update Force Vectors
+      if (showVectors) {
+        forceVectorArrow.visible = true;
+        velocityVectorArrow.visible = true;
+
+        const ePos = earthMesh.position;
+        // Vector pointing from Earth to Sun center
+        const pullDir = new THREE.Vector3(0, sunMesh.position.y, 0).sub(ePos).normalize();
+        forceVectorArrow.position.copy(ePos);
+        forceVectorArrow.setDirection(pullDir);
+
+        // Velocity vector perpendicular to pull
+        const velDir = new THREE.Vector3(-Math.sin(orbitAngle), 0, Math.cos(orbitAngle)).normalize();
+        velocityVectorArrow.position.copy(ePos);
+        velocityVectorArrow.setDirection(velDir);
+      } else {
+        forceVectorArrow.visible = false;
+        velocityVectorArrow.visible = false;
+      }
+
+      // 4. Update Light Beam Curve (Gravitational Lensing)
+      if (showLightBending) {
+        lightBeamLine.visible = true;
+        updateLightBeamPath();
+      } else {
+        lightBeamLine.visible = false;
+      }
+
+      // 5. Update Real-time Telemetry Display
+      document.getElementById('telemetryDepth').innerText = `${sunDepth.toFixed(2)} units`;
+      document.getElementById('telemetrySpeed').innerText = `${(29.78 * (simSpeed || 1)).toFixed(2)} km/s`;
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // FORMULA FOR SPACETIME DEPTH DEFORMATION (Gravitational Potential Well)
+    function calculateDeformation(x, z, angle, t = 0) {
+      // Distance from Sun origin
+      const rSun = Math.sqrt(x * x + z * z);
+      // Sun gravity well depth (Einstein pseudo-potential curvature)
+      let depth = -sunMass / Math.sqrt(rSun * rSun + 12.0);
+
+      // Distance from Earth position
+      const ex = Math.cos(angle) * orbitRadius;
+      const ez = Math.sin(angle) * orbitRadius;
+      const rEarth = Math.sqrt((x - ex) * (x - ex) + (z - ez) * (z - ez));
+      // Earth gravity well depth
+      depth -= earthMass / Math.sqrt(rEarth * rEarth + 3.0);
+
+      // Optional Gravitational Wave ripples emanating outward
+      if (showWaves && t > 0) {
+        const waveR = Math.sqrt(x * x + z * z);
+        const ripple = Math.sin(waveR * 0.7 - t * 12.0) * (1.2 / (waveR + 2.0));
+        depth += ripple;
+      }
+
+      return depth;
+    }
+
+    // UPDATE CURVED LIGHT BEAM (Bending around Sun's Mass)
+    function updateLightBeamPath() {
+      const points = [];
+      const startX = -36;
+      const endX = 36;
+      const steps = 60;
+
+      for (let i = 0; i <= steps; i++) {
+        const x = startX + (i / steps) * (endX - startX);
+        const z = -4.5; // Passes close to Sun
+        
+        // Deflection math: y dips downward proportional to 1 / (r^2 + epsilon)
+        const r = Math.sqrt(x * x + z * z);
+        const deflection = - (sunMass * 1.8) / (r * r + 15.0);
+        
+        points.push(new THREE.Vector3(x, deflection + 1.5, z));
+      }
+
+      lightBeamLine.geometry.setFromPoints(points);
+    }
+
+    // SIMULATION CONTROL HANDLERS
+    function setSimSpeed(speed) {
+      simSpeed = speed;
+      document.querySelectorAll('[id^="speed-"]').forEach(btn => btn.classList.remove('active'));
+      if (speed === 0) document.getElementById('speed-0').classList.add('active');
+      if (speed === 0.25) document.getElementById('speed-025').classList.add('active');
+      if (speed === 1.0) document.getElementById('speed-1').classList.add('active');
+      if (speed === 2.0) document.getElementById('speed-2').classList.add('active');
+    }
+
+    function setCameraPreset(preset) {
+      document.querySelectorAll('[id^="cam-"]').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`cam-${preset}`).classList.add('active');
+
+      if (preset === 'orbit') {
+        camera.position.set(0, 25, 45);
+        controls.target.set(0, 0, 0);
+      } else if (preset === 'top') {
+        camera.position.set(0, 65, 0.1);
+        controls.target.set(0, 0, 0);
+      } else if (preset === 'side') {
+        camera.position.set(0, 4, 50);
+        controls.target.set(0, -5, 0);
+      }
+    }
+
+    function toggleGridWireframe() {
+      isWireframe = !isWireframe;
+      spacetimeGrid.material.wireframe = isWireframe;
+      document.getElementById('toggle-grid').classList.toggle('active', isWireframe);
+    }
+
+    function toggleVectors() {
+      showVectors = !showVectors;
+      document.getElementById('toggle-vectors').classList.toggle('active', showVectors);
+    }
+
+    function toggleWaves() {
+      showWaves = !showWaves;
+      document.getElementById('toggle-waves').classList.toggle('active', showWaves);
+      document.getElementById('telemetryWaveState').innerText = showWaves ? "ເີດຢູ່ (Active Ripple)" : "ປິດຢູ່ (Disabled)";
+      document.getElementById('telemetryWaveState').className = showWaves ? "text-sm font-mono font-bold text-emerald-400" : "text-sm font-mono font-bold text-slate-400";
+    }
+
+    function toggleLightBending() {
+      showLightBending = !showLightBending;
+      document.getElementById('toggle-light').classList.toggle('active', showLightBending);
+    }
+
+    // SIDE PANEL TAB & COLLAPSE LOGIC
+    function toggleSidePanel() {
+      const panel = document.getElementById('sidePanel');
+      panel.classList.toggle('translate-x-0');
+      panel.classList.toggle('translate-x-[calc(100%+2rem)]');
+    }
+
+    function switchPanelTab(tabName) {
+      document.getElementById('panel-tab-lessons').classList.add('hidden');
+      document.getElementById('panel-tab-telemetry').classList.add('hidden');
+      document.getElementById('tab-btn-lessons').className = "px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200";
+      document.getElementById('tab-btn-telemetry').className = "px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200";
+
+      if (tabName === 'lessons') {
+        document.getElementById('panel-tab-lessons').classList.remove('hidden');
+        document.getElementById('tab-btn-lessons').className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/40";
+      } else {
+        document.getElementById('panel-tab-telemetry').classList.remove('hidden');
+        document.getElementById('tab-btn-telemetry').className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/40";
+      }
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // INITIALIZE APPLICATION ON WINDOW LOAD
+    window.onload = function() {
+      init3D();
+    };
+  </script>
+
+</body>
+</html>
